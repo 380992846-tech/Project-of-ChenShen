@@ -35,36 +35,25 @@ best_model.pth	当前最佳模型权重	持续迭代中
 
 vocab.json	字符级词汇表	训练基础
 
-1. 环境准备
-bash
-# 克隆仓库
-git clone https://github.com/380992846-tech/Project1.git
-cd Project1
-
-# 安装核心依赖
 pip install torch numpy scikit-learn pandas
 pip install streamlit sentence-transformers  # 用于监控和RAG
-# 可选：pip install python-docx edge-tts openai
 
 2. 训练主模型
 bash
-# 基于《贵系》、《量化》、《宇宙》等文档训练字符级Transformer
 python 模型框架.py --mode train
-3. 使用量化策略（聚宽平台）
-将 joinquantV18.py 代码复制到聚宽研究环境
 
+4. 使用量化策略（聚宽平台）
+将 joinquantV18.py 代码复制到聚宽研究环境
 运行回测，对比基准（沪深300）
 
 4. 启动交互式AI工具包
 bash
-# 训练后，进入交互生成模式
 python 模型全功能部署.py --mode generate
 
-# 或启动监控仪表盘
 python 模型全功能部署.py --mode dashboard
+
 5. 运行语音助手
 bash
-# 配置DeepSeek API Key后运行
 python 清华二校门智能语音助手小DeepSeek.py
 
 当前进展
