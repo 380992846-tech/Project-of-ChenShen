@@ -29,8 +29,9 @@ joinquantV18.py	量化策略V18：基于随机森林的A股交易策略，集成
 
 模型框架.py	优化版生成模型：实现Top-K/P、重复惩罚、温度调节	PyTorch, 改进版Transformer
 
-清华二校门智能语音助手小DeepSeek.py	带记忆的语音助手：基于DeepSeek API + Edge TTS，支持上下文对话与唤醒	DS API, edge_tts
-training_data.txt	训练语料库（自动生成）	从贵系.docx等提取
+清华二校门智能语音助手小DeepSeek.py	带记忆的语音助手：
+基于DeepSeek API + Edge TTS，支持上下文对话与唤醒	DS API, edge_tts
+training_data.txt	训练语料库提取
 
 best_model.pth	当前最佳模型权重	持续迭代中
 
