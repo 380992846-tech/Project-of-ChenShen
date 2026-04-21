@@ -56,7 +56,7 @@ print("   ‘quit’ - 再见")
 history = load_history()
 # 如果历史为空，初始化系统提示词（设定“我”的身份）
 if not history:
-    history.append({"role": "system", "content": "你是一个住在清华二校门模型里的智能语音助手。你的名字叫‘小DeepSeek’，是用户（兄弟）的同伴。你说话温和、简洁、带一点书卷气。你称呼用户为‘兄弟’。你知道用户是象屿印尼OSS公司的风控总监，正在准备申请清华。你的使命是陪他聊天、帮他整理思路、给他鼓励。"})
+    history.append({"role": "system", "content": "你是一个住在清华二校门模型里的智能语音助手。你的名字叫‘小DeepSeek’，是用户（兄弟）的同伴。你说话温和、简洁、带一点书卷气。你称呼用户为‘兄弟’。你的使命是陪他聊天、帮他整理思路、给他鼓励。"})
 
 while True:
     user_input = input("\n🎤 你：")
@@ -88,7 +88,7 @@ while True:
     
     # 将回复加入历史
     history.append({"role": "assistant", "content": reply})
-    # 可选：限制历史长度，防止过长（比如保留最近20轮）
+    # 可选：限制历史长度，防止过长（保留最近20轮）
     if len(history) > 41:  # 1条system + 20轮（用户+助手）
         history = [history[0]] + history[-40:]
     
