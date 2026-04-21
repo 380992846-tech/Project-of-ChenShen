@@ -3,10 +3,9 @@
 - 全国中学生物理竞赛省级赛区一等奖
 - 在手搓Transformer+MOE混合模型
 - 开发了基于随机森林的量化交易策略、风控AI智能化模型部署、及语音智能助手
+- 训练多个垂直小模型，由一个路由器根据任务类型，将请求路由给最合适的专家。
 
-- 核心思想：训练多个小型专业的专家模型，由一个路由器根据任务类型，将请求路由给最合适的专家。
-
-🏗️ 系统架构
+系统架构
 
 物理专家	理解物理概念、公式推导、宇宙学与量子力学问答	 训练中
 
@@ -21,12 +20,14 @@ CFA金融专家	公司财务、估值、资产定价、ESG分析	 训练中
 轻量级路由器	意图识别与任务路由	 设计中
 
 📂 项目文件说明
+
 文件	描述	核心技术
+
 joinquantV18.py	量化策略V18：基于随机森林的A股交易策略，集成滚动训练、动态风控	sklearn, 聚宽
 
 模型全功能部署.py	全能AI工具包：从零实现的字符级Transformer，支持训练、生成、分类、RAG、INT8量化、Streamlit监控	PyTorch, Transformer, RAG, Streamlit
 
-模型框架.py	优化版生成模型：解决“胡言乱语”，实现Top-K/P、重复惩罚、温度调节	PyTorch, 改进版Transformer
+模型框架.py	优化版生成模型：实现Top-K/P、重复惩罚、温度调节	PyTorch, 改进版Transformer
 
 清华二校门智能语音助手小DeepSeek.py	带记忆的语音助手：基于DeepSeek API + Edge TTS，支持上下文对话与唤醒	OpenAI API, edge_tts
 training_data.txt	训练语料库（自动生成）	从贵系.docx等提取
