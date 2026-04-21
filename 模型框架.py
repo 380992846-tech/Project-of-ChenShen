@@ -1,5 +1,4 @@
 # ==================== optimized_ai_toolkit.py ====================
-# 优化版：解决胡言乱语问题，增加多种生成策略
 
 import torch
 import torch.nn as nn
