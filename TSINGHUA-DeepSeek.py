@@ -6,7 +6,7 @@ from openai import OpenAI
 from datetime import datetime
 
 # ========== 清华二校门智能语音助手 DeepSeek ==========
-DEEPSEEK_API_KEY = "sk-"  # 真实密钥
+DEEPSEEK_API_KEY =
 VOICE = "zh-CN-YunxiNeural"
 HISTORY_FILE = "conversation_history.json"  # 新增：记录对话历史
 # ====================================================
