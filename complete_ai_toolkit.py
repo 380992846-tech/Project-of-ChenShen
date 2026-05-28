@@ -24,7 +24,7 @@ class DocumentProcessor:
     
     @staticmethod
     def read_docx(file_path):
-        """读取docx文件（如果安装了python-docx）"""
+        """读取docx文件"""
         try:
             from docx import Document
             doc = Document(file_path)
