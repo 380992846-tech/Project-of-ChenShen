@@ -6,7 +6,6 @@ from sklearn.calibration import CalibratedClassifierCV
 import warnings
 warnings.filterwarnings('ignore')
 
-# 尝试导入SHAP（可选，聚宽可能不支持）
 try:
     import shap
     SHAP_AVAILABLE = True
