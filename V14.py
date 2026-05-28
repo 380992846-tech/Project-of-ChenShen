@@ -1,5 +1,5 @@
 # ============================================
-# 完整量化系统 V14：提高信号质量 + 优化持仓周期
+# 量化系统 V14：提高信号质量 + 优化持仓周期
 # ============================================
 
 import pandas as pd
@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 print("="*80)
-print("🏆 完整量化系统 V14：提高信号质量 + 优化持仓周期")
+print("量化系统 V14：提高信号质量 + 优化持仓周期")
 print("="*80)
 
 # ==================== 参数配置 ====================
@@ -47,7 +47,7 @@ ASSETS = {
     '黄金ETF': {'symbol': '518880.SS', 'type': 'fund', 'weight': 0.2},
 }
 
-# V14优化参数（基于V13诊断）
+# V14优化参数
 RISK_PARITY_CONFIG = {
     'target_vol': 0.12,           # 目标波动率
     'max_position': 0.95,         # 仓位上限
@@ -77,7 +77,7 @@ for k, v in RISK_PARITY_CONFIG.items():
     print(f"   {k}: {v}")
 
 # ==================== 1. 数据获取 ====================
-print("\n📥 获取数据...")
+print("\n 获取数据...")
 
 def fetch_data_with_cache(symbol: str, asset_type: str, start_date: str, end_date: str, cache_dir: str = 'data_cache'):
     os.makedirs(cache_dir, exist_ok=True)
@@ -232,7 +232,7 @@ ml_signal_array = ml_signals.values
 ml_accuracy = ((ml_signal_array > 0.55).astype(int) == df['label']).mean()
 print(f"   ML信号准确率: {ml_accuracy:.2%}")
 
-# ==================== 4. 风险平价交易逻辑（V14优化版）====================
+# ==================== 4. 风险平价交易逻辑====================
 def execute_risk_parity_strategy(df: pd.DataFrame, ml_signals: np.ndarray, 
                                   params: Dict) -> Dict:
     """风险平价策略执行函数（V14：提高信号质量）"""
@@ -531,11 +531,11 @@ elif result['annual_return'] > 10:
 print(f"\n总分: {score}/5")
 
 if score >= 4:
-    print("🎉 策略表现优秀，可考虑实盘模拟")
+    print("表现优秀，可考虑实盘模拟")
 elif score >= 3:
-    print("📈 策略表现良好，建议继续优化")
+    print("表现良好，建议继续优化")
 else:
-    print("⚠️ 策略需要进一步改进")
+    print("需要进一步改进")
 
 # ==================== 10. 绘图 ====================
 fig, axes = plt.subplots(2, 2, figsize=(15, 10))
@@ -570,11 +570,4 @@ plt.tight_layout()
 plt.show()
 
 print("\n" + "="*80)
-print("✅ V14 完成！")
 print("="*80)
-print("\nV14 优化内容:")
-print("   1. ✅ 止盈降低: 20% → 12%（更容易触发）")
-print("   2. ✅ 持仓延长: 20天 → 30天（让利润奔跑）")
-print("   3. ✅ 信号阈值提高: 0.35 → 0.40（提高质量）")
-print("   4. ✅ 买入规则收紧: RSI<35, 价格<下轨1.02")
-print("   5. ✅ 超时交易盈利分析（诊断买入信号质量）")
