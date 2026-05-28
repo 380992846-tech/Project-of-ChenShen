@@ -72,27 +72,26 @@ def initialize(context):
 def get_news_sentiment(context, stock_code):
     """获取新闻舆情数据（聚宽数据源）"""
     try:
-        # 方法1：使用聚宽新闻数据
+        # 使用聚宽新闻数据
         from jqdata import finance
         
         # 获取近3天的新闻
         end_date = context.current_dt.date()
         start_date = end_date - datetime.timedelta(days=3)
         
-        # 查询新闻（需要聚宽新闻权限）
+        # 查询新闻
         # news = finance.run(query(finance.NEWS).filter(
         #     finance.NEWS.stock_code == stock_code,
         #     finance.NEWS.pub_date >= start_date
         # ))
-        
-        # 方法2：使用财经指标数据作为代理
+    
         # 获取融资融券余额变化（反映市场情绪）
         margin_data = get_fundamentals(
             query(valuation.code, margin.margin_balance)
             .filter(valuation.code == stock_code)
         )
         
-        # 方法3：使用涨跌停家数比例（反映市场情绪）
+        # 使用涨跌停家数比例（反映市场情绪）
         # 获取全市场涨跌停数据
         all_stocks = get_all_securities(['stock']).index.tolist()[:100]  # 采样
         
