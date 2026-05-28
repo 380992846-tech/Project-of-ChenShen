@@ -1,7 +1,3 @@
-# ============================================
-# 量化系统 V14：提高信号质量 + 优化持仓周期
-# ============================================
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
