@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>清华计科 · 智创未来 | 清华大学计算机科学与技术系</title>
+    <!-- 引入 Three.js 核心库以及扩展组件，用于制作炫酷3D背景 -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+    <style>
+        /* 全局样式：科技蓝黑基调，极简现代 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* 避免拖动文字干扰视觉，但不影响体验 */
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', 'Inter', 'Roboto', 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            background-color: #050b1a;
+            color: #eef5ff;
+        }
+
+        /* Canvas 全屏作为动态背景 */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            display: block;
+        }
+
+        /* 主内容容器：悬浮在3D背景之上 */
+        .content {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            backdrop-filter: blur(2px);
+            pointer-events: auto;
+            padding: 1.5rem;
+        }
+
+        /* 主标题区域 */
+        .hero {
+            background: rgba(10, 25, 55, 0.55);
+            backdrop-filter: blur(12px);
+            border-radius: 3rem;
+            padding: 2rem 3rem;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 30px rgba(0, 200, 255, 0.2);
+            animation: fadeInUp 1.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            max-width: 90vw;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 8vw, 5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFFFFF, #7bc5ff, #2a6eff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            margin-bottom: 0.5rem;
+        }
+
+        .sub {
+            font-size: clamp(0.9rem, 3.5vw, 1.4rem);
+            font-weight: 400;
+            color: #c4e6ff;
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
+            word-break: keep-all;
+        }
+
+        .divider {
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #2af, #0ef, transparent);
+            margin: 1.2rem auto;
+            border-radius: 3px;
+        }
+
+        /* 核心 slogan */
+        .slogan {
+            font-size: clamp(1rem, 4vw, 1.6rem);
+            font-weight: 500;
+            margin: 0.8rem 0;
+            background: rgba(0, 20, 50, 0.6);
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            border-left: 3px solid #0ef;
+            border-right: 3px solid #0ef;
+        }
+
+        /* 标志性"自强不息，厚德载物" 校训效果 */
+        .motto {
+            margin-top: 1rem;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            font-weight: 300;
+            opacity: 0.9;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .motto span {
+            background: rgba(0,0,0,0.4);
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* 创意数据展示/学术卡片区 */
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.8rem;
+            margin-top: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(15, 35, 70, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 28px;
+            padding: 1rem 1.8rem;
+            min-width: 130px;
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: #0ef;
+            background: rgba(20, 60, 110, 0.7);
+            box-shadow: 0 0 18px rgba(0, 238, 255, 0.3);
+        }
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(145deg, #fff, #7bc5ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 400;
+            margin-top: 6px;
+            color: #b8dcff;
+        }
+
+        /* 署名区域：Power By 清华计科 */
+        .power-sign {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem 1.2rem;
+            border-radius: 60px;
+            backdrop-filter: blur(5px);
+            letter-spacing: 1px;
+            border: 0.5px solid rgba(100,200,255,0.6);
+            display: inline-block;
+            font-family: monospace;
+        }
+        .power-sign strong {
+            font-weight: 800;
+            color: #7bc5ff;
+        }
+
+        /* 鼠标互动小球提示 */
+        .cursor-glow {
+            position: fixed;
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(0,180,255,0.15) 0%, rgba(0,60,120,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.05s linear;
+            will-change: left, top;
+        }
+
+        /* 简单动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 700px) {
+            .hero {
+                padding: 1.2rem 1.5rem;
+            }
+            .stat-card {
+                padding: 0.6rem 1rem;
+                min-width: 100px;
+            }
+            .stat-number {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 动态3D画布背景 -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- 跟随鼠标的辉光特效 -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- 主要视觉内容 -->
+    <div class="content">
+        <div class="hero">
+            <h1>清华大学<br>计算机科学与技术系</h1>
+            <div class="divider"></div>
+            <div class="sub">Department of Computer Science and Technology</div>
+            <div class="slogan">⚡ 智创未来 · 计算无界 ⚡</div>
+            <div class="motto">
+                <span>自强不息</span>
+                <span>厚德载物</span>
+                <span>行胜于言</span>
+            </div>
+
+            <!-- 创意学术指标: 动态数字展示 (稍后使用JS动态刷新视觉效果) -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number" id="stat1">1958</div>
+                    <div class="stat-label">建系年份</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat2">80+</div>
+                    <div class="stat-label">全职院士/名师</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat3">TOP 1%</div>
+                    <div class="stat-label">CS Rankings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat4">∞</div>
+                    <div class="stat-label">创新突破</div>
+                </div>
+            </div>
+
+            <div class="power-sign">
+                ⚙️ Power By <strong>清华大学计算机科学与技术系</strong> · 智绘未来实验室 ⚙️
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        
+        // --- 初始化场景、相机、渲染器 ---
+        const canvas = document.getElementById('bg-canvas');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050b1a);
+        scene.fog = new THREE.FogExp2(0x050b1a, 0.008); // 轻微雾效增强景深
+
+        // 透视相机: 视野, 宽高比, 近平面, 远平面
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(5, 3, 8);
+        camera.lookAt(0, 0, 0);
+        
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: false, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        
+        // 后期特效: Bloom (泛光增加科技感)
+        const renderScene = new RenderPass(scene, camera);
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.3, 0.85);
+        bloomPass.threshold = 0.1;
+        bloomPass.strength = 0.65;
+        bloomPass.radius = 0.8;
+        const effectComposer = new EffectComposer(renderer);
+        effectComposer.addPass(renderScene);
+        effectComposer.addPass(bloomPass);
+        
+        // --- 辅助控制，但不启用交互界面，仅仅让相机轻微自动旋转（非常优雅，增加动感）---
+        // 使用 OrbitControls 但禁用手动交互或者保留让用户可以拖拽？为了创意，我们手动控制自动旋转但不给用户显示控件干扰
+        // 但为了高级感，我们不加controls，手动写一个loop让相机围绕中心做极简圆周运动，同时焦点居中。
+        let angle = 0;
+        const radius = 7.2;
+        const heightVariation = 2.2;
+        
+        // --- 核心视觉元素: 科技粒子系统 + 几何光环 + 浮动清华校徽抽象表现---
+        
+        // 1. 创建粒子系统: 星空感 + 数据流
+        const particleCount = 2800;
+        const particlesGeometry = new THREE.BufferGeometry();
+        const posArray = new Float32Array(particleCount * 3);
+        const colorArray = new Float32Array(particleCount * 3);
+        
+        for (let i = 0; i < particleCount; i++) {
+            // 分布在一个稍微扁平的球体区域 + 随机扩展
+            const radiusP = 5 + Math.random() * 6;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const x = radiusP * Math.sin(phi) * Math.cos(theta);
+            const y = radiusP * Math.sin(phi) * Math.sin(theta) * 0.6; // 压扁一点
+            const z = radiusP * Math.cos(phi);
+            posArray[i*3] = x;
+            posArray[i*3+1] = y * 0.8 + 1;
+            posArray[i*3+2] = z;
+            
+            // 颜色: 蓝白青紫渐变
+            const colorChoice = Math.random();
+            if (colorChoice < 0.6) {
+                colorArray[i*3] = 0.2 + Math.random()*0.4;   // R
+                colorArray[i*3+1] = 0.5 + Math.random()*0.5; // G
+                colorArray[i*3+2] = 0.8 + Math.random()*0.2; // B
+            } else if (colorChoice < 0.85) {
+                colorArray[i*3] = 0.4 + Math.random()*0.3;
+                colorArray[i*3+1] = 0.6 + Math.random()*0.4;
+                colorArray[i*3+2] = 1.0;
+            } else {
+                colorArray[i*3] = 0.7 + Math.random()*0.3;
+                colorArray[i*3+1] = 0.5 + Math.random()*0.5;
+                colorArray[i*3+2] = 1.0;
+            }
+        }
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+        
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.08,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.7,
+            blending: THREE.AdditiveBlending
+        });
+        const particleSystem = new THREE.Points(particlesGeometry, particleMaterial);
+        scene.add(particleSystem);
+        
+        // 2. 增加动态流动线条环 (代表数据流动，象征清华计算机学科前沿)
+        const ringPoints = [];
+        const ringRadius = 3.6;
+        const segments = 180;
+        for (let i = 0; i <= segments; i++) {
+            const ang = (i / segments) * Math.PI * 2;
+            const x = Math.cos(ang) * ringRadius;
+            const z = Math.sin(ang) * ringRadius;
+            ringPoints.push(new THREE.Vector3(x, 0.5, z));
+        }
+        const ringGeometry = new THREE.BufferGeometry().setFromPoints(ringPoints);
+        const ringMaterial = new THREE.LineBasicMaterial({ color: 0x2a6eff, transparent: true, opacity: 0.6 });
+        const ring = new THREE.LineLoop(ringGeometry, ringMaterial);
+        scene.add(ring);
+        
+        // 增加第二环倾斜环
+        const ringPoints2 = [];
+        const ringRadius2 = 4.2;
+        for (let i = 0; i <= segments; i++) {
+            const ang = (i / segments) * Math.PI * 2;
+            const x = Math.cos(ang) * ringRadius2;
+            const z = Math.sin(ang) * ringRadius2;
+            const y = Math.sin(ang * 2) * 0.5;
+            ringPoints2.push(new THREE.Vector3(x, y + 1.2, z));
+        }
+        const ringGeometry2 = new THREE.BufferGeometry().setFromPoints(ringPoints2);
+        const ringMaterial2 = new THREE.LineBasicMaterial({ color: 0x0ef, transparent: true, opacity: 0.5 });
+        const ring2 = new THREE.LineLoop(ringGeometry2, ringMaterial2);
+        scene.add(ring2);
+        
+        // 3. 中央悬浮的"核心芯片"几何体: 使用组合体代表计算机科学之芯
+        const coreGroup = new THREE.Group();
+        const icoGeo = new THREE.IcosahedronGeometry(0.85, 0);
+        const coreMat = new THREE.MeshStandardMaterial({ color: 0x2a9eff, emissive: 0x1155cc, emissiveIntensity: 0.6, metalness: 0.8, roughness: 0.2 });
+        const coreMesh = new THREE.Mesh(icoGeo, coreMat);
+        coreGroup.add(coreMesh);
+        
+        // 环绕微粒子
+        const glowRingGeo = new THREE.TorusGeometry(1.1, 0.05, 64, 200);
+        const glowMat = new THREE.MeshStandardMaterial({ color: 0x3c8eff, emissive: 0x2a6eff, emissiveIntensity: 0.8 });
+        const outerRing = new THREE.Mesh(glowRingGeo, glowMat);
+        outerRing.rotation.x = Math.PI / 2;
+        coreGroup.add(outerRing);
+        
+        const innerRing = new THREE.Mesh(glowRingGeo, glowMat);
+        innerRing.scale.set(0.7, 0.7, 0.7);
+        innerRing.rotation.z = Math.PI / 3;
+        coreGroup.add(innerRing);
+        
+        scene.add(coreGroup);
+        coreGroup.position.y = 0.2;
+        
+        // 4. 添加随机漂浮小立方体矩阵 (代表二进制世界)
+        const cubeGroup = [];
+        const cubeCount = 180;
+        const cubeMat = new THREE.MeshStandardMaterial({ color: 0x3c8eff, emissive: 0x113366, emissiveIntensity: 0.3 });
+        for (let i = 0; i < cubeCount; i++) {
+            const size = 0.06 + Math.random() * 0.07;
+            const cube = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), cubeMat);
+            const radiusPos = 3 + Math.random() * 4.5;
+            const thetaPos = Math.random() * Math.PI * 2;
+            const phiPos = Math.acos(2 * Math.random() - 1);
+            cube.position.x = radiusPos * Math.sin(phiPos) * Math.cos(thetaPos);
+            cube.position.y = radiusPos * Math.sin(phiPos) * Math.sin(thetaPos) * 0.6 + 0.5;
+            cube.position.z = radiusPos * Math.cos(phiPos);
+            cube.userData = {
+                speed: 0.002 + Math.random() * 0.008,
+                angleOffset: Math.random() * Math.PI * 2,
+                radius: radiusPos,
+                phi: phiPos,
+                theta: thetaPos
+            };
+            scene.add(cube);
+            cubeGroup.push(cube);
+        }
+        
+        // 5. 灯光系统: 科技冷色为主，加上动态点光源
+        const ambientLight = new THREE.AmbientLight(0x111a2a);
+        scene.add(ambientLight);
+        const mainLight = new THREE.DirectionalLight(0xffffff, 1);
+        mainLight.position.set(2, 5, 3);
+        scene.add(mainLight);
+        const backLight = new THREE.PointLight(0x2266ff, 0.5);
+        backLight.position.set(-2, 1, -4);
+        scene.add(backLight);
+        const fillLight = new THREE.PointLight(0x33aaff, 0.4);
+        fillLight.position.set(3, 2, 2);
+        scene.add(fillLight);
+        // 动态移动的彩色光
+        const colorLight = new THREE.PointLight(0x44aaff, 0.6);
+        scene.add(colorLight);
+        
+        // 6. 添加星空粒子背景再额外加一层更大范围的粒子（远处）
+        const starCount = 1200;
+        const starGeo = new THREE.BufferGeometry();
+        const starPos = [];
+        for (let i = 0; i < starCount; i++) {
+            starPos.push((Math.random() - 0.5) * 200);
+            starPos.push((Math.random() - 0.5) * 100);
+            starPos.push((Math.random() - 0.5) * 80 - 40);
+        }
+        starGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(starPos), 3));
+        const starMat = new THREE.PointsMaterial({ color: 0x88aaff, size: 0.08, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
+        const starsField = new THREE.Points(starGeo, starMat);
+        scene.add(starsField);
+        
+        // 轻微飘浮动画变量
+        let time = 0;
+        
+        // 鼠标光标辉光互动
+        const cursorGlow = document.getElementById('cursorGlow');
+        document.addEventListener('mousemove', (e) => {
+            cursorGlow.style.left = e.clientX + 'px';
+            cursorGlow.style.top = e.clientY + 'px';
+        });
+        
+        // 动态数字增长特效 (稍微加一点动感，但不是数据请求，仅用于美观)
+        // 对stat1, stat2, stat3, stat4加入一点点脉冲效果, 初始已经设置数值，后续不需要修改数值，但是我们可以用透明动画再增强
+        // 额外创意：为卡片增加微光波动
+        const cards = document.querySelectorAll('.stat-card');
+        setInterval(() => {
+            cards.forEach(card => {
+                card.style.transition = 'box-shadow 0.3s';
+                card.style.boxShadow = '0 0 12px rgba(0, 238, 255, 0.4)';
+                setTimeout(() => {
+                    card.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+                }, 400);
+            });
+        }, 2000);
+        
+        // --- 动画循环: 相机缓慢旋转，粒子系统旋转，立方体浮动，光环旋转等---
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.012;
+            
+            // 相机优雅旋转: 做圆周运动焦点在原点
+            angle += 0.0022;
+            const camX = Math.sin(angle) * radius;
+            const camZ = Math.cos(angle) * radius;
+            const camY = 2.2 + Math.sin(angle * 1.5) * 0.7;
+            camera.position.set(camX, camY, camZ);
+            camera.lookAt(0, 0.2, 0);
+            
+            // 粒子系统整体缓慢自转
+            particleSystem.rotation.y = time * 0.08;
+            particleSystem.rotation.x = Math.sin(time * 0.2) * 0.1;
+            starsField.rotation.y = time * 0.02;
+            
+            // 光环旋转
+            ring.rotation.z += 0.005;
+            ring.rotation.x = Math.sin(time * 0.3) * 0.2;
+            ring2.rotation.y += 0.003;
+            ring2.rotation.x += 0.004;
+            
+            // 核心组旋转与缩放悬浮效果
+            coreGroup.rotation.y = time * 0.5;
+            coreGroup.rotation.x = Math.sin(time * 0.7) * 0.2;
+            coreGroup.position.y = 0.2 + Math.sin(time * 1.2) * 0.08;
+            outerRing.rotation.z += 0.01;
+            innerRing.rotation.x += 0.015;
+            
+            // 浮动小立方体运动
+            cubeGroup.forEach(cube => {
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.015;
+                // 微小径向摆动
+                const offset = Math.sin(time * 1.5 + cube.userData.angleOffset) * 0.03;
+                const newX = cube.userData.radius * Math.sin(cube.userData.phi) * Math.cos(cube.userData.theta + time * cube.userData.speed);
+                const newZ = cube.userData.radius * Math.cos(cube.userData.phi);
+                const newY = cube.userData.radius * Math.sin(cube.userData.phi) * Math.sin(cube.userData.theta + time * cube.userData.speed) * 0.6 + 0.5;
+                cube.position.x = newX + offset;
+                cube.position.z = newZ + offset * 0.5;
+                cube.position.y = newY + Math.sin(time * 1.2 + cube.userData.angleOffset) * 0.05;
+            });
+            
+            // 动态光源颜色
+            const hue = (time * 0.2) % (Math.PI * 2);
+            colorLight.intensity = 0.5 + Math.sin(time) * 0.2;
+            colorLight.position.x = Math.sin(time) * 3;
+            colorLight.position.z = Math.cos(time * 0.9) * 3;
+            
+            // 使用效果合成器渲染
+            effectComposer.render();
+        }
+        
+        animate();
+        
+        // 窗口适配
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            effectComposer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // 增加一个小的控制台趣味输出
+        console.log("%c✨ 清华大学计算机科学与技术系 | 智绘未来，计算无界 ✨", "color: #2a6eff; font-size: 16px; font-weight: bold;");
+        console.log("%cPower By 清华大学计算机系 - 三维创意门户", "color: #7bc5ff");
+    </script>
+</body>
+</html>

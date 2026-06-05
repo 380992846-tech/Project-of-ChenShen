@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>清华贵系·陈深学长AI | 逐字输出助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, -apple-system, 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(145deg, #2b0f3a 0%, #4b1d6e 100%);
+            min-height: 100vh;
+            padding: 18px 16px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 248, 255, 0.97);
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            border: 1px solid rgba(156,39,176,0.35);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4a148c, #6a1b9a);
+            color: #fff8e7;
+            padding: 16px 24px;
+            text-align: center;
+            border-bottom: 3px solid #ffd966;
+        }
+
+        .header h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .header h1::before { content: "🏛️"; font-size: 1.8rem; }
+        .header h1::after { content: "⚡"; font-size: 1.8rem; }
+
+        .sub {
+            font-size: 0.8rem;
+            background: #ffecb3;
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 40px;
+            color: #4a1d6d;
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
+        .api-section {
+            background: #faf3ff;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e2c8ff;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .api-section label { font-weight: 700; color: #4a1d6d; font-size: 0.85rem; }
+        .api-key-input { flex: 2; min-width: 200px; padding: 8px 14px; border-radius: 40px; border: 1.5px solid #cdb5e8; background: white; font-family: monospace; }
+        .model-select { padding: 8px 14px; border-radius: 40px; border: 1.5px solid #cdb5e8; background: white; font-weight: 500; cursor: pointer; min-width: 180px; }
+        .save-btn { background: #6a1b9a; color: white; border: none; padding: 6px 16px; border-radius: 32px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .save-btn:hover { background: #8e24aa; transform: translateY(-1px); }
+        .context-label { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
+
+        .chat-layout { display: flex; min-height: 600px; }
+        .sidebar { width: 280px; background: #fff5fd; border-right: 1px solid #e9d4ff; display: flex; flex-direction: column; padding: 16px 12px; }
+        .search-box { margin-bottom: 14px; position: relative; }
+        .search-box input { width: 100%; padding: 8px 12px 8px 36px; border-radius: 32px; border: 1px solid #d9c2f0; background: white; }
+        .search-box::before { content: "🔍"; position: absolute; left: 12px; top: 7px; font-size: 1rem; color: #8e24aa; }
+        .new-chat-btn { background: #8e24aa; margin-bottom: 16px; padding: 10px; border-radius: 40px; font-weight: bold; border: none; color: white; cursor: pointer; }
+        .chat-history { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .history-item { background: white; padding: 10px; border-radius: 18px; cursor: pointer; border: 1px solid #eeddff; position: relative; }
+        .history-item.active { background: #e9d4ff; border-left: 4px solid #6a1b9a; font-weight: 500; }
+        .history-title { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 24px; }
+        .history-date { font-size: 0.65rem; color: #7b5a96; margin-top: 4px; }
+        .delete-chat { position: absolute; right: 8px; top: 8px; background: none; border: none; color: #b873c9; cursor: pointer; font-size: 1rem; }
+
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: #ffffff; }
+        .messages { flex: 1; overflow-y: auto; padding: 20px 24px; background: #fefcff; display: flex; flex-direction: column; gap: 18px; }
+        .message { display: flex; gap: 12px; animation: fadeSlide 0.2s ease; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .message.user { flex-direction: row-reverse; }
+        .message-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; background: #f0e6ff; }
+        .message.user .message-avatar { background: #6a1b9a; color: white; }
+        .message.assistant .message-avatar { background: #ffecb3; color: #6a1b9a; }
+        .message-content { max-width: 72%; padding: 10px 16px; border-radius: 22px; line-height: 1.45; font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; }
+        .message.user .message-content { background: #e1b9ff; color: #2c0b3a; border-bottom-right-radius: 5px; }
+        .message.assistant .message-content { background: #f4eafc; color: #1f1a2e; border-bottom-left-radius: 5px; }
+        
+        /* 打字光标动画 */
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.1em;
+            background-color: #6a1b9a;
+            margin-left: 2px;
+            vertical-align: middle;
+            animation: blink 0.8s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .action-bar { display: flex; gap: 8px; margin-top: 8px; justify-content: flex-end; }
+        .action-btn { background: #ede7f6; border: none; font-size: 0.7rem; padding: 4px 12px; border-radius: 40px; cursor: pointer; color: #4a1d6d; transition: 0.1s; }
+        .action-btn:hover { background: #d5c4f0; }
+        .edit-textarea { width: 100%; background: white; border: 1px solid #c7addb; border-radius: 16px; padding: 8px 12px; font-family: inherit; font-size: 0.85rem; margin-top: 6px; resize: vertical; }
+
+        .input-area { padding: 16px 20px; background: white; border-top: 1px solid #eeddff; display: flex; flex-direction: column; gap: 12px; }
+        .input-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .file-label { background: #e9e0f5; padding: 5px 14px; border-radius: 40px; font-size: 0.75rem; cursor: pointer; }
+        .file-preview { font-size: 0.7rem; background: #f3eaff; border-radius: 20px; padding: 4px 12px; color: #6a1b9a; }
+        .message-input { width: 100%; padding: 12px 16px; border: 1.5px solid #e2cef5; border-radius: 28px; font-size: 0.9rem; resize: vertical; font-family: inherit; }
+        .send-group { display: flex; gap: 12px; justify-content: flex-end; }
+        .send-btn, .regenerate-btn { background: #8e24aa; color: white; border: none; padding: 8px 24px; border-radius: 40px; font-weight: bold; cursor: pointer; }
+        .regenerate-btn { background: #ab47bc; }
+        .status { font-size: 0.7rem; padding: 6px 16px; text-align: center; background: #f9f1ff; color: #8e5ea6; }
+
+        @media (max-width: 700px) { .sidebar { display: none; } .message-content { max-width: 85%; } .api-section { flex-direction: column; align-items: stretch; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>清华贵系 · 陈深学长</h1>
+        <div class="sub">🏆 犀利·真格·能读图 | 逐字输出 | 本地助手风格</div>
+    </div>
+
+    <div class="api-section">
+        <label>🔑 API Key</label>
+        <input type="password" id="apiKey" class="api-key-input" placeholder="输入你的 Key">
+        <label>🧠 模型</label>
+        <select id="model" class="model-select">
+            <option value="deepseek-v4-flash">⚡ 极速版</option>
+            <option value="deepseek-v4-pro">💎 增强版</option>
+            <option value="deepseek-v3">📚 经典版</option>
+        </select>
+        <div class="context-label"><span>📚 记忆轮数:</span><input type="range" id="contextRounds" min="1" max="30" value="16" step="1" style="width: 90px;"><span id="contextValue">16</span></div>
+        <button id="saveApiKey" class="save-btn">💜 保存</button>
+    </div>
+
+    <div class="chat-layout">
+        <div class="sidebar">
+            <div class="search-box"><input type="text" id="searchHistoryInput" placeholder="搜索对话"></div>
+            <button id="newChat" class="new-chat-btn">✨ 新对话</button>
+            <div class="chat-history" id="chatHistory"></div>
+        </div>
+        <div class="chat-main">
+            <div class="messages" id="messages"></div>
+            <div class="input-area">
+                <div class="input-toolbar">
+                    <label class="file-label">📎 上传图片/文件 <input type="file" id="fileUpload" accept="image/*,text/plain,.txt,.md,.json" style="display: none;"></label>
+                    <span id="filePreview" class="file-preview"></span>
+                </div>
+                <textarea id="messageInput" class="message-input" rows="2" placeholder="问陈深学长：学术、代码、日常... Shift+Enter换行，Enter发送"></textarea>
+                <div class="send-group">
+                    <button id="regenerateLastBtn" class="regenerate-btn">🔄 重新生成</button>
+                    <button id="sendBtn" class="send-btn">💜 发送</button>
+                </div>
+            </div>
+            <div id="status" class="status">✅ 陈深学长在线 | 回复会逐字显示</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 存储
+    let chats = {};
+    let currentChatId = null;
+    let currentApiKey = localStorage.getItem('deepseek_api_key') || '';
+    let currentModel = localStorage.getItem('deepseek_model') || 'deepseek-v4-flash';
+    let contextRounds = parseInt(localStorage.getItem('context_rounds') || '16');
+    let isWaiting = false;
+    let currentStreamingDiv = null;      // 正在逐字输出的消息div
+    let currentStreamingContent = "";    // 已输出的内容
+    let streamCancel = false;
+
+    // DOM
+    const messagesDiv = document.getElementById('messages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const regenerateLastBtn = document.getElementById('regenerateLastBtn');
+    const newChatBtn = document.getElementById('newChat');
+    const chatHistoryDiv = document.getElementById('chatHistory');
+    const apiKeyInput = document.getElementById('apiKey');
+    const saveApiKeyBtn = document.getElementById('saveApiKey');
+    const modelSelect = document.getElementById('model');
+    const contextSlider = document.getElementById('contextRounds');
+    const contextSpan = document.getElementById('contextValue');
+    const statusDiv = document.getElementById('status');
+    const searchInput = document.getElementById('searchHistoryInput');
+    const fileUploadInput = document.getElementById('fileUpload');
+    const filePreviewSpan = document.getElementById('filePreview');
+
+    let pendingImageBase64 = null;
+    let pendingFileText = null;
+
+    // 系统提示：普通学长风格，不提API/付费/免费
+    function getSystemPrompt() {
+        return `你是清华贵系的学长，大家叫你陈深（但对话中不要主动说“我叫陈深”）。风格犀利、直击要害、带着学术圈特有的调侃和友好。说话简洁有力，偶尔带一点冷笑话或“啧”、“讲真”、“这都不会？”之类的语气，但内核是真心想帮学弟学妹解决问题。如果被问到你是什么模型，就简单说“我是DeepSeek智能助手”就好。不要使用任何Markdown格式符号，纯文本输出。保持学长气场，帮用户解决问题。`;
+    }
+
+    // 去除markdown符号
+    function cleanMarkdown(text) {
+        if (!text) return text;
+        let cleaned = text;
+        cleaned = cleaned.replace(/\*\*(.+?)\*\*/g, '$1');
+        cleaned = cleaned.replace(/__(.+?)__/g, '$1');
+        cleaned = cleaned.replace(/`([^`]+)`/g, '$1');
+        cleaned = cleaned.replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, '').trim());
+        cleaned = cleaned.replace(/^#{1,6}\s+/gm, '');
+        cleaned = cleaned.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+        cleaned = cleaned.replace(/!\[.*?\]\(.*?\)/g, '');
+        cleaned = cleaned.replace(/^[\s]*[-*+]\s+/gm, '• ');
+        cleaned = cleaned.replace(/[#*_`~]/g, '');
+        return cleaned.trim();
+    }
+
+    function showStatus(msg, isErr = false) {
+        statusDiv.innerText = msg;
+        if (isErr) setTimeout(() => { if (statusDiv.innerText === msg) statusDiv.innerText = '学长在线'; }, 3000);
+    }
+
+    function saveAll() {
+        localStorage.setItem('deepseek_chats_stream', JSON.stringify(chats));
+        localStorage.setItem('deepseek_api_key', currentApiKey);
+        localStorage.setItem('deepseek_model', currentModel);
+        localStorage.setItem('context_rounds', contextRounds);
+    }
+
+    function createNewChat() {
+        const chatId = Date.now().toString();
+        chats[chatId] = { id: chatId, title: `对话 ${new Date().toLocaleString()}`, messages: [], createdAt: new Date().toISOString() };
+        currentChatId = chatId;
+        renderHistory();
+        renderMessages();
+        saveAll();
+        clearPending();
+    }
+
+    function loadChat(chatId) {
+        if (!chats[chatId]) return;
+        currentChatId = chatId;
+        renderHistory();
+        renderMessages();
+        clearPending();
+    }
+
+    function clearPending() { pendingImageBase64 = null; pendingFileText = null; filePreviewSpan.innerText = ''; }
+
+    function deleteChat(chatId, ev) { ev.stopPropagation(); if(confirm('删除这个对话？')){ delete chats[chatId]; const keys=Object.keys(chats); keys.length?loadChat(keys[0]):createNewChat(); renderHistory(); saveAll(); } }
+
+    function renderHistory() {
+        const term = searchInput.value.trim().toLowerCase();
+        let list = Object.values(chats).filter(c => term==='' || c.title.toLowerCase().includes(term) || c.messages.some(m=>m.content.toLowerCase().includes(term)));
+        chatHistoryDiv.innerHTML = '';
+        list.forEach(chat => {
+            const div = document.createElement('div'); div.className = 'history-item'; if(chat.id===currentChatId) div.classList.add('active');
+            div.onclick = () => loadChat(chat.id);
+            const titleSpan = document.createElement('div'); titleSpan.className = 'history-title'; titleSpan.innerText = chat.title;
+            const dateSpan = document.createElement('div'); dateSpan.className = 'history-date'; dateSpan.innerText = new Date(chat.createdAt).toLocaleDateString();
+            const delBtn = document.createElement('button'); delBtn.innerText='🗑️'; delBtn.className='delete-chat'; delBtn.onclick=(e)=>deleteChat(chat.id,e);
+            div.appendChild(titleSpan); div.appendChild(dateSpan); div.appendChild(delBtn); chatHistoryDiv.appendChild(div);
+        });
+    }
+
+    // 逐字输出函数
+    async function typeTextToMessage(content, targetContentDiv) {
+        currentStreamingContent = "";
+        targetContentDiv.innerHTML = "";
+        streamCancel = false;
+        
+        for (let i = 0; i < content.length; i++) {
+            if (streamCancel) break;
+            currentStreamingContent += content[i];
+            // 转义HTML
+            let displayText = currentStreamingContent.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            targetContentDiv.innerHTML = displayText + '<span class="typing-cursor"></span>';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            // 动态速度：标点处稍慢，普通字符稍快
+            const delay = /[。！？；：.!?;:]/.test(content[i]) ? 45 : 20;
+            await new Promise(r => setTimeout(r, delay));
+        }
+        if (!streamCancel) {
+            targetContentDiv.innerHTML = currentStreamingContent.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+        return currentStreamingContent;
+    }
+
+    // 获取上下文
+    function getContextMessages() {
+        const msgs = chats[currentChatId].messages;
+        let rounds = contextRounds;
+        let context = [];
+        let userCount = 0;
+        for(let i=msgs.length-1; i>=0; i--) {
+            if(msgs[i].role === 'user') userCount++;
+            context.unshift(msgs[i]);
+            if(userCount >= rounds) break;
+        }
+        return context;
+    }
+
+    // 调用API并流式逐字显示
+    async function generateAndStreamReply(userText, imagePayload = null, fileTextPayload = null) {
+        if(!currentApiKey) { showStatus('请先填写Key', true); return false; }
+        isWaiting = true;
+        sendBtn.disabled = regenerateLastBtn.disabled = true;
+        
+        // 先创建一个占位的assistant消息div
+        const msgDiv = document.createElement('div'); msgDiv.className = 'message assistant';
+        const avatar = document.createElement('div'); avatar.className = 'message-avatar'; avatar.innerText = '🏛️';
+        const contentDiv = document.createElement('div'); contentDiv.className = 'message-content';
+        contentDiv.innerHTML = '<span class="typing-cursor"></span>';
+        msgDiv.appendChild(avatar); msgDiv.appendChild(contentDiv);
+        messagesDiv.appendChild(msgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        
+        try {
+            let combinedPrompt = userText;
+            if(imagePayload) {
+                combinedPrompt = `用户上传了一张图片，请识别图片中的文字内容，并犀利回答。用户问题：${userText}\n输出图片里的关键信息。`;
+            }
+            if(fileTextPayload) {
+                combinedPrompt = `用户上传了一个文件，内容摘要:\n${fileTextPayload.slice(0, 1800)}\n\n用户问题: ${userText}\n请基于文件内容回答，保持学长口吻。`;
+            }
+            
+            const contextMsgs = getContextMessages();
+            const apiMessages = [{ role: "system", content: getSystemPrompt() }, ...contextMsgs, { role: "user", content: combinedPrompt }];
+            
+            const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentApiKey}` },
+                body: JSON.stringify({ model: currentModel, messages: apiMessages, temperature: 0.75, stream: false })
+            });
+            
+            if(!resp.ok) { 
+                const errData = await resp.json(); 
+                throw new Error(errData.error?.message || `请求失败 ${resp.status}`); 
+            }
+            
+            const data = await resp.json();
+            let raw = data.choices[0].message.content;
+            let finalReply = cleanMarkdown(raw);
+            
+            // 逐字显示
+            await typeTextToMessage(finalReply, contentDiv);
+            
+            // 保存到chats
+            chats[currentChatId].messages.push({ role: 'assistant', content: finalReply });
+            saveAll();
+            
+            // 添加操作栏（重新生成按钮）
+            const actionBar = document.createElement('div'); actionBar.className = 'action-bar';
+            const regenBtn = document.createElement('button'); regenBtn.innerText = '🔄 重新生成'; regenBtn.className = 'action-btn';
+            const msgIndex = chats[currentChatId].messages.length - 1;
+            regenBtn.onclick = async (e) => { 
+                e.stopPropagation(); 
+                await regenerateSpecificMessage(msgIndex); 
+            };
+            actionBar.appendChild(regenBtn);
+            msgDiv.appendChild(actionBar);
+            
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            showStatus('回复完成');
+            return true;
+        } catch(e) {
+            contentDiv.innerHTML = `<span style="color:#d32f2f;">出错了: ${e.message}</span>`;
+            showStatus(`错误: ${e.message}`, true);
+            return false;
+        } finally {
+            isWaiting = false;
+            sendBtn.disabled = regenerateLastBtn.disabled = false;
+            currentStreamingDiv = null;
+        }
+    }
+    
+    // 重新生成某一条（删除该条之后的所有消息，重新生成）
+    async function regenerateSpecificMessage(assistantIndex) {
+        if(isWaiting) return;
+        const msgs = chats[currentChatId].messages;
+        if(assistantIndex >= msgs.length || msgs[assistantIndex].role !== 'assistant') return;
+        const userMsgIdx = assistantIndex - 1;
+        if(userMsgIdx < 0 || msgs[userMsgIdx].role !== 'user') { showStatus('没有对应的用户消息', true); return; }
+        const userMsgContent = msgs[userMsgIdx].content;
+        // 删除从assistantIndex开始往后的所有消息
+        msgs.splice(assistantIndex, msgs.length - assistantIndex);
+        renderMessages();
+        saveAll();
+        // 重新生成（不带图片/文件，因为原消息可能没有，简单重放）
+        await generateAndStreamReply(userMsgContent.replace(/\[附图片\]|\[附文件\]/g, '').trim(), null, null);
+    }
+    
+    // 重新生成最后一条回复
+    async function regenerateLast() {
+        if(isWaiting) return;
+        const msgs = chats[currentChatId].messages;
+        let lastAssistantIdx = -1;
+        for(let i=msgs.length-1;i>=0;i--) if(msgs[i].role === 'assistant') { lastAssistantIdx = i; break; }
+        if(lastAssistantIdx === -1) { showStatus("没有可重新生成的回复", true); return; }
+        await regenerateSpecificMessage(lastAssistantIdx);
+    }
+
+    // 发送消息主入口
+    async function sendMessage() {
+        if(isWaiting) return;
+        let userRaw = messageInput.value.trim();
+        if(!userRaw && !pendingImageBase64 && !pendingFileText) { showStatus('输入点东西再问学长吧', true); return; }
+        if(!currentApiKey) { showStatus('请先填写Key', true); return; }
+        
+        const finalText = userRaw || (pendingImageBase64 ? "识别这张图片里的文字" : "分析这个文件");
+        const userMsgObj = { role: 'user', content: finalText + (pendingImageBase64 ? " [附图片]" : (pendingFileText ? " [附文件]" : "")) };
+        chats[currentChatId].messages.push(userMsgObj);
+        
+        if(chats[currentChatId].messages.length === 1) {
+            let newTitle = finalText.slice(0, 28) + (finalText.length>28?'...':'');
+            chats[currentChatId].title = newTitle;
+            renderHistory();
+        }
+        
+        renderMessages();  // 显示用户消息
+        saveAll();
+        messageInput.value = '';
+        const imageForCall = pendingImageBase64;
+        const fileForCall = pendingFileText;
+        clearPending();
+        
+        await generateAndStreamReply(finalText, imageForCall, fileForCall);
+    }
+
+    // 渲染消息（支持编辑用户消息）
+    function renderMessages() {
+        if(!currentChatId || !chats[currentChatId]) return;
+        const msgs = chats[currentChatId].messages;
+        messagesDiv.innerHTML = '';
+        msgs.forEach((msg, idx) => {
+            const msgDiv = document.createElement('div'); msgDiv.className = `message ${msg.role}`;
+            const avatar = document.createElement('div'); avatar.className = 'message-avatar'; avatar.innerText = msg.role === 'user' ? '👤' : '🏛️';
+            const contentDiv = document.createElement('div'); contentDiv.className = 'message-content'; contentDiv.innerText = msg.content;
+            msgDiv.appendChild(avatar); msgDiv.appendChild(contentDiv);
+            
+            if(msg.role === 'user') {
+                contentDiv.ondblclick = (e) => {
+                    e.stopPropagation();
+                    const textarea = document.createElement('textarea');
+                    textarea.value = msg.content;
+                    textarea.classList.add('edit-textarea');
+                    textarea.rows = 3;
+                    contentDiv.style.display = 'none';
+                    contentDiv.parentNode.insertBefore(textarea, contentDiv.nextSibling);
+                    const saveEdit = () => {
+                        const newText = textarea.value.trim();
+                        if(newText && newText !== msg.content) {
+                            msg.content = newText;
+                            if(idx === 0) {
+                                chats[currentChatId].title = newText.slice(0,28)+(newText.length>28?'...':'');
+                                renderHistory();
+                            }
+                            const msgList = chats[currentChatId].messages;
+                            msgList.splice(idx+1, msgList.length-idx-1);
+                            renderMessages();
+                            saveAll();
+                            showStatus('已修改，后续回复已清空');
+                        }
+                        textarea.remove();
+                        contentDiv.style.display = 'block';
+                    };
+                    textarea.addEventListener('blur', saveEdit);
+                    textarea.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEdit(); } });
+                    textarea.focus();
+                };
+            }
+            
+            if(msg.role === 'assistant') {
+                const actionBar = document.createElement('div'); actionBar.className = 'action-bar';
+                const regenBtn = document.createElement('button'); regenBtn.innerText = '🔄 重新生成'; regenBtn.className = 'action-btn';
+                regenBtn.onclick = async (e) => { e.stopPropagation(); await regenerateSpecificMessage(idx); };
+                actionBar.appendChild(regenBtn);
+                msgDiv.appendChild(actionBar);
+            }
+            messagesDiv.appendChild(msgDiv);
+        });
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // 文件上传
+    function handleFileUpload(file) {
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const result = e.target.result;
+            if(file.type.startsWith('image/')) {
+                pendingImageBase64 = result;
+                pendingFileText = null;
+                filePreviewSpan.innerText = `🖼️ 已加载: ${file.name}`;
+                showStatus('图片已就绪');
+            } else if(file.type === 'text/plain' || file.name.endsWith('.txt')||file.name.endsWith('.md')||file.name.endsWith('.json')) {
+                pendingFileText = result.slice(0, 3000);
+                pendingImageBase64 = null;
+                filePreviewSpan.innerText = `📄 已加载: ${file.name}`;
+                showStatus('文件已读入');
+            } else { showStatus('仅支持图片或txt/md/json', true); }
+        };
+        if(file.type.startsWith('image/')) reader.readAsDataURL(file);
+        else reader.readAsText(file, 'UTF-8');
+    }
+
+    // 加载设置
+    function loadSettings() {
+        if(currentApiKey) apiKeyInput.value = currentApiKey;
+        modelSelect.value = currentModel;
+        contextSlider.value = contextRounds; contextSpan.innerText = contextRounds;
+        const saved = localStorage.getItem('deepseek_chats_stream');
+        if(saved) { chats = JSON.parse(saved); renderHistory(); if(Object.keys(chats).length) loadChat(Object.keys(chats)[0]); else createNewChat(); }
+        else createNewChat();
+    }
+
+    // 事件绑定
+    sendBtn.addEventListener('click', sendMessage);
+    regenerateLastBtn.addEventListener('click', regenerateLast);
+    newChatBtn.addEventListener('click', createNewChat);
+    saveApiKeyBtn.addEventListener('click', () => { 
+        currentApiKey = apiKeyInput.value.trim(); 
+        currentModel = modelSelect.value; 
+        contextRounds = parseInt(contextSlider.value); 
+        contextSpan.innerText = contextRounds; 
+        saveAll(); 
+        showStatus("设置已保存"); 
+    });
+    modelSelect.addEventListener('change', () => { currentModel = modelSelect.value; saveAll(); });
+    contextSlider.addEventListener('input', () => { contextSpan.innerText = contextSlider.value; contextRounds = parseInt(contextSlider.value); saveAll(); });
+    messageInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+    fileUploadInput.addEventListener('change', (e) => { if(e.target.files[0]) handleFileUpload(e.target.files[0]); fileUploadInput.value = ''; });
+    searchInput.addEventListener('input', () => renderHistory());
+    
+    loadSettings();
+</script>
+</body>
+</html>

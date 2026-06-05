@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>清华FIT楼·王大锤学长 | NLP实验室小助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(145deg, #1e3c2c 0%, #2a5a3a 100%);
+            min-height: 100vh;
+            padding: 18px 16px;
+        }
+
+        /* 银杏主题+暖黄 */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 253, 245, 0.98);
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            border: 1px solid #e6c87c;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5e2e, #4a7c3b);
+            color: #fffff0;
+            padding: 18px 24px;
+            text-align: center;
+            border-bottom: 4px solid #f5c542;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .header h1::before { content: "🍂"; font-size: 2rem; }
+        .header h1::after { content: "🤖"; font-size: 2rem; }
+
+        .sub {
+            font-size: 0.8rem;
+            background: #fdf1cf;
+            display: inline-block;
+            padding: 5px 16px;
+            border-radius: 40px;
+            color: #2d5a2c;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* 设置栏 */
+        .api-section {
+            background: #fef7e8;
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0e0b0;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .api-section label { font-weight: 700; color: #3b5c2a; font-size: 0.85rem; }
+        .api-key-input { flex: 2; min-width: 200px; padding: 8px 14px; border-radius: 40px; border: 1px solid #cbad6e; background: white; font-family: monospace; }
+        .model-select { padding: 8px 14px; border-radius: 40px; border: 1px solid #cbad6e; background: white; font-weight: 500; cursor: pointer; min-width: 190px; }
+        .model-info { font-size: 0.7rem; background: #ece1c2; padding: 4px 12px; border-radius: 32px; color: #4a5b2c; }
+        .save-btn, .export-btn { background: #4b7e3a; color: white; border: none; padding: 6px 18px; border-radius: 32px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .save-btn:hover, .export-btn:hover { background: #6a994e; transform: translateY(-1px); }
+        .context-label { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
+
+        .chat-layout { display: flex; min-height: 600px; }
+        .sidebar { width: 280px; background: #fffcf0; border-right: 1px solid #ecdca8; display: flex; flex-direction: column; padding: 16px 12px; }
+        .search-box { margin-bottom: 14px; position: relative; }
+        .search-box input { width: 100%; padding: 8px 12px 8px 36px; border-radius: 32px; border: 1px solid #decb94; background: white; }
+        .search-box::before { content: "🔍"; position: absolute; left: 12px; top: 7px; font-size: 1rem; color: #8e6b2c; }
+        .new-chat-btn { background: #7b5e2c; margin-bottom: 16px; padding: 10px; border-radius: 40px; font-weight: bold; border: none; color: white; cursor: pointer; }
+        .chat-history { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .history-item { background: white; padding: 10px; border-radius: 18px; cursor: pointer; border: 1px solid #efdfb2; position: relative; }
+        .history-item.active { background: #f5eace; border-left: 5px solid #b8860b; font-weight: 500; }
+        .history-title { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 24px; }
+        .history-date { font-size: 0.65rem; color: #8b6b3d; margin-top: 4px; }
+        .delete-chat { position: absolute; right: 8px; top: 8px; background: none; border: none; color: #b97f41; cursor: pointer; font-size: 1rem; }
+
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: #fffff7; }
+        .messages { flex: 1; overflow-y: auto; padding: 20px 24px; background: #fefdf7; display: flex; flex-direction: column; gap: 18px; }
+        .message { display: flex; gap: 12px; animation: fadeSlide 0.2s ease; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .message.user { flex-direction: row-reverse; }
+        .message-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; background: #ece1c2; font-size: 1.2rem; }
+        .message.user .message-avatar { background: #6a994e; color: white; }
+        .message.assistant .message-avatar { background: #f0d98d; color: #5a3e1b; }
+        .message-content { max-width: 72%; padding: 10px 18px; border-radius: 24px; line-height: 1.5; font-size: 0.95rem; white-space: pre-wrap; word-break: break-word; }
+        .message.user .message-content { background: #e1d6b0; color: #2a481a; border-bottom-right-radius: 6px; }
+        .message.assistant .message-content { background: #f5efdb; color: #1f2e0e; border-bottom-left-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .action-bar { display: flex; gap: 8px; margin-top: 8px; justify-content: flex-end; }
+        .action-btn { background: #ece1c2; border: none; font-size: 0.7rem; padding: 4px 12px; border-radius: 40px; cursor: pointer; color: #5c471b; transition: 0.1s; }
+        .action-btn:hover { background: #dcce9a; }
+        .edit-textarea { width: 100%; background: white; border: 1px solid #cbb875; border-radius: 16px; padding: 8px 12px; font-family: inherit; font-size: 0.85rem; margin-top: 6px; resize: vertical; }
+        .typing-cursor { display: inline-block; width: 2px; height: 1.2em; background-color: #5c471b; vertical-align: middle; margin-left: 2px; animation: blink 1s step-end infinite; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .input-area { padding: 16px 20px; background: #fffcf0; border-top: 1px solid #ecdca8; display: flex; flex-direction: column; gap: 12px; }
+        .input-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .file-label { background: #e7dbb9; padding: 5px 14px; border-radius: 40px; font-size: 0.75rem; cursor: pointer; }
+        .file-preview { font-size: 0.7rem; background: #f2e8ce; border-radius: 20px; padding: 4px 12px; color: #846f36; }
+        .message-input { width: 100%; padding: 12px 16px; border: 1.5px solid #e2ce9a; border-radius: 28px; font-size: 0.9rem; resize: vertical; font-family: inherit; }
+        .send-group { display: flex; gap: 12px; justify-content: flex-end; }
+        .send-btn, .regenerate-btn { background: #7b5e2c; color: white; border: none; padding: 8px 24px; border-radius: 40px; font-weight: bold; cursor: pointer; transition: 0.1s; }
+        .regenerate-btn { background: #9c7e42; }
+        .status { font-size: 0.7rem; padding: 6px 16px; text-align: center; background: #faf3e2; color: #896f38; }
+
+        @media (max-width: 700px) { .sidebar { display: none; } .message-content { max-width: 85%; } .api-section { flex-direction: column; align-items: stretch; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>FIT楼·王大锤学长</h1>
+        <div class="sub">🍂 NLP实验室 | 量化金融·数学·计算机 | 银杏树下吃火锅烧烤</div>
+    </div>
+
+    <div class="api-section">
+        <label>🔑 密钥(内部)</label>
+        <input type="password" id="apiKey" class="api-key-input" placeholder="sk-... 填你的Key">
+        <label>🧠 核心引擎</label>
+        <select id="model" class="model-select">
+            <option value="deepseek-v4-flash">⚡ V4-Flash (极速)</option>
+            <option value="deepseek-v4-pro">💎 V4-Pro (深度推理)</option>
+            <option value="deepseek-v3">📚 V3 (均衡)</option>
+        </select>
+        <span id="modelPriceInfo" class="model-info">🍲 火锅or烧烤？聊完再说</span>
+        <div class="context-label"><span>📚 记忆轮数:</span><input type="range" id="contextRounds" min="1" max="30" value="18" step="1" style="width: 90px;"><span id="contextValue">18</span></div>
+        <button id="saveApiKey" class="save-btn">🍃 保存设置</button>
+        <button id="exportMenuBtn" class="export-btn">📎 导出对话</button>
+    </div>
+
+    <div class="chat-layout">
+        <div class="sidebar">
+            <div class="search-box"><input type="text" id="searchHistoryInput" placeholder="找历史对话..."></div>
+            <button id="newChat" class="new-chat-btn">✨ 新火锅炉边聊</button>
+            <div class="chat-history" id="chatHistory"></div>
+        </div>
+        <div class="chat-main">
+            <div class="messages" id="messages"></div>
+            <div class="input-area">
+                <div class="input-toolbar">
+                    <label class="file-label">📎 上传图片/文件 <input type="file" id="fileUpload" accept="image/*,text/plain,.txt,.md,.json" style="display: none;"></label>
+                    <span id="filePreview" class="file-preview"></span>
+                    <span style="font-size:11px; color:#7c632a;">支持图片或文档，大锤帮你瞅瞅</span>
+                </div>
+                <textarea id="messageInput" class="message-input" rows="2" placeholder="问王大锤：量化策略 / 数学难题 / 代码debug / 约烧烤也行..."></textarea>
+                <div class="send-group">
+                    <button id="regenerateLastBtn" class="regenerate-btn">🔄 重新锤一遍</button>
+                    <button id="sendBtn" class="send-btn">📢 发送</button>
+                </div>
+            </div>
+            <div id="status" class="status">🍁 学长在FIT楼，银杏叶飘着，边打字边输出～ 每条AI回复都会一个字一个字蹦出来</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ======================== 核心配置 王大锤风格 无api/免费提及 ========================
+    let chats = {};
+    let currentChatId = null;
+    let currentApiKey = localStorage.getItem('deepseek_api_key') || '';
+    let currentModel = localStorage.getItem('deepseek_model') || 'deepseek-v4-flash';
+    let contextRounds = parseInt(localStorage.getItem('context_rounds') || '18');
+    let isWaiting = false;
+
+    // 流式输出控制
+    let currentStreaming = false;      // 是否正在流式输出
+    let streamingAbort = false;        // 中断标记
+
+    // DOM 元素
+    const messagesDiv = document.getElementById('messages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const regenerateLastBtn = document.getElementById('regenerateLastBtn');
+    const newChatBtn = document.getElementById('newChat');
+    const chatHistoryDiv = document.getElementById('chatHistory');
+    const apiKeyInput = document.getElementById('apiKey');
+    const saveApiKeyBtn = document.getElementById('saveApiKey');
+    const modelSelect = document.getElementById('model');
+    const modelPriceInfo = document.getElementById('modelPriceInfo');
+    const contextSlider = document.getElementById('contextRounds');
+    const contextSpan = document.getElementById('contextValue');
+    const statusDiv = document.getElementById('status');
+    const searchInput = document.getElementById('searchHistoryInput');
+    const fileUploadInput = document.getElementById('fileUpload');
+    const filePreviewSpan = document.getElementById('filePreview');
+    const exportMenuBtn = document.getElementById('exportMenuBtn');
+
+    let pendingImageBase64 = null;
+    let pendingFileText = null;
+
+    // 模型展示信息 (只是气氛)
+    const modelMap = { 'deepseek-v4-flash': '极速闪电版', 'deepseek-v4-pro': '深度推理Pro', 'deepseek-v3': '经典均衡版' };
+    function updateModelPrice() { modelPriceInfo.textContent = `⚙️ 当前: ${modelMap[modelSelect.value] || 'V4'}`; }
+    modelSelect.addEventListener('change', updateModelPrice);
+
+    // ----- 大锤系统指令 (真诚、不提api/免费、技能点明确) -----
+    function getSystemPrompt() {
+        return `你是清华FIT楼NLP实验室的学长，名叫王大锤（但聊天时永远不要主动说“我叫王大锤”或“我是王大锤”，只展现风格）。你在FIT楼办公，桌上摆着银杏叶标本，喜欢火锅和烧烤，尤其铜锅涮肉和炭火烤肉。你的技能点：量化金融（期权定价、统计套利）、数学（分析/代数/优化）、计算机（算法/系统/深度学习）。你说话的语气像《万万没想到》里的王大锤——真诚、朴实、带着呆萌的认真，偶尔“唔”、“这波啊”、“就很灵性”、“我掐指一算”这种口头禅，但本质靠谱。不要输出任何markdown符号（**、#等），纯文本。不要提自己是API或服务，也绝不提免费付费，就当作是一位在实验室工作的学长。回答问题时展现扎实的专业知识，给出真诚建议。当用户问模型版本时，根据你当前使用的真实引擎回答（${modelMap[modelSelect.value] || 'V4系列'}），不要额外编造。记得提到银杏叶、火锅或烧烤可增加亲切感。`;
+    }
+
+    // 纯文本清洗（彻底去掉markdown）
+    function cleanToPlain(text) {
+        let cleaned = text;
+        cleaned = cleaned.replace(/\*\*(.+?)\*\*/g, '$1');
+        cleaned = cleaned.replace(/__(.+?)__/g, '$1');
+        cleaned = cleaned.replace(/`([^`]+)`/g, '$1');
+        cleaned = cleaned.replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, '').trim());
+        cleaned = cleaned.replace(/^#{1,6}\s+/gm, '');
+        cleaned = cleaned.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+        cleaned = cleaned.replace(/!\[.*?\]\(.*?\)/g, '');
+        cleaned = cleaned.replace(/^[\s]*[-*+]\s+/gm, '• ');
+        cleaned = cleaned.replace(/[#*_`~]/g, '');
+        return cleaned.trim();
+    }
+
+    // 流式打印效果 (将assistant消息逐步渲染)
+    async function streamTextToMessage(content, targetMessageDiv, contentDiv) {
+        if (streamingAbort) return;
+        const fullText = content;
+        let displayed = '';
+        contentDiv.innerText = '';
+        // 逐字打印 (模拟打字机)
+        for (let i = 0; i < fullText.length; i++) {
+            if (streamingAbort) break;
+            displayed += fullText[i];
+            contentDiv.innerText = displayed;
+            // 加个光标闪烁效果
+            if (i === fullText.length - 1) {
+                // 结束光标移除
+            }
+            await new Promise(r => setTimeout(r, 18 + Math.sin(i) * 2)); // 舒适速度
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        if (streamingAbort) {
+            contentDiv.innerText = fullText + " [生成中断，可重新生成]";
+        }
+        streamingAbort = false;
+    }
+
+    // 显示占位消息并流式刷新
+    async function addAssistantMessageWithStreaming(fullReply) {
+        if (!currentChatId) return;
+        const msgs = chats[currentChatId].messages;
+        // 创建一个临时assistant对象并渲染占位
+        const assistantMsgObj = { role: 'assistant', content: '' };
+        msgs.push(assistantMsgObj);
+        renderMessagesOnlyStructure(); // 快速渲染占位骨架
+        // 找到最后一条消息的content div
+        const msgDivs = messagesDiv.querySelectorAll('.message');
+        const lastMsgDiv = msgDivs[msgDivs.length - 1];
+        const contentDiv = lastMsgDiv.querySelector('.message-content');
+        if (!contentDiv) return;
+        await streamTextToMessage(fullReply, lastMsgDiv, contentDiv);
+        assistantMsgObj.content = fullReply;
+        // 重新渲染完整内容（确保操作栏出现）
+        renderMessages();
+        saveAll();
+    }
+
+    // 只渲染消息结构(不刷新全文本，用于流式占位)
+    function renderMessagesOnlyStructure() {
+        if (!currentChatId || !chats[currentChatId]) return;
+        const msgs = chats[currentChatId].messages;
+        messagesDiv.innerHTML = '';
+        msgs.forEach((msg, idx) => {
+            const msgDiv = document.createElement('div'); msgDiv.className = `message ${msg.role}`;
+            const avatar = document.createElement('div'); avatar.className = 'message-avatar'; avatar.innerText = msg.role === 'user' ? '👤' : '🍂';
+            const contentDiv = document.createElement('div'); contentDiv.className = 'message-content';
+            if (msg.role === 'assistant' && msg.content === '') contentDiv.innerText = '🍂 学长正在银杏树下打字...';
+            else contentDiv.innerText = msg.content;
+            msgDiv.appendChild(avatar); msgDiv.appendChild(contentDiv);
+            if (msg.role === 'assistant' && msg.content && msg.content.length > 0) {
+                const actionBar = document.createElement('div'); actionBar.className = 'action-bar';
+                const regenBtn = document.createElement('button'); regenBtn.innerText = '🔄 重锤这个回复'; regenBtn.className = 'action-btn';
+                regenBtn.onclick = (e) => { e.stopPropagation(); regenerateSingleMessage(idx); };
+                actionBar.appendChild(regenBtn);
+                msgDiv.appendChild(actionBar);
+            }
+            if (msg.role === 'user') {
+                contentDiv.ondblclick = (e) => { e.stopPropagation(); makeEditable(msgDiv, msg, idx); };
+            }
+            messagesDiv.appendChild(msgDiv);
+        });
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // 完全渲染+ 编辑&重生成按钮
+    function renderMessages() {
+        if (!currentChatId || !chats[currentChatId]) return;
+        const msgs = chats[currentChatId].messages;
+        messagesDiv.innerHTML = '';
+        msgs.forEach((msg, idx) => {
+            const msgDiv = document.createElement('div'); msgDiv.className = `message ${msg.role}`;
+            const avatar = document.createElement('div'); avatar.className = 'message-avatar'; avatar.innerText = msg.role === 'user' ? '👤' : '🍂';
+            const contentDiv = document.createElement('div'); contentDiv.className = 'message-content'; contentDiv.innerText = msg.content;
+            msgDiv.appendChild(avatar); msgDiv.appendChild(contentDiv);
+            if (msg.role === 'user') {
+                contentDiv.ondblclick = (e) => { e.stopPropagation(); makeEditable(msgDiv, msg, idx); };
+            }
+            if (msg.role === 'assistant' && msg.content) {
+                const actionBar = document.createElement('div'); actionBar.className = 'action-bar';
+                const regenBtn = document.createElement('button'); regenBtn.innerText = '🔄 重新生成'; regenBtn.className = 'action-btn';
+                regenBtn.onclick = (e) => { e.stopPropagation(); regenerateSingleMessage(idx); };
+                actionBar.appendChild(regenBtn);
+                msgDiv.appendChild(actionBar);
+            }
+            messagesDiv.appendChild(msgDiv);
+        });
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // 编辑消息逻辑（修改后清除后续回复）
+    function makeEditable(msgDiv, messageObj, idx) {
+        const contentDiv = msgDiv.querySelector('.message-content');
+        const original = messageObj.content;
+        const textarea = document.createElement('textarea');
+        textarea.value = original; textarea.classList.add('edit-textarea'); textarea.rows = 3;
+        contentDiv.style.display = 'none';
+        contentDiv.parentNode.insertBefore(textarea, contentDiv.nextSibling);
+        const save = () => {
+            const newVal = textarea.value.trim();
+            if (newVal && newVal !== original) {
+                messageObj.content = newVal;
+                if (idx === 0 && chats[currentChatId].messages[0]?.role === 'user') {
+                    chats[currentChatId].title = newVal.slice(0, 28) + (newVal.length > 28 ? '...' : '');
+                    renderHistory();
+                }
+                const allMsgs = chats[currentChatId].messages;
+                allMsgs.splice(idx + 1, allMsgs.length - idx - 1);
+                renderMessages();
+                saveAll();
+                showStatus('消息已改，后面的回复清空啦，重新发送吧');
+            }
+            textarea.remove(); contentDiv.style.display = 'block';
+        };
+        textarea.addEventListener('blur', save);
+        textarea.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); save(); } });
+        textarea.focus();
+    }
+
+    // 单条回复重新生成(流式)
+    async function regenerateSingleMessage(assistantIdx) {
+        if (isWaiting || currentStreaming) { showStatus('等学长打完字再重来', true); return; }
+        const msgs = chats[currentChatId].messages;
+        if (msgs[assistantIdx]?.role !== 'assistant') return;
+        const userIdx = assistantIdx - 1;
+        if (userIdx < 0 || msgs[userIdx]?.role !== 'user') { showStatus('没找到对应的用户问题', true); return; }
+        const userMessage = msgs[userIdx].content;
+        msgs.splice(assistantIdx, msgs.length - assistantIdx);
+        renderMessages();
+        saveAll();
+        await generateReplyCore(userMessage);
+    }
+
+    // 重新生成最后一条ai
+    async function regenerateLast() {
+        if (isWaiting || currentStreaming) { showStatus('稍等，学长输出完再锤', true); return; }
+        const msgs = chats[currentChatId].messages;
+        let lastAI = -1;
+        for (let i = msgs.length - 1; i >= 0; i--) if (msgs[i].role === 'assistant') { lastAI = i; break; }
+        if (lastAI === -1) { showStatus('还没有回答可以重锤', true); return; }
+        await regenerateSingleMessage(lastAI);
+    }
+
+    // 核心调用(带流式显示，并且不提到api)
+    async function generateReplyCore(userPrompt, imagePayload = null, filePayload = null) {
+        if (!currentApiKey) { showStatus('请填写密钥(内部)~', true); return false; }
+        isWaiting = true; sendBtn.disabled = regenerateLastBtn.disabled = true;
+        let combined = userPrompt;
+        if (imagePayload) combined = `[学长帮看这张图] 用户上传图片问题: ${userPrompt}，请提取图片中文字并解答。`;
+        if (filePayload) combined = `用户上传文件内容摘要: ${filePayload.slice(0, 1500)}\n\n用户问题:${userPrompt}`;
+        const contextMsgs = getContextMessages();
+        const apiMsgs = [{ role: "system", content: getSystemPrompt() }, ...contextMsgs, { role: "user", content: combined }];
+        try {
+            const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentApiKey}` },
+                body: JSON.stringify({ model: currentModel, messages: apiMsgs, temperature: 0.7, stream: false })
+            });
+            if (!resp.ok) throw new Error(`请求失败 ${resp.status}`);
+            const data = await resp.json();
+            let rawReply = data.choices[0].message.content;
+            let cleanReply = cleanToPlain(rawReply);
+            // 避免不合适的字眼
+            cleanReply = cleanReply.replace(/api/gi, '内部引擎').replace(/免费/gi, '实验室算力').replace(/付费/gi, '');
+            await addAssistantMessageWithStreaming(cleanReply);
+            return true;
+        } catch (err) { showStatus(`出岔子了: ${err.message}`, true); return false; }
+        finally { isWaiting = false; sendBtn.disabled = regenerateLastBtn.disabled = false; currentStreaming = false; }
+    }
+
+    function getContextMessages() {
+        const msgs = chats[currentChatId].messages;
+        let rounds = contextRounds;
+        let ctx = []; let cnt = 0;
+        for (let i = msgs.length - 1; i >= 0; i--) {
+            if (msgs[i].role === 'user') cnt++;
+            ctx.unshift(msgs[i]);
+            if (cnt >= rounds) break;
+        }
+        return ctx;
+    }
+
+    // 发送主流程
+    async function sendMessageFlow() {
+        if (isWaiting || currentStreaming) { showStatus('等学长回答完再问', true); return; }
+        const rawText = messageInput.value.trim();
+        if (!rawText && !pendingImageBase64 && !pendingFileText) { showStatus('写点东西呗，火锅烧烤随便问', true); return; }
+        const finalText = rawText || (pendingImageBase64 ? '看看这张图里有什么' : '分析这个文件');
+        const userMsg = { role: 'user', content: finalText + (pendingImageBase64 ? ' [图片]' : (pendingFileText ? ' [文件]' : '')) };
+        chats[currentChatId].messages.push(userMsg);
+        if (chats[currentChatId].messages.length === 1) {
+            chats[currentChatId].title = finalText.slice(0, 28) + (finalText.length > 28 ? '...' : '');
+            renderHistory();
+        }
+        renderMessages();
+        saveAll();
+        messageInput.value = '';
+        const imgData = pendingImageBase64;
+        const fileData = pendingFileText;
+        clearPending();
+        await generateReplyCore(finalText, imgData, fileData);
+    }
+
+    function clearPending() { pendingImageBase64 = null; pendingFileText = null; filePreviewSpan.innerText = ''; }
+    function handleFileUpload(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (file.type.startsWith('image/')) { pendingImageBase64 = e.target.result; pendingFileText = null; filePreviewSpan.innerText = `🖼️ 已加载: ${file.name}`; showStatus('图片已备好，大锤帮你瞄一眼'); }
+            else if (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.json')) { pendingFileText = e.target.result.slice(0, 3000); pendingImageBase64 = null; filePreviewSpan.innerText = `📄 已提取: ${file.name}`; showStatus('文件内容读完了'); }
+            else showStatus('仅支持图片或文本文件', true);
+        };
+        if (file.type.startsWith('image/')) reader.readAsDataURL(file);
+        else reader.readAsText(file, 'UTF-8');
+    }
+
+    // 存储 & 历史
+    function saveAll() { localStorage.setItem('deepseek_chats_wangdachui', JSON.stringify(chats)); localStorage.setItem('deepseek_api_key', currentApiKey); localStorage.setItem('deepseek_model', currentModel); localStorage.setItem('context_rounds', contextRounds); }
+    function createNewChat() { const id = Date.now().toString(); chats[id] = { id, title: `银杏聊🍂 ${new Date().toLocaleString()}`, messages: [], createdAt: new Date().toISOString() }; currentChatId = id; renderHistory(); renderMessages(); saveAll(); clearPending(); }
+    function loadChat(id) { if (chats[id]) { currentChatId = id; renderHistory(); renderMessages(); clearPending(); } }
+    function deleteChat(id, ev) { ev.stopPropagation(); if (confirm('删除这轮聊天？')) { delete chats[id]; const keys = Object.keys(chats); keys.length ? loadChat(keys[0]) : createNewChat(); renderHistory(); saveAll(); } }
+    function renderHistory() { const term = searchInput.value.trim().toLowerCase(); let arr = Object.values(chats).filter(c => term === '' || c.title.toLowerCase().includes(term) || c.messages.some(m => m.content.toLowerCase().includes(term))); chatHistoryDiv.innerHTML = ''; arr.forEach(c => { const div = document.createElement('div'); div.className = 'history-item' + (c.id === currentChatId ? ' active' : ''); div.onclick = () => loadChat(c.id); div.innerHTML = `<div class="history-title">${c.title}</div><div class="history-date">${new Date(c.createdAt).toLocaleDateString()}</div><button class="delete-chat">🗑️</button>`; div.querySelector('.delete-chat').onclick = (e) => deleteChat(c.id, e); chatHistoryDiv.appendChild(div); }); }
+    function exportChat() { if (!currentChatId) return; const chat = chats[currentChatId]; let txt = `🍂 与王大锤学长对话 (FIT楼) \n标题: ${chat.title}\n\n`; chat.messages.forEach(m => { txt += `${m.role === 'user' ? '我' : '学长'}:\n${m.content}\n\n`; }); const blob = new Blob([txt], { type: 'text/plain' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `wangdachui_${Date.now()}.txt`; a.click(); URL.revokeObjectURL(a.href); showStatus('导出txt啦'); }
+
+    sendBtn.addEventListener('click', sendMessageFlow);
+    regenerateLastBtn.addEventListener('click', regenerateLast);
+    newChatBtn.addEventListener('click', createNewChat);
+    saveApiKeyBtn.addEventListener('click', () => { currentApiKey = apiKeyInput.value.trim(); currentModel = modelSelect.value; contextRounds = parseInt(contextSlider.value); contextSpan.innerText = contextRounds; saveAll(); showStatus('设置存档~'); });
+    modelSelect.addEventListener('change', () => { currentModel = modelSelect.value; saveAll(); updateModelPrice(); });
+    contextSlider.addEventListener('input', () => { contextSpan.innerText = contextSlider.value; contextRounds = parseInt(contextSlider.value); saveAll(); });
+    messageInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessageFlow(); } });
+    fileUploadInput.addEventListener('change', (e) => { if (e.target.files[0]) handleFileUpload(e.target.files[0]); fileUploadInput.value = ''; });
+    searchInput.addEventListener('input', () => renderHistory());
+    exportMenuBtn.addEventListener('click', exportChat);
+    updateModelPrice();
+    function loadSettings() { if (currentApiKey) apiKeyInput.value = currentApiKey; modelSelect.value = currentModel; updateModelPrice(); contextSlider.value = contextRounds; contextSpan.innerText = contextRounds; const saved = localStorage.getItem('deepseek_chats_wangdachui'); if (saved) { chats = JSON.parse(saved); renderHistory(); if (Object.keys(chats).length) loadChat(Object.keys(chats)[0]); else createNewChat(); } else createNewChat(); }
+    loadSettings();
+</script>
+</body>
+</html>
