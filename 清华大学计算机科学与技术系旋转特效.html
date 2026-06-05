@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>清华大学计算机系 · 创意科技视界</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', 'Poppins', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+        }
+
+        /* 加载提示样式，优雅淡出 */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0f2a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            backdrop-filter: blur(10px);
+            transition: opacity 1.5s ease;
+            pointer-events: none;
+            font-weight: 300;
+        }
+
+        .loader-text {
+            background: linear-gradient(135deg, #aaffff, #4d7cff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; letter-spacing: 2px; }
+            50% { opacity: 1; letter-spacing: 6px; }
+            100% { opacity: 0.4; letter-spacing: 2px; }
+        }
+
+        /* 主UI容器 - 文字、署名等 */
+        .info-panel {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 20;
+            pointer-events: none;
+            font-family: 'Segoe UI', 'Poppins', monospace;
+        }
+
+        .main-title {
+            font-size: clamp(1.2rem, 5vw, 2rem);
+            font-weight: 500;
+            letter-spacing: 6px;
+            background: linear-gradient(135deg, #fff, #aaddff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(77,124,255,0.3);
+            margin-bottom: 8px;
+        }
+
+        /* 可点击的签名区域 - 增加官网链接 */
+        .power-signature {
+            font-size: clamp(0.8rem, 3.5vw, 1.3rem);
+            font-weight: 400;
+            background: rgba(10, 20, 40, 0.65);
+            backdrop-filter: blur(10px);
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 60px;
+            border: 1px solid rgba(77, 124, 255, 0.5);
+            box-shadow: 0 0 15px rgba(77,124,255,0.2);
+            color: #eef5ff;
+            letter-spacing: 1px;
+            pointer-events: auto;      /* 使链接可点击 */
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .power-signature:hover {
+            background: rgba(30, 60, 120, 0.8);
+            border-color: #7aaaff;
+            box-shadow: 0 0 20px rgba(77,124,255,0.6);
+            transform: scale(1.02);
+        }
+        .power-signature strong {
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffd966, #ffb347);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .power-signature a {
+            text-decoration: none;
+            color: inherit;
+            display: inline-block;
+        }
+
+        .subnote {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            z-index: 20;
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            background: rgba(0,0,0,0.3);
+            padding: 5px 12px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            pointer-events: none;
+            font-family: monospace;
+        }
+
+        /* 右下角增加一点点现代感交互提示 */
+        .interact-hint {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            z-index: 20;
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            background: rgba(0,0,0,0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            pointer-events: none;
+            font-family: monospace;
+        }
+
+        @media (max-width: 600px) {
+            .power-signature { padding: 5px 16px; }
+            .subnote { top: 12px; right: 12px; font-size: 8px; }
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="loader-text">✦ 水木清华 · 智创未来 ✦</div>
+</div>
+
+<div class="info-panel">
+    <div class="main-title">DEPARTMENT OF COMPUTER SCIENCE AND TECHNOLOGY</div>
+    <!-- 修正为 "Powered by" 并添加官网链接，新标签页打开 -->
+    <div class="power-signature" id="powerLink">
+        ⚡ Powered by <strong>清华大学计算机科学与技术系</strong> ⚡
+    </div>
+</div>
+<div class="subnote">TSINGHUA · 创新·卓越</div>
+<div class="interact-hint">✨ 鼠标拖动 / 触摸旋转视角 ✨</div>
+
+<!-- 引入 Three.js 核心库及扩展 -->
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    
+    // --- 初始化场景、相机、渲染器 ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x050b1a); // 深邃星空蓝黑
+    scene.fog = new THREE.FogExp2(0x050b1a, 0.008); // 轻微雾效增强景深
+
+    // 透视相机: 视野, 宽高比, 近平面, 远平面
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(5, 3, 8);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.toneMapping = THREE.ReinhardToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    document.body.appendChild(renderer.domElement);
+
+    // --- 后期特效: Bloom (炫光科技感) ---
+    const renderScene = new RenderPass(scene, camera);
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.3, 0.85);
+    bloomPass.threshold = 0.1;  // 亮度阈值
+    bloomPass.strength = 0.8;
+    bloomPass.radius = 0.5;
+    const effectComposer = new EffectComposer(renderer);
+    effectComposer.addPass(renderScene);
+    effectComposer.addPass(bloomPass);
+
+    // --- 轨道控制，支持互动，增加体验感 ---
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;      // 惯性效果
+    controls.dampingFactor = 0.05;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.2;
+    controls.enableZoom = true;
+    controls.enablePan = false;         // 限制平移，聚焦中心
+    controls.zoomSpeed = 1.0;
+    controls.rotateSpeed = 1.0;
+    controls.target.set(0, 0.5, 0);
+    
+    // 根据用户交互暂停自动旋转 (提升专业感)
+    let autoRotateFlag = true;
+    controls.autoRotate = autoRotateFlag;
+    // 监听用户开始交互，暂时冻结自动旋转，放开后恢复 (优雅)
+    controls.addEventListener('start', () => {
+        if (autoRotateFlag) {
+            controls.autoRotate = false;
+        }
+    });
+    controls.addEventListener('end', () => {
+        if (autoRotateFlag) {
+            // 延迟2秒后重新开启自动旋转，避免太过突兀
+            setTimeout(() => {
+                if (!controls.autoRotate && autoRotateFlag) {
+                    controls.autoRotate = true;
+                }
+            }, 3000);
+        }
+    });
+    
+    // --- 创意核心视觉: 炫光粒子流 + 中心清华紫水晶 + 环绕数学几何 ---
+    
+    // 1. 中心主物体：一个半透明发光的二十面体 + 内核心球体，象征智慧结晶
+    const coreGroup = new THREE.Group();
+    
+    // 内核心: 高光球体
+    const innerSphereMat = new THREE.MeshStandardMaterial({
+        color: 0x3a86ff,
+        emissive: 0x1a44aa,
+        emissiveIntensity: 0.6,
+        metalness: 0.9,
+        roughness: 0.2,
+        transparent: true,
+        opacity: 0.85
+    });
+    const innerCore = new THREE.Mesh(new THREE.SphereGeometry(0.65, 64, 64), innerSphereMat);
+    coreGroup.add(innerCore);
+    
+    // 外二十面体: 线框+半透明，科技感
+    const icoGeo = new THREE.IcosahedronGeometry(1.15, 0);
+    const edgeMat = new THREE.MeshBasicMaterial({ color: 0x4d7cff, wireframe: true, transparent: true, opacity: 0.35 });
+    const icoWire = new THREE.Mesh(icoGeo, edgeMat);
+    coreGroup.add(icoWire);
+    
+    // 闪烁发光外层: 使用二次线框增强
+    const icoOuterMat = new THREE.MeshStandardMaterial({
+        color: 0x6ea8fe,
+        emissive: 0x2266ff,
+        emissiveIntensity: 0.3,
+        wireframe: false,
+        transparent: true,
+        opacity: 0.2,
+        side: THREE.DoubleSide
+    });
+    const icoGlow = new THREE.Mesh(new THREE.IcosahedronGeometry(1.25, 0), icoOuterMat);
+    coreGroup.add(icoGlow);
+    
+    // 添加围绕核心的粒子光环 (旋转光环粒子)
+    scene.add(coreGroup);
+    
+    // 2. 科技感环状轨道 (环绕的电子轨道)
+    const ringGroup = new THREE.Group();
+    const ringRadius = 1.9;
+    const ringTubeGeo = new THREE.TorusGeometry(ringRadius, 0.05, 64, 300);
+    const ringMat = new THREE.MeshStandardMaterial({ color: 0x3a86ff, emissive: 0x1a55cc, emissiveIntensity: 0.7 });
+    const mainRing = new THREE.Mesh(ringTubeGeo, ringMat);
+    ringGroup.add(mainRing);
+    
+    const ring2Geo = new THREE.TorusGeometry(ringRadius + 0.25, 0.04, 64, 300);
+    const ringMat2 = new THREE.MeshStandardMaterial({ color: 0x88aaff, emissive: 0x3377ff, emissiveIntensity: 0.5 });
+    const secondRing = new THREE.Mesh(ring2Geo, ringMat2);
+    secondRing.rotation.x = Math.PI / 2;
+    secondRing.rotation.z = Math.PI / 3;
+    ringGroup.add(secondRing);
+    
+    const ring3Geo = new THREE.TorusGeometry(ringRadius - 0.2, 0.045, 64, 300);
+    const ringMat3 = new THREE.MeshStandardMaterial({ color: 0xcc88ff, emissive: 0x8844cc, emissiveIntensity: 0.6 });
+    const thirdRing = new THREE.Mesh(ring3Geo, ringMat3);
+    thirdRing.rotation.x = 1.2;
+    thirdRing.rotation.z = 0.8;
+    ringGroup.add(thirdRing);
+    
+    scene.add(ringGroup);
+    
+    // 3. 动态粒子系统: 流线型粒子场 (科技数据流)
+    const particleCount = 2800;
+    const particlesGeometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+    
+    // 颜色方案: 清华紫 + 科技蓝 + 青白
+    for (let i = 0; i < particleCount; i++) {
+        // 分布在球状区域和环绕轨道形状: 混合分布，螺旋感
+        const radiusBase = 2.2 + Math.random() * 2.5;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        
+        // 部分粒子呈环状分布增加层次
+        let x, y, z;
+        if (i % 3 === 0) {
+            // 环状扁平分布
+            const ringR = 2.8 + Math.random() * 1.2;
+            const angle = Math.random() * Math.PI * 2;
+            x = Math.cos(angle) * ringR;
+            z = Math.sin(angle) * ringR;
+            y = (Math.random() - 0.5) * 1.2;
+        } else {
+            // 球状随机
+            x = radiusBase * Math.sin(phi) * Math.cos(theta);
+            y = radiusBase * Math.sin(phi) * Math.sin(theta) * 0.8; // 稍压扁
+            z = radiusBase * Math.cos(phi);
+        }
+        positions[i*3] = x;
+        positions[i*3+1] = y;
+        positions[i*3+2] = z;
+        
+        // 颜色: 蓝紫色系，根据位置赋予渐变
+        const colorChoice = new THREE.Color();
+        const mixFactor = (Math.random() * 0.8 + 0.2);
+        if (Math.random() > 0.6) {
+            colorChoice.setHSL(0.55 + Math.random()*0.1, 1.0, 0.6); // 蓝青色
+        } else {
+            colorChoice.setHSL(0.65 + Math.random()*0.15, 1.0, 0.7); // 紫蓝色
+        }
+        colors[i*3] = colorChoice.r;
+        colors[i*3+1] = colorChoice.g;
+        colors[i*3+2] = colorChoice.b;
+    }
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    
+    const particleMaterial = new THREE.PointsMaterial({
+        size: 0.08,
+        vertexColors: true,
+        blending: THREE.AdditiveBlending,
+        transparent: true,
+        opacity: 0.9
+    });
+    const particleSystem = new THREE.Points(particlesGeometry, particleMaterial);
+    scene.add(particleSystem);
+    
+    // 4. 增加动态飘浮粒子流 (第二层粒子系统，类似星云轨迹)
+    const flowCount = 1500;
+    const flowGeo = new THREE.BufferGeometry();
+    const flowPositions = new Float32Array(flowCount * 3);
+    const flowColorsArr = new Float32Array(flowCount * 3);
+    for (let i = 0; i < flowCount; i++) {
+        // 模拟螺旋轨迹的参数
+        const t = Math.random() * Math.PI * 2;
+        const r = 3.2 + Math.sin(t * 3) * 0.6;
+        const x = Math.cos(t) * r;
+        const z = Math.sin(t) * r;
+        const y = Math.sin(t * 2.5) * 1.4;
+        flowPositions[i*3] = x;
+        flowPositions[i*3+1] = y;
+        flowPositions[i*3+2] = z;
+        const colorFlow = new THREE.Color().setHSL(0.58 + Math.random()*0.2, 1.0, 0.65);
+        flowColorsArr[i*3] = colorFlow.r;
+        flowColorsArr[i*3+1] = colorFlow.g;
+        flowColorsArr[i*3+2] = colorFlow.b;
+    }
+    flowGeo.setAttribute('position', new THREE.BufferAttribute(flowPositions, 3));
+    flowGeo.setAttribute('color', new THREE.BufferAttribute(flowColorsArr, 3));
+    const flowPointsMat = new THREE.PointsMaterial({ size: 0.05, vertexColors: true, blending: THREE.AdditiveBlending });
+    const flowParticles = new THREE.Points(flowGeo, flowPointsMat);
+    scene.add(flowParticles);
+    
+    // 5. 随机飘浮的闪耀星星(背景深空)
+    const starCount = 1200;
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+        starPos[i*3] = (Math.random() - 0.5) * 200;
+        starPos[i*3+1] = (Math.random() - 0.5) * 100;
+        starPos[i*3+2] = (Math.random() - 0.5) * 80 - 40;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.08, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
+    const starsField = new THREE.Points(starGeo, starMat);
+    scene.add(starsField);
+    
+    // 6. 科技感线框立方体围绕 (装饰)
+    const wireframeGroup = new THREE.Group();
+    const boxWireMat = new THREE.MeshBasicMaterial({ color: 0x3a6eff, wireframe: true, transparent: true, opacity: 0.2 });
+    for (let i = 0; i < 12; i++) {
+        const box = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 0.55), boxWireMat);
+        const angle = (i / 12) * Math.PI * 2;
+        const rad = 2.7;
+        box.position.x = Math.cos(angle) * rad;
+        box.position.z = Math.sin(angle) * rad;
+        box.position.y = Math.sin(angle * 2) * 1.2;
+        wireframeGroup.add(box);
+    }
+    scene.add(wireframeGroup);
+    
+    // 7. 辅助科技光环: 巨大光晕环面
+    const auraMat = new THREE.MeshBasicMaterial({ color: 0x2c6eff, transparent: true, opacity: 0.12, side: THREE.BackSide });
+    const auraRing = new THREE.Mesh(new THREE.TorusGeometry(3.2, 0.08, 64, 200), auraMat);
+    scene.add(auraRing);
+    const auraRing2 = new THREE.Mesh(new THREE.TorusGeometry(3.8, 0.05, 64, 200), auraMat);
+    auraRing2.material = auraMat.clone();
+    auraRing2.material.color.setHex(0x8866ff);
+    auraRing2.material.opacity = 0.1;
+    scene.add(auraRing2);
+    
+    // 添加一个简单的全屏光晕镜头光晕 (可选 但为了性能，我们用泛光与点光源)
+    // 增加环境光与点光源塑造立体感
+    const ambientLight = new THREE.AmbientLight(0x111122);
+    scene.add(ambientLight);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1);
+    mainLight.position.set(2, 5, 3);
+    scene.add(mainLight);
+    const backLight = new THREE.PointLight(0x4466ff, 0.8);
+    backLight.position.set(-2, 1, -4);
+    scene.add(backLight);
+    const fillLight = new THREE.PointLight(0xffaa66, 0.5);
+    fillLight.position.set(1, 2, 2);
+    scene.add(fillLight);
+    
+    // 动态流光线条效果: 创建一条沿着轨道运动的粒子线 (使用TubeGeometry简单装饰)
+    const pointsCurve = [];
+    for (let i = 0; i <= 80; i++) {
+        const angle = (i / 80) * Math.PI * 2;
+        const r = 2.4;
+        const x = Math.cos(angle) * r;
+        const z = Math.sin(angle) * r;
+        const y = Math.sin(angle * 2) * 0.7;
+        pointsCurve.push(new THREE.Vector3(x, y, z));
+    }
+    const curveLineGeo = new THREE.BufferGeometry().setFromPoints(pointsCurve);
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x4d7cff, transparent: true, opacity: 0.4 });
+    const orbitLine = new THREE.LineLoop(curveLineGeo, lineMat);
+    scene.add(orbitLine);
+    
+    // 第二条曲线
+    const pointsCurve2 = [];
+    for (let i = 0; i <= 80; i++) {
+        const angle = (i / 80) * Math.PI * 2;
+        const r = 2.9;
+        const x = Math.cos(angle) * r;
+        const z = Math.sin(angle) * r;
+        const y = Math.cos(angle * 1.8) * 0.9;
+        pointsCurve2.push(new THREE.Vector3(x, y, z));
+    }
+    const curveLineGeo2 = new THREE.BufferGeometry().setFromPoints(pointsCurve2);
+    const lineMat2 = new THREE.LineBasicMaterial({ color: 0xaa88ff, transparent: true, opacity: 0.5 });
+    const orbitLine2 = new THREE.LineLoop(curveLineGeo2, lineMat2);
+    scene.add(orbitLine2);
+    
+    // --- 辅助创意：动态浮动的数字/符号纹理 (可做简单粒子替换，但由于性能，增加几个浮动文字 sprite? 可用canvas)
+    // 简单做法: 生成几个 canvas 精灵悬浮
+    const makeTextSprite = (message, colorHex, size) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 256;
+        canvas.height = 128;
+        ctx.fillStyle = 'rgba(0,0,0,0)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = `Bold ${size}px "Segoe UI", "Poppins"`;
+        ctx.fillStyle = colorHex;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(message, canvas.width/2, canvas.height/2);
+        const texture = new THREE.CanvasTexture(canvas);
+        const material = new THREE.SpriteMaterial({ map: texture, transparent: true, blending: THREE.AdditiveBlending });
+        const sprite = new THREE.Sprite(material);
+        sprite.scale.set(0.8, 0.4, 1);
+        return sprite;
+    };
+    
+    const tsinghuaSprite = makeTextSprite('THU·CS', '#88aaff', 36);
+    tsinghuaSprite.position.set(1.6, 1.2, 1.2);
+    scene.add(tsinghuaSprite);
+    
+    const aiSprite = makeTextSprite('AI ∞', '#ffaa88', 28);
+    aiSprite.position.set(-1.5, -0.8, 1.8);
+    scene.add(aiSprite);
+    
+    const codeSprite = makeTextSprite('<Code />', '#77ffaa', 26);
+    codeSprite.position.set(0, 1.8, 1.9);
+    scene.add(codeSprite);
+    
+    // 增加缓慢飘动的发光粒子的动态数组 (光晕)
+    // 让整个粒子系统缓慢自转，效果更炫
+    // 动画变量:
+    let time = 0;
+    
+    // --- 官网链接配置: 清华大学计算机科学与技术系官方网站 (修正为 powered by 并添加交互) ---
+    // 官方链接: https://www.cs.tsinghua.edu.cn (计算机系官网)
+    const deptOfficialUrl = 'https://www.cs.tsinghua.edu.cn';
+    // 获取DOM元素并添加点击事件 + 新标签打开
+    const powerElement = document.getElementById('powerLink');
+    if (powerElement) {
+        // 设置光标为手型，并添加跳转逻辑
+        powerElement.style.cursor = 'pointer';
+        powerElement.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.open(deptOfficialUrl, '_blank', 'noopener,noreferrer');
+        });
+        // 为了更好的可访问性，添加title属性
+        powerElement.setAttribute('title', '访问清华大学计算机科学与技术系官网');
+    }
+    
+    // --- 动画循环更新旋转逻辑 ---
+    function animate() {
+        requestAnimationFrame(animate);
+        time += 0.012;
+        
+        // 动态效果:
+        // 1. 核心部分自转
+        coreGroup.rotation.y = time * 0.3;
+        coreGroup.rotation.x = Math.sin(time * 0.5) * 0.2;
+        coreGroup.rotation.z = Math.cos(time * 0.7) * 0.1;
+        
+        // 2. 光环组整体旋转
+        ringGroup.rotation.y = time * 0.2;
+        ringGroup.rotation.x = Math.sin(time * 0.4) * 0.1;
+        ringGroup.rotation.z = Math.cos(time * 0.5) * 0.1;
+        
+        // 3. 粒子系统整体缓慢旋转，营造流动感
+        particleSystem.rotation.y = time * 0.05;
+        particleSystem.rotation.x = Math.sin(time * 0.2) * 0.1;
+        flowParticles.rotation.y = -time * 0.08;
+        flowParticles.rotation.z = time * 0.03;
+        
+        // 4. 线框立方体组旋转
+        wireframeGroup.rotation.y = time * 0.15;
+        wireframeGroup.rotation.x = time * 0.1;
+        
+        // 5. 光环环面的旋转与缩放微动
+        auraRing.rotation.z = time * 0.1;
+        auraRing.rotation.x = Math.sin(time * 0.3) * 0.2;
+        auraRing2.rotation.y = time * 0.12;
+        auraRing2.rotation.x = time * 0.07;
+        
+        // 6. 浮动精灵轻微上下飘动
+        tsinghuaSprite.position.y = 1.2 + Math.sin(time * 1.5) * 0.08;
+        aiSprite.position.x = -1.5 + Math.sin(time * 1.2) * 0.05;
+        codeSprite.position.z = 1.9 + Math.cos(time * 1.8) * 0.07;
+        
+        // 星星背景轻微自转，增强沉浸
+        starsField.rotation.y += 0.0005;
+        starsField.rotation.x += 0.0003;
+        
+        // 动态更新曲线透明度微闪 (材质本身不支持自动，但可更新颜色，小开销无所谓)
+        const glowIntensity = 0.4 + Math.sin(time * 2) * 0.15;
+        lineMat.color.setHSL(0.55, 1, glowIntensity * 0.5);
+        lineMat2.color.setHSL(0.7, 1, glowIntensity * 0.6);
+        
+        // 控制自动旋转逻辑 (通过 OrbitControls 处理)
+        controls.update(); // 必须调用以支持 autoRotate 更新
+        
+        // 使用效果合成器渲染
+        effectComposer.render();
+    }
+    
+    animate();
+    
+    // 处理窗口大小变化
+    window.addEventListener('resize', onWindowResize, false);
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        effectComposer.setSize(window.innerWidth, window.innerHeight);
+    }
+    
+    // 隐藏加载动画
+    window.addEventListener('load', () => {
+        const loaderDiv = document.getElementById('loader');
+        if (loaderDiv) {
+            setTimeout(() => {
+                loaderDiv.style.opacity = '0';
+                setTimeout(() => {
+                    loaderDiv.style.display = 'none';
+                }, 1500);
+            }, 800);
+        }
+    });
+    
+    // 控制台输出彩蛋
+    console.log("%c⚡ 清华大学计算机科学与技术系 | 创新·卓越·引领未来 ⚡", "color: #4d7cff; font-size: 16px; font-weight: bold;");
+    console.log("%c三维创意空间已启动 | 官网链接已集成: " + deptOfficialUrl, "color: #88aaff; font-size: 12px;");
+</script>
+</body>
+</html>
