@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>清华计算机系 · 银河帝国 | 太阳系与银河系双层宇宙</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', 'Poppins', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #010005;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            backdrop-filter: blur(8px);
+            transition: opacity 1.5s ease;
+            pointer-events: none;
+            font-weight: 300;
+        }
+
+        .loader-text {
+            background: linear-gradient(135deg, #ffe6cc, #ffaa66, #88aaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: cosmicPulse 2s infinite;
+        }
+
+        @keyframes cosmicPulse {
+            0% { opacity: 0.6; letter-spacing: 2px; }
+            50% { opacity: 1; letter-spacing: 8px; text-shadow: 0 0 20px rgba(100,150,255,0.8); }
+            100% { opacity: 0.6; letter-spacing: 2px; }
+        }
+
+        .info-panel {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 20;
+            pointer-events: none;
+            font-family: 'Segoe UI', 'Poppins', monospace;
+        }
+
+        .main-title {
+            font-size: clamp(1rem, 4vw, 1.8rem);
+            font-weight: 500;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #fff5e6, #ffccaa, #99aaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(80,100,200,0.5);
+            margin-bottom: 8px;
+        }
+
+        .power-signature {
+            font-size: clamp(0.75rem, 3.5vw, 1.2rem);
+            font-weight: 400;
+            background: rgba(6, 12, 28, 0.85);
+            backdrop-filter: blur(12px);
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 60px;
+            border: 1px solid rgba(120, 130, 255, 0.7);
+            box-shadow: 0 0 20px rgba(80,70,200,0.4);
+            color: #f0ecff;
+            letter-spacing: 1px;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .power-signature:hover {
+            background: rgba(20, 30, 60, 0.95);
+            border-color: #bbaaff;
+            box-shadow: 0 0 30px rgba(120,100,255,0.8);
+            transform: scale(1.02);
+        }
+        .power-signature strong {
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffd966, #ffaa66);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subnote {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            z-index: 20;
+            font-size: 12px;
+            color: rgba(200, 200, 255, 0.8);
+            background: rgba(0,0,0,0.4);
+            padding: 5px 12px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            pointer-events: none;
+            font-family: monospace;
+        }
+
+        .interact-hint {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            z-index: 20;
+            font-size: 11px;
+            color: rgba(180, 180, 250, 0.7);
+            background: rgba(0,0,0,0.35);
+            padding: 5px 10px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            pointer-events: none;
+            font-family: monospace;
+        }
+
+        @media (max-width: 600px) {
+            .power-signature { padding: 5px 16px; }
+            .subnote { top: 12px; right: 12px; font-size: 8px; }
+        }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="loader-text">🌀 银河系 · 太阳系 · 清华计算机系 🌀</div>
+</div>
+
+<div class="info-panel">
+    <div class="main-title">🌌 MILKY WAY & SOLAR SYSTEM • 双层宇宙模拟 🌌</div>
+    <div class="power-signature" id="powerLink">
+        ⚡ Powered by <strong>清华大学计算机科学与技术系</strong> ⚡
+    </div>
+</div>
+<div class="subnote">TSINGHUA CS · 从太阳系到银河系</div>
+<div class="interact-hint">🪐 鼠标拖拽旋转 | 滚轮缩放探索星系与行星 🪐</div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    
+    // --- 初始化场景: 深邃宇宙 ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x02010a);
+    scene.fog = new THREE.FogExp2(0x02010a, 0.0003);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(12, 6, 18);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.toneMapping = THREE.ReinhardToneMapping;
+    renderer.toneMappingExposure = 1.3;
+    document.body.appendChild(renderer.domElement);
+
+    // 后期特效 Bloom
+    const renderScene = new RenderPass(scene, camera);
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.3, 0.35, 0.65);
+    bloomPass.threshold = 0.08;
+    bloomPass.strength = 0.9;
+    bloomPass.radius = 0.55;
+    const effectComposer = new EffectComposer(renderer);
+    effectComposer.addPass(renderScene);
+    effectComposer.addPass(bloomPass);
+
+    // 轨道控制
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.25;
+    controls.enableZoom = true;
+    controls.enablePan = true;
+    controls.zoomSpeed = 1.0;
+    controls.rotateSpeed = 0.7;
+    controls.target.set(0, 0, 0);
+    let autoRotateFlag = true;
+    controls.autoRotate = autoRotateFlag;
+    controls.addEventListener('start', () => { if (autoRotateFlag) controls.autoRotate = false; });
+    controls.addEventListener('end', () => {
+        if (autoRotateFlag) setTimeout(() => { if (!controls.autoRotate && autoRotateFlag) controls.autoRotate = true; }, 4000);
+    });
+    
+    // ==================== 银河系构建 (棒旋结构) ====================
+    // 银心核心
+    const galacticCoreGroup = new THREE.Group();
+    const coreMat = new THREE.MeshStandardMaterial({ color: 0xffaa77, emissive: 0xff6633, emissiveIntensity: 0.9, metalness: 0.7 });
+    const nucleus = new THREE.Mesh(new THREE.SphereGeometry(0.72, 64, 64), coreMat);
+    galacticCoreGroup.add(nucleus);
+    // 银河棒
+    const barMat = new THREE.MeshStandardMaterial({ color: 0xffaa88, emissive: 0xff8844, emissiveIntensity: 0.6 });
+    const barLeft = new THREE.Mesh(new THREE.SphereGeometry(0.45, 32, 32), barMat);
+    barLeft.position.set(-1.15, 0, 0);
+    barLeft.scale.set(1.7, 0.45, 0.45);
+    const barRight = new THREE.Mesh(new THREE.SphereGeometry(0.45, 32, 32), barMat);
+    barRight.position.set(1.15, 0, 0);
+    barRight.scale.set(1.7, 0.45, 0.45);
+    galacticCoreGroup.add(barLeft);
+    galacticCoreGroup.add(barRight);
+    scene.add(galacticCoreGroup);
+    
+    // 银心致密粒子晕
+    const coreHaloCount = 4000;
+    const coreHaloGeo = new THREE.BufferGeometry();
+    const corePos = new Float32Array(coreHaloCount * 3);
+    const coreCol = new Float32Array(coreHaloCount * 3);
+    for (let i = 0; i < coreHaloCount; i++) {
+        const rx = (Math.random() - 0.5) * 2.9;
+        const ry = (Math.random() - 0.5) * 1.2;
+        const rz = (Math.random() - 0.5) * 2.4;
+        corePos[i*3] = rx;
+        corePos[i*3+1] = ry * 0.6;
+        corePos[i*3+2] = rz;
+        const hue = 0.09 + Math.random() * 0.1;
+        const color = new THREE.Color().setHSL(hue, 1.0, 0.65 + Math.random()*0.3);
+        coreCol[i*3] = color.r;
+        coreCol[i*3+1] = color.g;
+        coreCol[i*3+2] = color.b;
+    }
+    coreHaloGeo.setAttribute('position', new THREE.BufferAttribute(corePos, 3));
+    coreHaloGeo.setAttribute('color', new THREE.BufferAttribute(coreCol, 3));
+    const coreHaloPoints = new THREE.Points(coreHaloGeo, new THREE.PointsMaterial({ size: 0.045, vertexColors: true, blending: THREE.AdditiveBlending }));
+    scene.add(coreHaloPoints);
+    
+    // 旋臂粒子系统 (4.8万粒子)
+    const starCount = 48000;
+    const galaxyGeo = new THREE.BufferGeometry();
+    const positions = new Float32Array(starCount * 3);
+    const colorsArr = new Float32Array(starCount * 3);
+    const arms = [
+        { angleOffset: 0, intensity: 1.0 },
+        { angleOffset: Math.PI / 2, intensity: 1.0 },
+        { angleOffset: Math.PI, intensity: 0.95 },
+        { angleOffset: 3 * Math.PI / 2, intensity: 0.9 }
+    ];
+    let idx = 0;
+    for (let i = 0; i < starCount; i++) {
+        let armIdx = Math.floor(Math.random() * 4);
+        const isInterarm = (Math.random() < 0.12);
+        if (isInterarm) armIdx = Math.floor(Math.random() * 4);
+        const arm = arms[armIdx];
+        const angleOffset = arm.angleOffset;
+        let radius = 1.3 + Math.pow(Math.random(), 1.45) * 9.0;
+        const k = 4.3;
+        const baseTheta = angleOffset + k * Math.log(radius / 1.2);
+        let armWidth = 0.34;
+        if (radius > 6) armWidth = 0.48;
+        const randomOffset = (Math.random() - 0.5) * armWidth * 1.2;
+        let theta = baseTheta + randomOffset;
+        let yOffset = (Math.random() - 0.5) * (0.12 * (1 - radius / 13) + 0.04);
+        let isHalo = (radius > 5 && Math.random() < 0.07);
+        if (isHalo) yOffset = (Math.random() - 0.5) * 0.85;
+        const x = Math.cos(theta) * radius;
+        const z = Math.sin(theta) * radius;
+        const y = yOffset;
+        positions[idx] = x;
+        positions[idx+1] = y;
+        positions[idx+2] = z;
+        let hue;
+        if (radius < 2.2) hue = 0.10 + Math.random() * 0.08;
+        else if (radius < 5.0) hue = 0.10 + (radius - 2.2) / 3.5 * 0.2;
+        else hue = 0.35 + (radius - 5.0) / 5.0 * 0.25;
+        if (isHalo) hue = 0.6 + Math.random() * 0.2;
+        const color = new THREE.Color().setHSL(hue, 0.75 + Math.random()*0.25, 0.6 + Math.random()*0.35);
+        colorsArr[idx] = color.r;
+        colorsArr[idx+1] = color.g;
+        colorsArr[idx+2] = color.b;
+        idx += 3;
+        if (idx >= starCount * 3) break;
+    }
+    galaxyGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    galaxyGeo.setAttribute('color', new THREE.BufferAttribute(colorsArr, 3));
+    const galaxyPointsMat = new THREE.PointsMaterial({ size: 0.048, vertexColors: true, blending: THREE.AdditiveBlending, transparent: true });
+    const galaxyParticles = new THREE.Points(galaxyGeo, galaxyPointsMat);
+    scene.add(galaxyParticles);
+    
+    // 银晕粒子
+    const haloCount = 9000;
+    const haloGeo = new THREE.BufferGeometry();
+    const haloPositions = new Float32Array(haloCount * 3);
+    const haloColors = new Float32Array(haloCount * 3);
+    for (let i = 0; i < haloCount; i++) {
+        const rad = 10 + Math.pow(Math.random(), 1.5) * 6.5;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const x = rad * Math.sin(phi) * Math.cos(theta);
+        const y = rad * Math.sin(phi) * Math.sin(theta) * 0.55;
+        const z = rad * Math.cos(phi);
+        haloPositions[i*3] = x;
+        haloPositions[i*3+1] = y;
+        haloPositions[i*3+2] = z;
+        const hueHalo = 0.55 + Math.random() * 0.3;
+        const col = new THREE.Color().setHSL(hueHalo, 0.75, 0.55);
+        haloColors[i*3] = col.r;
+        haloColors[i*3+1] = col.g;
+        haloColors[i*3+2] = col.b;
+    }
+    haloGeo.setAttribute('position', new THREE.BufferAttribute(haloPositions, 3));
+    haloGeo.setAttribute('color', new THREE.BufferAttribute(haloColors, 3));
+    const haloPoints = new THREE.Points(haloGeo, new THREE.PointsMaterial({ size: 0.055, vertexColors: true, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.5 }));
+    scene.add(haloPoints);
+    
+    // 银河盘面光晕
+    const diskGlowMat = new THREE.MeshBasicMaterial({ color: 0x88aaff, transparent: true, opacity: 0.03, side: THREE.DoubleSide });
+    const galacticDisk = new THREE.Mesh(new THREE.CircleGeometry(11.5, 32), diskGlowMat);
+    galacticDisk.rotation.x = -Math.PI / 2;
+    galacticDisk.position.y = -0.1;
+    scene.add(galacticDisk);
+    
+    // 背景繁星
+    const bgStarCount = 6000;
+    const bgGeo = new THREE.BufferGeometry();
+    const bgPosArray = new Float32Array(bgStarCount * 3);
+    for (let i = 0; i < bgStarCount; i++) {
+        bgPosArray[i*3] = (Math.random() - 0.5) * 220;
+        bgPosArray[i*3+1] = (Math.random() - 0.5) * 100;
+        bgPosArray[i*3+2] = (Math.random() - 0.5) * 130 - 65;
+    }
+    bgGeo.setAttribute('position', new THREE.BufferAttribute(bgPosArray, 3));
+    const bgStarMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.07, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending });
+    const bgStars = new THREE.Points(bgGeo, bgStarMat);
+    scene.add(bgStars);
+    
+    // ==================== 太阳系构建 (位于银河系悬臂内部，相对位置偏移) ====================
+    const solarSystemGroup = new THREE.Group();
+    // 太阳系整体偏移: 在银河系半径约 5.2 的位置，设定坐标 (5.2, 0.2, 4.1)
+    solarSystemGroup.position.set(5.2, 0.15, 4.1);
+    scene.add(solarSystemGroup);
+    
+    // 太阳
+    const sunMat = new THREE.MeshStandardMaterial({ color: 0xffaa66, emissive: 0xff5511, emissiveIntensity: 1.1, metalness: 0.1 });
+    const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(0.48, 64, 64), sunMat);
+    solarSystemGroup.add(sunMesh);
+    const sunLight = new THREE.PointLight(0xffaa66, 1.2, 12);
+    sunLight.position.set(0, 0, 0);
+    solarSystemGroup.add(sunLight);
+    
+    // 行星数据: 相对距离，大小，颜色，速度
+    const planetsData = [
+        { name: '水星', color: 0xbc9a6c, radius: 0.07, distance: 0.85, speed: 0.028 },
+        { name: '金星', color: 0xe6b856, radius: 0.09, distance: 1.18, speed: 0.022 },
+        { name: '地球', color: 0x4ca3ff, radius: 0.095, distance: 1.52, speed: 0.018 },
+        { name: '火星', color: 0xcc6644, radius: 0.085, distance: 1.92, speed: 0.015 },
+        { name: '木星', color: 0xd8a27a, radius: 0.18, distance: 2.65, speed: 0.0095 },
+        { name: '土星', color: 0xe8cfaa, radius: 0.16, distance: 3.28, speed: 0.0072, ring: true },
+        { name: '天王星', color: 0xb0e0e6, radius: 0.13, distance: 4.02, speed: 0.0055 },
+        { name: '海王星', color: 0x3b6eff, radius: 0.13, distance: 4.75, speed: 0.0045 }
+    ];
+    const planets = [];
+    const planetAngles = planetsData.map(() => Math.random() * Math.PI * 2);
+    
+    planetsData.forEach((data, idx) => {
+        const geometry = new THREE.SphereGeometry(data.radius, 48, 48);
+        const material = new THREE.MeshStandardMaterial({ color: data.color, metalness: 0.3, roughness: 0.5 });
+        const planet = new THREE.Mesh(geometry, material);
+        planet.userData = { distance: data.distance, speed: data.speed, angle: planetAngles[idx] };
+        solarSystemGroup.add(planet);
+        if (data.ring) {
+            const ringGeo = new THREE.TorusGeometry(data.radius * 1.35, 0.035, 24, 80);
+            const ringMat = new THREE.MeshStandardMaterial({ color: 0xcbbf91, emissive: 0x442200, emissiveIntensity: 0.15 });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2.2;
+            planet.add(ring);
+        }
+        planets.push(planet);
+        
+        // 轨道线
+        const orbitPoints = [];
+        const segs = 96;
+        for (let i = 0; i <= segs; i++) {
+            const ang = (i / segs) * Math.PI * 2;
+            const x = Math.cos(ang) * data.distance;
+            const z = Math.sin(ang) * data.distance;
+            orbitPoints.push(new THREE.Vector3(x, 0, z));
+        }
+        const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+        const orbitMat = new THREE.LineBasicMaterial({ color: 0x88aaff, transparent: true, opacity: 0.4 });
+        const orbitLine = new THREE.LineLoop(orbitGeo, orbitMat);
+        solarSystemGroup.add(orbitLine);
+    });
+    
+    // 小行星带 (火星木星之间)
+    const asteroidCount = 2800;
+    const asteroidGeo = new THREE.BufferGeometry();
+    const asteroidPos = new Float32Array(asteroidCount * 3);
+    for (let i = 0; i < asteroidCount; i++) {
+        const r = 2.0 + Math.random() * 0.9;
+        const angle = Math.random() * Math.PI * 2;
+        const yOff = (Math.random() - 0.5) * 0.2;
+        asteroidPos[i*3] = Math.cos(angle) * r;
+        asteroidPos[i*3+1] = yOff;
+        asteroidPos[i*3+2] = Math.sin(angle) * r;
+    }
+    asteroidGeo.setAttribute('position', new THREE.BufferAttribute(asteroidPos, 3));
+    const asteroidMatP = new THREE.PointsMaterial({ color: 0xaa9988, size: 0.025, blending: THREE.AdditiveBlending });
+    const asteroidField = new THREE.Points(asteroidGeo, asteroidMatP);
+    solarSystemGroup.add(asteroidField);
+    
+    // 太阳系局部光晕粒子
+    const solarDustCount = 1800;
+    const solarDustGeo = new THREE.BufferGeometry();
+    const solarDustPos = new Float32Array(solarDustCount * 3);
+    for (let i = 0; i < solarDustCount; i++) {
+        const rad = 0.7 + Math.random() * 1.6;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        solarDustPos[i*3] = rad * Math.sin(phi) * Math.cos(theta);
+        solarDustPos[i*3+1] = rad * Math.sin(phi) * Math.sin(theta) * 0.5;
+        solarDustPos[i*3+2] = rad * Math.cos(phi);
+    }
+    solarDustGeo.setAttribute('position', new THREE.BufferAttribute(solarDustPos, 3));
+    const solarDustMat = new THREE.PointsMaterial({ color: 0xffaa88, size: 0.02, blending: THREE.AdditiveBlending });
+    const solarDust = new THREE.Points(solarDustGeo, solarDustMat);
+    solarSystemGroup.add(solarDust);
+    
+    // 添加一个半透明发光球体表示太阳光晕范围
+    const sunGlowMat = new THREE.MeshBasicMaterial({ color: 0xff8844, transparent: true, opacity: 0.12, side: THREE.BackSide });
+    const sunGlowSphere = new THREE.Mesh(new THREE.SphereGeometry(0.82, 32, 32), sunGlowMat);
+    solarSystemGroup.add(sunGlowSphere);
+    
+    // 在太阳系周围添加一个淡淡的指引光环 (突出位置)
+    const solarHaloRing = new THREE.Mesh(new THREE.TorusGeometry(5.5, 0.03, 64, 200), new THREE.MeshBasicMaterial({ color: 0x88aaff, transparent: true, opacity: 0.2 }));
+    solarSystemGroup.add(solarHaloRing);
+    
+    // 全局辅助光源
+    const ambientLight = new THREE.AmbientLight(0x111122);
+    scene.add(ambientLight);
+    const backLight = new THREE.PointLight(0x6688ff, 0.5);
+    backLight.position.set(-3, 2, -6);
+    scene.add(backLight);
+    
+    // 银河系额外装饰线条
+    const armLinePoints = [];
+    for (let r = 1.5; r <= 9.5; r += 0.13) {
+        const theta0 = 4.3 * Math.log(r / 1.2);
+        for (let armIdx = 0; armIdx < 4; armIdx++) {
+            const angle = theta0 + armIdx * Math.PI / 2;
+            armLinePoints.push(new THREE.Vector3(Math.cos(angle) * r, 0.03, Math.sin(angle) * r));
+        }
+    }
+    const armLineGeo = new THREE.BufferGeometry().setFromPoints(armLinePoints);
+    const armLineMat = new THREE.LineBasicMaterial({ color: 0x99aaff, transparent: true, opacity: 0.18 });
+    const armLines = new THREE.LineSegments(armLineGeo, armLineMat);
+    scene.add(armLines);
+    
+    // ========== 官网链接 ==========
+    const deptOfficialUrl = 'https://www.cs.tsinghua.edu.cn';
+    const powerElement = document.getElementById('powerLink');
+    if (powerElement) {
+        powerElement.style.cursor = 'pointer';
+        powerElement.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.open(deptOfficialUrl, '_blank', 'noopener,noreferrer');
+        });
+        powerElement.setAttribute('title', '清华大学计算机科学与技术系官网');
+    }
+    
+    // ========== 动画循环 ==========
+    let time = 0;
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        time += 0.012;
+        
+        // 银河系自转
+        galaxyParticles.rotation.y += 0.0005;
+        haloPoints.rotation.y += 0.0002;
+        coreHaloPoints.rotation.y += 0.0003;
+        armLines.rotation.y += 0.0004;
+        bgStars.rotation.y += 0.0001;
+        
+        // 银心脉动
+        const scaleCore = 1 + Math.sin(time * 2.2) * 0.012;
+        nucleus.scale.set(scaleCore, scaleCore, scaleCore);
+        
+        // 太阳系公转 (行星)
+        planets.forEach((planet, idx) => {
+            const data = planetsData[idx];
+            const newAngle = planetAngles[idx] + data.speed;
+            planetAngles[idx] = newAngle;
+            const x = Math.cos(newAngle) * data.distance;
+            const z = Math.sin(newAngle) * data.distance;
+            planet.position.set(x, 0, z);
+        });
+        
+        // 小行星带旋转
+        asteroidField.rotation.y += 0.008;
+        solarDust.rotation.y += 0.01;
+        solarDust.rotation.x += 0.005;
+        
+        // 太阳自转与光晕脉动
+        sunMesh.rotation.y += 0.008;
+        sunGlowSphere.scale.setScalar(1 + Math.sin(time * 2.8) * 0.03);
+        sunLight.intensity = 1.1 + Math.sin(time * 2.2) * 0.2;
+        
+        // 太阳系整体标志光环旋转
+        solarHaloRing.rotation.z += 0.003;
+        solarHaloRing.rotation.x = Math.sin(time * 0.5) * 0.1;
+        
+        // 更新相机控制
+        controls.update();
+        effectComposer.render();
+    }
+    
+    animate();
+    
+    window.addEventListener('resize', onWindowResize);
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        effectComposer.setSize(window.innerWidth, window.innerHeight);
+    }
+    
+    window.addEventListener('load', () => {
+        const loaderDiv = document.getElementById('loader');
+        if (loaderDiv) {
+            setTimeout(() => {
+                loaderDiv.style.opacity = '0';
+                setTimeout(() => loaderDiv.style.display = 'none', 1500);
+            }, 800);
+        }
+    });
+    
+    console.log("%c🌌 清华大学计算机科学与技术系 | 银河系 + 太阳系双层宇宙模拟 🌍", "color: #ddbbff; font-size: 14px; font-weight: bold;");
+    console.log("%c银河系: 棒旋结构 + 4.8万恒星粒子 | 太阳系: 精确轨道 + 行星公转", "color: #aa99ff;");
+    console.log("%c官网链接已集成: " + deptOfficialUrl, "color: #88aaff;");
+</script>
+</body>
+</html>
