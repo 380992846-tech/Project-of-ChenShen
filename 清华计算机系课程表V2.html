@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清华计算机系 · 黑紫课表</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', 'PingFang SC', system-ui, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0b0710;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .app-container {
+            max-width: 1440px;
+            width: 100%;
+            background: rgba(15, 8, 25, 0.65);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 48px;
+            padding: 24px 28px 18px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(160, 100, 220, 0.25), inset 0 0 60px rgba(140, 70, 200, 0.08);
+            border: 1px solid rgba(180, 120, 230, 0.12);
+            background-image: radial-gradient(circle at 20% 30%, rgba(160, 80, 220, 0.08) 0%, transparent 60%),
+                              radial-gradient(circle at 80% 70%, rgba(200, 130, 255, 0.05) 0%, transparent 50%);
+            transition: background-image 0.5s ease;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(145deg, #b28aff, #7a4bff);
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            color: #f0ecff;
+            box-shadow: 0 6px 20px rgba(90, 40, 200, 0.5);
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            background: linear-gradient(to right, #d9caff, #b28aff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo-text small {
+            font-weight: 400;
+            font-size: 0.7rem;
+            color: #9480c0;
+            background: none;
+            -webkit-background-clip: unset;
+            margin-left: 4px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .wallpaper-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(30, 20, 55, 0.35);
+            padding: 3px 10px 3px 12px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.12);
+            flex-wrap: wrap;
+        }
+
+        .wallpaper-selector span {
+            font-size: 11px;
+            color: #b3a1d4;
+        }
+
+        .wallpaper-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(200, 180, 255, 0.2);
+            cursor: pointer;
+            transition: 0.2s;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+
+        .wallpaper-dot:hover {
+            transform: scale(1.12);
+            border-color: #b28aff;
+        }
+
+        .wallpaper-dot.active {
+            border-color: #b28aff;
+            box-shadow: 0 0 14px rgba(130, 70, 255, 0.35);
+        }
+
+        .upload-btn {
+            background: rgba(130, 70, 255, 0.15);
+            border: 1px solid rgba(160, 120, 255, 0.2);
+            border-radius: 30px;
+            padding: 1px 8px;
+            font-size: 10px;
+            color: #cbb8f0;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .upload-btn:hover {
+            background: rgba(130, 70, 255, 0.3);
+            border-color: #b28aff;
+        }
+
+        #wallpaperUpload {
+            display: none;
+        }
+
+        .clock-weather {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(30, 20, 55, 0.3);
+            padding: 4px 14px 4px 12px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.08);
+        }
+
+        .clock-face-sm {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #e8d6ff, #a071c9);
+            box-shadow: 0 0 0 2px rgba(200, 160, 255, 0.2), 0 4px 16px rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .clock-face-sm .center-dot {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: #140a20;
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 0 2px #c9a3f0;
+        }
+
+        .clock-face-sm .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 2px;
+        }
+        .clock-face-sm .hand-hour { width: 2.5px; height: 13px; margin-left: -1.25px; background: #1f0f33; }
+        .clock-face-sm .hand-minute { width: 2px; height: 16px; margin-left: -1px; background: #3d1f5a; }
+        .clock-face-sm .hand-second { width: 1px; height: 18px; margin-left: -0.5px; background: #ffd966; box-shadow: 0 0 8px #f6b83d; }
+
+        .digital-time-sm {
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: #f5edff;
+            min-width: 60px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 2px 10px;
+            border-radius: 30px;
+            border: 1px solid rgba(180, 120, 230, 0.1);
+        }
+
+        .weather-sm {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            padding-left: 8px;
+            border-left: 1px solid rgba(160, 120, 255, 0.12);
+            font-size: 0.85rem;
+            color: #f0eaff;
+        }
+
+        .weather-sm .desc {
+            font-size: 0.65rem;
+            color: #b3a1d4;
+        }
+
+        .avatar {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #6d44d0, #371b7a);
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 11px;
+            color: #e8dcff;
+            border: 1px solid #a47eff;
+            flex-shrink: 0;
+        }
+
+        /* ===== 课表网格 ===== */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin: 6px 0 14px;
+        }
+
+        .day-card {
+            background: rgba(20, 10, 35, 0.45);
+            backdrop-filter: blur(6px);
+            border-radius: 22px;
+            padding: 10px 8px 12px;
+            border: 1px solid rgba(160, 100, 220, 0.10);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(200, 150, 255, 0.04);
+            transition: all 0.2s;
+        }
+
+        .day-card:hover {
+            background: rgba(30, 15, 50, 0.6);
+            border-color: rgba(180, 120, 230, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 0 30px rgba(120, 50, 200, 0.04);
+        }
+
+        .day-title {
+            font-size: 1.0rem;
+            font-weight: 600;
+            color: #f0e2ff;
+            text-align: center;
+            border-bottom: 2px solid rgba(180, 120, 230, 0.10);
+            padding-bottom: 5px;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 课程卡片 — 改为纵向布局，时间换行 */
+        .course-item {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+            color: #e8daff;
+            border-left: 3px solid #9b6fc9;
+            backdrop-filter: blur(2px);
+            display: flex;
+            flex-direction: column;   /* 纵向排列 */
+            gap: 2px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .course-item i {
+            color: #c9a3f0;
+            font-size: 0.65rem;
+            width: 16px;
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+
+        .course-item .course-name {
+            background: transparent;
+            border: none;
+            color: #f0e6ff;
+            font-size: 0.75rem;
+            width: 100%;
+            outline: none;
+            padding: 2px 0;
+            border-bottom: 1px dotted transparent;
+            transition: 0.15s;
+            font-weight: 400;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .course-item .course-name:focus {
+            border-bottom-color: rgba(180, 120, 230, 0.3);
+        }
+
+        .course-item .course-name::placeholder {
+            color: #8a6ea8;
+            font-weight: 300;
+            font-size: 0.65rem;
+            opacity: 0.5;
+        }
+
+        /* 时间标签单独一行，靠右对齐 */
+        .time-tag {
+            font-size: 0.55rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0 8px;
+            border-radius: 30px;
+            color: #c9b0e6;
+            border: 1px solid rgba(180, 120, 230, 0.08);
+            align-self: flex-start;   /* 靠左，更自然 */
+            margin-top: 1px;
+            white-space: nowrap;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        .todo-section {
+            margin-top: 8px;
+            border-top: 1px dashed rgba(180, 120, 230, 0.06);
+            padding-top: 5px;
+        }
+
+        .todo-label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.6rem;
+            font-weight: 400;
+            color: #b89ed9;
+            margin-bottom: 2px;
+            letter-spacing: 0.3px;
+        }
+
+        .todo-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .todo-list li {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 2px;
+            padding: 1px 6px 1px 4px;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            color: #e8daff;
+            border: 1px solid rgba(160, 100, 220, 0.04);
+        }
+
+        .todo-list li i {
+            color: #b288d9;
+            font-size: 0.55rem;
+            width: 14px;
+            flex-shrink: 0;
+        }
+
+        .todo-list li input[type="text"] {
+            background: transparent;
+            border: none;
+            border-bottom: 1px dotted rgba(180, 120, 230, 0.08);
+            color: #f0e6ff;
+            font-size: 0.65rem;
+            padding: 1px 2px;
+            width: 100%;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .todo-list li input[type="text"]::placeholder {
+            color: #7a5d99;
+            font-weight: 300;
+            font-size: 0.55rem;
+            opacity: 0.5;
+        }
+
+        .todo-list li input[type="text"]:focus {
+            border-bottom-color: #b288d9;
+        }
+
+        .knowledge-area {
+            margin: 8px 0 4px;
+            padding: 10px 18px;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 40px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(160, 100, 220, 0.08);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            box-shadow: inset 0 0 40px rgba(80, 30, 140, 0.04);
+        }
+
+        .knowledge-display {
+            flex: 3;
+            min-width: 180px;
+            color: #e8daff;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .knowledge-display i {
+            font-size: 1.0rem;
+            color: #b288d9;
+        }
+
+        .knowledge-display .k-text {
+            font-weight: 400;
+            letter-spacing: 0.2px;
+            line-height: 1.4;
+        }
+
+        .knowledge-display .k-tag {
+            background: rgba(130, 70, 190, 0.2);
+            padding: 1px 14px;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            font-weight: 500;
+            color: #d4bff0;
+            border: 1px solid rgba(180, 120, 230, 0.08);
+            white-space: nowrap;
+        }
+
+        .knowledge-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .knowledge-actions button {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(160, 100, 220, 0.10);
+            color: #d4bff0;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 400;
+        }
+
+        .knowledge-actions button:hover {
+            background: rgba(160, 100, 220, 0.15);
+            border-color: #b288d9;
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .knowledge-actions .badge-fav {
+            background: rgba(160, 100, 220, 0.08);
+        }
+
+        .powered {
+            text-align: right;
+            font-size: 0.6rem;
+            margin-top: 2px;
+            color: #7a5d99;
+            letter-spacing: 0.5px;
+            opacity: 0.4;
+        }
+
+        @media (max-width: 1100px) {
+            .schedule-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 820px) {
+            .navbar { flex-direction: column; align-items: stretch; gap: 8px; }
+            .nav-right { justify-content: space-between; flex-wrap: wrap; }
+            .schedule-grid { grid-template-columns: repeat(2, 1fr); }
+            .knowledge-area { flex-direction: column; align-items: stretch; }
+        }
+        @media (max-width: 480px) {
+            .app-container { padding: 14px; border-radius: 28px; }
+            .schedule-grid { grid-template-columns: 1fr; }
+            .clock-weather { flex-wrap: wrap; }
+            .digital-time-sm { min-width: 50px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="appContainer">
+    <!-- 顶部导航 -->
+    <div class="navbar">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div class="logo-text">贵系课表 <small>· 清华黑紫</small></div>
+        </div>
+        <div class="nav-right">
+            <div class="wallpaper-selector" id="wallpaperSelector">
+                <span><i class="fas fa-image"></i></span>
+                <div class="wallpaper-dot active" data-wallpaper="default" style="background: linear-gradient(135deg, #1a1030, #2a1a4a);" title="默认"></div>
+                <div class="wallpaper-dot" data-wallpaper="gugong" style="background-image: url('https://picsum.photos/seed/gugong2/200/200');" title="故宫"></div>
+                <div class="wallpaper-dot" data-wallpaper="southgate" style="background-image: url('https://picsum.photos/seed/southgate2/200/200');" title="清华南门"></div>
+                <div class="wallpaper-dot" data-wallpaper="ergate" style="background-image: url('https://picsum.photos/seed/tsinghua2/200/200');" title="二校门"></div>
+                <div class="wallpaper-dot" data-wallpaper="beach" style="background-image: url('https://picsum.photos/seed/beach2/200/200');" title="海滩"></div>
+                <div class="wallpaper-dot" data-wallpaper="peach" style="background-image: url('https://picsum.photos/seed/peach2/200/200');" title="桃花"></div>
+                <div class="wallpaper-dot" data-wallpaper="boston" style="background-image: url('https://picsum.photos/seed/boston2/200/200');" title="波士顿"></div>
+                <label class="upload-btn" for="wallpaperUpload"><i class="fas fa-upload"></i> 自定</label>
+                <input type="file" id="wallpaperUpload" accept="image/*">
+            </div>
+
+            <div class="clock-weather">
+                <div class="clock-face-sm" id="clockFace">
+                    <div class="hand hand-hour" id="hourHand"></div>
+                    <div class="hand hand-minute" id="minuteHand"></div>
+                    <div class="hand hand-second" id="secondHand"></div>
+                    <div class="center-dot"></div>
+                </div>
+                <div class="digital-time-sm" id="digitalTime">00:00:00</div>
+                <div class="weather-sm">
+                    <span id="weatherTemp">--°C</span>
+                    <span class="desc" id="weatherDesc">--</span>
+                </div>
+            </div>
+            <div class="avatar">CS</div>
+        </div>
+    </div>
+
+    <!-- 课表 6列 -->
+    <div class="schedule-grid" id="scheduleGrid">
+        <!-- 周一 -->
+        <div class="day-card" data-day="周一">
+            <div class="day-title">周一</div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-code"></i><input class="course-name" type="text" value="数据结构" placeholder="课程名"></div>
+                <span class="time-tag">08:00-09:00</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-cogs"></i><input class="course-name" type="text" value="算法设计" placeholder="课程名"></div>
+                <span class="time-tag">10:00-11:35</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-database"></i><input class="course-name" type="text" value="数据库" placeholder="课程名"></div>
+                <span class="time-tag">13:30-15:05</span>
+            </div>
+            <div class="todo-section">
+                <div class="todo-label"><i class="fas fa-pen"></i> 待办</div>
+                <ul class="todo-list">
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="复习排序"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="作业"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="论文"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value=""></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value=""></li>
+                </ul>
+            </div>
+        </div>
+        <!-- 周二 -->
+        <div class="day-card" data-day="周二">
+            <div class="day-title">周二</div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-network-wired"></i><input class="course-name" type="text" value="计算机网络" placeholder="课程名"></div>
+                <span class="time-tag">08:00-09:35</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-brain"></i><input class="course-name" type="text" value="人工智能" placeholder="课程名"></div>
+                <span class="time-tag">10:00-11:35</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-lock"></i><input class="course-name" type="text" value="信息安全" placeholder="课程名"></div>
+                <span class="time-tag">13:30-15:05</span>
+            </div>
+            <div class="todo-section">
+                <div class="todo-label"><i class="fas fa-pen"></i> 待办</div>
+                <ul class="todo-list">
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="网络实验"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="AI讨论"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="安全作业"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value=""></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value=""></li>
+                </ul>
+            </div>
+        </div>
+        <!-- 周三 -->
+        <div class="day-card" data-day="周三">
+            <div class="day-title">周三</div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-calculator"></i><input class="course-name" type="text" value="数值分析" placeholder="课程名"></div>
+                <span class="time-tag">08:00-09:35</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-microchip"></i><input class="course-name" type="text" value="计算机组成" placeholder="课程名"></div>
+                <span class="time-tag">10:00-11:35</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-chart-line"></i><input class="course-name" type="text" value="机器学习" placeholder="课程名"></div>
+                <span class="time-tag">13:30-15:05</span>
+            </div>
+            <div class="todo-section">
+                <div class="todo-label"><i class="fas fa-pen"></i> 待办</div>
+                <ul class="todo-list">
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="矩阵练习"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="组成实验"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="Kaggle"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value=""></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value=""></li>
+                </ul>
+            </div>
+        </div>
+        <!-- 周四 -->
+        <div class="day-card" data-day="周四">
+            <div class="day-title">周四</div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-cloud"></i><input class="course-name" type="text" value="分布式系统" placeholder="课程名"></div>
+                <span class="time-tag">08:00-09:35</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-robot"></i><input class="course-name" type="text" value="NLP" placeholder="课程名"></div>
+                <span class="time-tag">10:00-11:35</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-chart-pie"></i><input class="course-name" type="text" value="数据可视化" placeholder="课程名"></div>
+                <span class="time-tag">13:30-15:05</span>
+            </div>
+            <div class="todo-section">
+                <div class="todo-label"><i class="fas fa-pen"></i> 待办</div>
+                <ul class="todo-list">
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="分布式实验"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="NLP大作业"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="可视化设计"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value=""></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value=""></li>
+                </ul>
+            </div>
+        </div>
+        <!-- 周五 -->
+        <div class="day-card" data-day="周五">
+            <div class="day-title">周五</div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-globe"></i><input class="course-name" type="text" value="Web开发" placeholder="课程名"></div>
+                <span class="time-tag">08:00-09:35</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-mobile-alt"></i><input class="course-name" type="text" value="移动计算" placeholder="课程名"></div>
+                <span class="time-tag">10:00-11:35</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-code-branch"></i><input class="course-name" type="text" value="软件工程" placeholder="课程名"></div>
+                <span class="time-tag">13:30-15:05</span>
+            </div>
+            <div class="todo-section">
+                <div class="todo-label"><i class="fas fa-pen"></i> 待办</div>
+                <ul class="todo-list">
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="React组件"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="移动适配"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="项目文档"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value=""></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value=""></li>
+                </ul>
+            </div>
+        </div>
+        <!-- 周六+周日 -->
+        <div class="day-card" data-day="周末" style="grid-row: span 1;">
+            <div class="day-title">周六 · 周日</div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-flask"></i><input class="course-name" type="text" value="科研实践" placeholder="课程名"></div>
+                <span class="time-tag">09:00-12:00</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-users"></i><input class="course-name" type="text" value="组会/讨论" placeholder="课程名"></div>
+                <span class="time-tag">14:00-16:00</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-pencil-alt"></i><input class="course-name" type="text" value="复习/整理" placeholder="课程名"></div>
+                <span class="time-tag">09:00-11:30</span>
+            </div>
+            <div class="course-item">
+                <div class="course-row"><i class="fas fa-code"></i><input class="course-name" type="text" value="刷题/LeetCode" placeholder="课程名"></div>
+                <span class="time-tag">14:00-17:00</span>
+            </div>
+            <div class="todo-section">
+                <div class="todo-label"><i class="fas fa-pen"></i> 待办</div>
+                <ul class="todo-list">
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="论文阅读"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="实验复现"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="一周总结"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value="LeetCode"></li>
+                    <li><i class="far fa-circle"></i><input type="text" placeholder="待办" value=""></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部知识 -->
+    <div class="knowledge-area" id="knowledgeArea">
+        <div class="knowledge-display" id="knowledgeDisplay">
+            <i class="fas fa-graduation-cap"></i>
+            <span class="k-text" id="knowledgeText">快速排序: 平均 O(n log n), 不稳定, 分治思想</span>
+            <span class="k-tag" id="knowledgeTag">算法</span>
+        </div>
+        <div class="knowledge-actions">
+            <button id="prevKnowBtn"><i class="fas fa-chevron-left"></i> 上一条</button>
+            <button id="nextKnowBtn"><i class="fas fa-chevron-right"></i> 下一条</button>
+            <button id="copyKnowBtn"><i class="fas fa-copy"></i> 复制</button>
+            <button id="favKnowBtn" class="badge-fav"><i class="fas fa-star"></i> 收藏</button>
+        </div>
+    </div>
+
+    <div class="powered">
+        <i class="fas fa-microchip"></i> 清华大学计算机科学与技术系 · 课程可编辑 · 自动保存
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ===== 时钟 =====
+        const hourHand = document.getElementById('hourHand');
+        const minuteHand = document.getElementById('minuteHand');
+        const secondHand = document.getElementById('secondHand');
+        const digitalTime = document.getElementById('digitalTime');
+
+        function updateClock() {
+            const now = new Date();
+            const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds(), ms = now.getMilliseconds();
+            const secDeg = (s + ms / 1000) * 6;
+            const minDeg = (m + s / 60) * 6;
+            const hourDeg = (h % 12) * 30 + m * 0.5 + s / 120;
+            if (secondHand) secondHand.style.transform = `rotate(${secDeg}deg)`;
+            if (minuteHand) minuteHand.style.transform = `rotate(${minDeg}deg)`;
+            if (hourHand) hourHand.style.transform = `rotate(${hourDeg}deg)`;
+            const pad = n => String(n).padStart(2, '0');
+            digitalTime.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+        }
+        updateClock();
+        setInterval(updateClock, 50);
+
+        // ===== 天气 =====
+        const weathers = ['晴', '多云', '小雨', '阴', '晴', '多云'];
+        let weatherIdx = 0;
+        function updateWeather() {
+            const w = weathers[weatherIdx % weathers.length];
+            weatherIdx++;
+            document.getElementById('weatherDesc').textContent = w;
+            document.getElementById('weatherTemp').textContent = (Math.floor(Math.random() * 12) + 20) + '°C';
+        }
+        updateWeather();
+        setInterval(updateWeather, 30000);
+
+        // ===== 壁纸 =====
+        const wallpaperMap = {
+            default: '',
+            gugong: 'https://picsum.photos/seed/gugong2/1200/800',
+            southgate: 'https://picsum.photos/seed/southgate2/1200/800',
+            ergate: 'https://picsum.photos/seed/tsinghua2/1200/800',
+            beach: 'https://picsum.photos/seed/beach2/1200/800',
+            peach: 'https://picsum.photos/seed/peach2/1200/800',
+            boston: 'https://picsum.photos/seed/boston2/1200/800'
+        };
+        const appContainer = document.getElementById('appContainer');
+
+        function setWallpaper(id, customUrl = null) {
+            localStorage.setItem('lastWallpaper', id);
+            if (id === 'default') {
+                appContainer.style.backgroundImage = '';
+                appContainer.style.backgroundColor = 'rgba(15, 8, 25, 0.65)';
+            } else if (customUrl) {
+                appContainer.style.backgroundImage = `url('${customUrl}')`;
+                appContainer.style.backgroundColor = 'transparent';
+            } else if (wallpaperMap[id]) {
+                appContainer.style.backgroundImage = `url('${wallpaperMap[id]}')`;
+                appContainer.style.backgroundColor = 'transparent';
+            }
+            document.querySelectorAll('.wallpaper-dot').forEach(d =>
+                d.classList.toggle('active', d.dataset.wallpaper === id)
+            );
+        }
+
+        document.querySelectorAll('.wallpaper-dot').forEach(d => {
+            d.addEventListener('click', function() { setWallpaper(this.dataset.wallpaper); });
+        });
+
+        document.getElementById('wallpaperUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const url = ev.target.result;
+                appContainer.style.backgroundImage = `url('${url}')`;
+                appContainer.style.backgroundColor = 'transparent';
+                localStorage.setItem('lastWallpaper', 'custom');
+                document.querySelectorAll('.wallpaper-dot').forEach(d => d.classList.remove('active'));
+                showToast('✅ 自定义壁纸已应用');
+            };
+            reader.readAsDataURL(file);
+            this.value = '';
+        });
+
+        // ===== Toast =====
+        function showToast(msg) {
+            const old = document.querySelector('.toast');
+            if (old) old.remove();
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = msg;
+            Object.assign(t.style, {
+                position: 'fixed', bottom: '80px', left: '50%', transform: 'translateX(-50%)',
+                background: 'rgba(30,20,60,0.9)', backdropFilter: 'blur(10px)',
+                padding: '8px 22px', borderRadius: '30px', border: '1px solid rgba(160,120,255,0.2)',
+                color: '#e6def5', fontSize: '13px', zIndex: '999',
+                opacity: '0', transition: 'opacity 0.4s', pointerEvents: 'none',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
+            });
+            document.body.appendChild(t);
+            requestAnimationFrame(() => { t.style.opacity = '1'; });
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 2000);
+        }
+
+        // ===== 自动保存 =====
+        function saveAllData() {
+            const courseData = {};
+            document.querySelectorAll('.day-card').forEach(card => {
+                const day = card.dataset.day;
+                const inputs = card.querySelectorAll('.course-name');
+                courseData[day] = Array.from(inputs).map(inp => inp.value);
+            });
+            localStorage.setItem('tsinghua_courses', JSON.stringify(courseData));
+
+            const todoData = {};
+            document.querySelectorAll('.day-card').forEach(card => {
+                const day = card.dataset.day;
+                const inputs = card.querySelectorAll('.todo-list li input[type="text"]');
+                todoData[day] = Array.from(inputs).map(inp => inp.value);
+            });
+            localStorage.setItem('tsinghua_todos', JSON.stringify(todoData));
+        }
+
+        function loadAllData() {
+            const rawCourses = localStorage.getItem('tsinghua_courses');
+            if (rawCourses) {
+                try {
+                    const courseData = JSON.parse(rawCourses);
+                    document.querySelectorAll('.day-card').forEach(card => {
+                        const day = card.dataset.day;
+                        if (courseData[day]) {
+                            const inputs = card.querySelectorAll('.course-name');
+                            inputs.forEach((inp, idx) => {
+                                if (idx < courseData[day].length) inp.value = courseData[day][idx];
+                            });
+                        }
+                    });
+                } catch (e) {}
+            }
+            const rawTodos = localStorage.getItem('tsinghua_todos');
+            if (rawTodos) {
+                try {
+                    const todoData = JSON.parse(rawTodos);
+                    document.querySelectorAll('.day-card').forEach(card => {
+                        const day = card.dataset.day;
+                        if (todoData[day]) {
+                            const inputs = card.querySelectorAll('.todo-list li input[type="text"]');
+                            inputs.forEach((inp, idx) => {
+                                if (idx < todoData[day].length) inp.value = todoData[day][idx];
+                            });
+                        }
+                    });
+                } catch (e) {}
+            }
+        }
+
+        document.querySelectorAll('.course-name, .todo-list li input[type="text"]').forEach(el => {
+            el.addEventListener('input', saveAllData);
+            el.addEventListener('change', saveAllData);
+        });
+
+        // ===== 知识库 =====
+        const knowledgeBase = [
+            { text: "快速排序: 平均 O(n log n), 不稳定, 分治思想", tag: "算法" },
+            { text: "归并排序: O(n log n), 稳定, 需要额外 O(n) 空间", tag: "算法" },
+            { text: "堆排序: O(n log n), 不稳定, 原地排序", tag: "算法" },
+            { text: "二分查找: O(log n), 要求有序数组", tag: "算法" },
+            { text: "KMP 字符串匹配: O(n+m), 利用前缀函数", tag: "算法" },
+            { text: "动态规划: 最优子结构 + 重叠子问题", tag: "方法论" },
+            { text: "贪心算法: 局部最优 → 全局最优 (需证明)", tag: "方法论" },
+            { text: "BFS/DFS: 图遍历, 复杂度 O(V+E)", tag: "算法" },
+            { text: "Dijkstra: 单源最短路, O(E log V), 非负权", tag: "算法" },
+            { text: "Floyd: 全源最短路, O(V^3), 动态规划", tag: "算法" },
+            { text: "拓扑排序: DAG 线性顺序, 可用 Kahn 算法", tag: "算法" },
+            { text: "最小生成树: Prim O(E log V), Kruskal O(E log E)", tag: "算法" },
+            { text: "哈希表: 平均 O(1) 查找/插入, 冲突解决: 链地址/开放地址", tag: "数据结构" },
+            { text: "红黑树: 平衡二叉搜索树, 查找/插入/删除 O(log n)", tag: "数据结构" },
+            { text: "B树/B+树: 多路搜索树, 用于数据库索引", tag: "数据结构" },
+            { text: "LRU Cache: 哈希表 + 双向链表, O(1) 访问/淘汰", tag: "系统设计" },
+            { text: "线程池: 复用线程, 任务队列, 减少创建开销", tag: "系统设计" },
+            { text: "一致性哈希: 分布式缓存, 减少节点变化影响", tag: "分布式" },
+            { text: "CAP 定理: 一致性, 可用性, 分区容错性 最多满足两个", tag: "分布式" },
+            { text: "BASE 理论: 基本可用, 软状态, 最终一致性", tag: "分布式" },
+            { text: "TCP 三次握手: SYN, SYN-ACK, ACK", tag: "网络" },
+            { text: "TCP 四次挥手: FIN, ACK, FIN, ACK", tag: "网络" },
+            { text: "HTTP 状态码: 2xx 成功, 3xx 重定向, 4xx 客户端错误, 5xx 服务端错误", tag: "网络" },
+            { text: "进程/线程/协程: 进程资源分配, 线程调度, 协程用户态", tag: "操作系统" },
+            { text: "死锁: 互斥, 持有并等待, 不可抢占, 循环等待", tag: "操作系统" },
+            { text: "虚拟内存: 页表, 缺页中断, 页面置换 (LRU, FIFO, Clock)", tag: "操作系统" },
+            { text: "DNS 解析: 递归/迭代查询, 域名 → IP", tag: "网络" }
+        ];
+
+        let currentIndex = 0;
+        let favorites = JSON.parse(localStorage.getItem('tsinghua_knowledge_fav')) || [];
+
+        const knowledgeText = document.getElementById('knowledgeText');
+        const knowledgeTag = document.getElementById('knowledgeTag');
+        const prevBtn = document.getElementById('prevKnowBtn');
+        const nextBtn = document.getElementById('nextKnowBtn');
+        const copyBtn = document.getElementById('copyKnowBtn');
+        const favBtn = document.getElementById('favKnowBtn');
+
+        function updateKnowledge(index) {
+            const item = knowledgeBase[index % knowledgeBase.length];
+            knowledgeText.textContent = item.text;
+            knowledgeTag.textContent = item.tag;
+            const isFav = favorites.includes(index);
+            favBtn.innerHTML = `<i class="fas fa-star"></i> ${isFav ? '取消收藏' : '收藏'}`;
+            favBtn.style.background = isFav ? 'rgba(160, 100, 220, 0.25)' : 'rgba(255, 255, 255, 0.04)';
+        }
+
+        function nextKnowledge() { currentIndex = (currentIndex + 1) % knowledgeBase.length; updateKnowledge(currentIndex); }
+        function prevKnowledge() { currentIndex = (currentIndex - 1 + knowledgeBase.length) % knowledgeBase.length; updateKnowledge(currentIndex); }
+
+        function copyKnowledge() {
+            const text = knowledgeText.textContent + ' [' + knowledgeTag.textContent + ']';
+            navigator.clipboard?.writeText(text).then(() => {
+                const original = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                setTimeout(() => { copyBtn.innerHTML = original; }, 1200);
+            }).catch(() => {
+                const area = document.createElement('textarea');
+                area.value = text;
+                document.body.appendChild(area);
+                area.select();
+                document.execCommand('copy');
+                area.remove();
+                const original = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                setTimeout(() => { copyBtn.innerHTML = original; }, 1200);
+            });
+        }
+
+        function toggleFavorite() {
+            const idx = currentIndex;
+            const pos = favorites.indexOf(idx);
+            if (pos > -1) favorites.splice(pos, 1);
+            else favorites.push(idx);
+            localStorage.setItem('tsinghua_knowledge_fav', JSON.stringify(favorites));
+            updateKnowledge(currentIndex);
+        }
+
+        prevBtn.addEventListener('click', prevKnowledge);
+        nextBtn.addEventListener('click', nextKnowledge);
+        copyBtn.addEventListener('click', copyKnowledge);
+        favBtn.addEventListener('click', toggleFavorite);
+
+        // ===== 初始化 =====
+        loadAllData();
+        updateKnowledge(0);
+        setInterval(nextKnowledge, 25000);
+
+        const lastWp = localStorage.getItem('lastWallpaper');
+        if (lastWp && lastWp !== 'default') setWallpaper(lastWp);
+        else setWallpaper('default');
+
+        console.log('✨ 黑紫课表 · 玻璃质感 · 可编辑自动保存');
+    })();
+</script>
+</body>
+</html>

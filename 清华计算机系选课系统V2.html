@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>贵系 · 选课系统 · 清华紫玻璃</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.8rem;
+      background: #0b0710; /* fallback */
+      transition: background-image 0.4s ease;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    /* 背景壁纸类 (由js切换) */
+    .bg-1 { background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop'); }
+    .bg-2 { background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop'); }
+    .bg-3 { background-image: url('https://images.unsplash.com/photo-1470071459604-7b5ec3c1e6b3?q=80&w=2070&auto=format&fit=crop'); }
+    .bg-4 { background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2070&auto=format&fit=crop'); }
+    .bg-5 { background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop'); }
+
+    /* 黑紫玻璃主面板 —— 透明度50% */
+    .glass-panel {
+      max-width: 1380px;
+      width: 100%;
+      background: rgba(18, 10, 28, 0.50);  /* 透明度50% */
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-radius: 3.5rem;
+      padding: 2.5rem 2.8rem;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(160,100,200,0.15), inset 0 0 40px rgba(120,60,180,0.15);
+      border: 1px solid rgba(200,140,255,0.12);
+      color: #f0edf5;
+      transition: all 0.2s;
+    }
+
+    /* 头部 */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(180,120,255,0.2);
+      padding-bottom: 1.2rem;
+    }
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .title-group h1 {
+      font-weight: 500;
+      font-size: 2.2rem;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #d9c4ff, #b28bff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 20px rgba(150,80,255,0.3);
+    }
+    .title-group i {
+      font-size: 2.4rem;
+      color: #b28bff;
+      filter: drop-shadow(0 0 10px #9f6eff);
+    }
+    .subtitle {
+      background: rgba(90,40,140,0.25);
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      border: 1px solid rgba(200,150,255,0.15);
+      color: #d4c0f0;
+    }
+    .info-badge {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .info-badge span {
+      background: rgba(30,15,50,0.5);
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      border: 1px solid rgba(180,120,255,0.2);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .info-badge i { color: #c8a8ff; }
+
+    /* 壁纸切换器 */
+    .wallpaper-selector {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      background: rgba(10,5,20,0.3);
+      padding: 0.2rem 1rem 0.2rem 0.8rem;
+      border-radius: 60px;
+      border: 1px solid rgba(180,130,255,0.1);
+    }
+    .wallpaper-selector span {
+      font-size: 0.75rem;
+      color: #b8a8d0;
+      margin-right: 4px;
+    }
+    .wallpaper-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid rgba(200,150,255,0.2);
+      cursor: pointer;
+      transition: 0.2s;
+      background-size: cover;
+      background-position: center;
+      outline: none;
+    }
+    .wallpaper-btn:hover {
+      transform: scale(1.15);
+      border-color: #b28bff;
+    }
+    .wallpaper-btn.active {
+      border-color: #b28bff;
+      box-shadow: 0 0 16px rgba(140,70,255,0.3);
+    }
+
+    /* 筛选区 */
+    .filter-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem 1.8rem;
+      background: rgba(12,6,24,0.25);
+      backdrop-filter: blur(6px);
+      padding: 1rem 1.8rem;
+      border-radius: 60px;
+      border: 1px solid rgba(180,130,255,0.08);
+      margin-bottom: 2rem;
+      align-items: center;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .filter-group label {
+      font-size: 0.9rem;
+      color: #cdbcf0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .filter-group label i { color: #b28bff; }
+    .filter-select {
+      background: rgba(22,12,40,0.6);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(180,130,255,0.2);
+      border-radius: 40px;
+      padding: 0.4rem 1.5rem 0.4rem 1.2rem;
+      color: #f0e8ff;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      min-width: 150px;
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%23b28bff' stroke-width='1.5' fill='none'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+    }
+    .filter-select:hover, .filter-select:focus {
+      border-color: #b28bff;
+      box-shadow: 0 0 20px rgba(130,70,220,0.15);
+      background-color: rgba(30,16,50,0.7);
+    }
+    .filter-select option {
+      background: #1a0f28;
+      color: #ede6ff;
+    }
+
+    /* 课程列表 */
+    .course-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      margin: 1.5rem 0 1.8rem;
+      max-height: 420px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+    .course-list::-webkit-scrollbar { width: 4px; }
+    .course-list::-webkit-scrollbar-track { background: rgba(40,20,70,0.1); border-radius: 10px; }
+    .course-list::-webkit-scrollbar-thumb { background: #b28bff; border-radius: 10px; }
+
+    .course-item {
+      background: rgba(22,12,36,0.45);
+      backdrop-filter: blur(6px);
+      border-radius: 2rem;
+      padding: 0.8rem 1.8rem;
+      border: 1px solid rgba(180,130,255,0.08);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      transition: 0.2s;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    }
+    .course-item:hover {
+      background: rgba(30,16,50,0.6);
+      border-color: rgba(200,150,255,0.2);
+      transform: translateY(-2px);
+    }
+    .course-info {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.5rem 1.2rem;
+    }
+    .course-code {
+      font-weight: 500;
+      color: #d4c4ff;
+      background: rgba(100,50,180,0.15);
+      padding: 0.1rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(180,130,255,0.1);
+    }
+    .course-name { font-size: 1rem; font-weight: 450; color: #f0e8ff; }
+    .course-credits {
+      background: rgba(80,40,150,0.15);
+      padding: 0.1rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      color: #cbb5ff;
+    }
+    .course-instructor { font-size: 0.85rem; color: #b8a8d0; }
+    .course-tag {
+      font-size: 0.7rem;
+      background: rgba(50,30,90,0.2);
+      padding: 0.1rem 0.8rem;
+      border-radius: 40px;
+      color: #b8a0e0;
+    }
+    .course-action {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .btn-select {
+      background: rgba(160,90,255,0.12);
+      border: 1px solid rgba(180,120,255,0.2);
+      color: #e4d6ff;
+      padding: 0.25rem 1.4rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-select i { color: #b28bff; font-size: 0.8rem; }
+    .btn-select:hover {
+      background: rgba(180,100,255,0.3);
+      border-color: #b28bff;
+      color: white;
+    }
+    .btn-select.selected {
+      background: rgba(130,70,220,0.3);
+      border-color: #a77bff;
+      box-shadow: 0 0 16px rgba(140,70,255,0.15);
+    }
+    .btn-select.selected i { color: #d4b8ff; }
+
+    /* 底部统计 & 表格 */
+    .dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.8rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid rgba(180,120,255,0.12);
+      gap: 1rem;
+    }
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: rgba(12,6,24,0.3);
+      padding: 0.3rem 1.8rem 0.3rem 1.5rem;
+      border-radius: 60px;
+      border: 1px solid rgba(160,110,220,0.08);
+    }
+    .stats div {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      color: #d4c4ee;
+    }
+    .stats div i { color: #b28bff; }
+    .stats strong { color: #f0e8ff; font-weight: 500; }
+
+    .action-btn {
+      background: rgba(30,15,55,0.4);
+      border: 1px solid rgba(180,130,255,0.12);
+      padding: 0.35rem 1.6rem;
+      border-radius: 50px;
+      color: #ddd0f5;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+    .action-btn:hover {
+      background: rgba(60,30,110,0.5);
+      border-color: #a77bff;
+      color: white;
+    }
+    .toast-msg {
+      font-size: 0.85rem;
+      color: #cfbcf5;
+      padding: 0.1rem 1rem;
+      background: rgba(40,20,70,0.2);
+      border-radius: 40px;
+    }
+
+    /* 已选课程统计表格 */
+    .selected-table-wrapper {
+      margin-top: 1.2rem;
+      background: rgba(10,5,20,0.3);
+      backdrop-filter: blur(4px);
+      border-radius: 2rem;
+      padding: 1rem 1.5rem;
+      border: 1px solid rgba(180,130,255,0.08);
+      overflow-x: auto;
+    }
+    .selected-table-wrapper h3 {
+      font-weight: 400;
+      font-size: 1rem;
+      color: #d4c0f0;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .selected-table-wrapper h3 i { color: #b28bff; }
+    .selected-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      color: #e4daff;
+    }
+    .selected-table th {
+      text-align: left;
+      padding: 0.5rem 0.4rem 0.3rem 0.4rem;
+      border-bottom: 1px solid rgba(180,130,255,0.15);
+      font-weight: 400;
+      color: #c8b0e8;
+    }
+    .selected-table td {
+      padding: 0.4rem 0.4rem;
+      border-bottom: 1px solid rgba(180,130,255,0.06);
+    }
+    .selected-table tr:last-child td { border-bottom: none; }
+    .selected-table .empty-row td {
+      color: #8878a0;
+      font-style: italic;
+      text-align: center;
+      padding: 0.8rem;
+    }
+
+    @media (max-width: 750px) {
+      .glass-panel { padding: 1.5rem; }
+      .filter-section { border-radius: 30px; flex-direction: column; align-items: stretch; }
+      .course-item { flex-direction: column; align-items: stretch; gap: 0.4rem; }
+      .course-action { justify-content: flex-end; }
+      .dashboard { flex-direction: column; align-items: stretch; }
+      .stats { justify-content: center; }
+      .wallpaper-selector { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body class="bg-1">
+
+<div class="glass-panel">
+
+  <!-- 头部 + 壁纸切换 -->
+  <div class="header">
+    <div class="title-group">
+      <i class="fas fa-graduation-cap"></i>
+      <h1>选课系统 · 计算机系</h1>
+      <span class="subtitle"><i class="fas fa-code"></i> 贵系 · 清华紫</span>
+    </div>
+    <div class="info-badge">
+      <span><i class="fas fa-user-graduate"></i> 张明 · 计科 2025</span>
+      <span><i class="fas fa-calendar-alt"></i> 2026 秋季</span>
+      <div class="wallpaper-selector">
+        <span><i class="fas fa-image"></i></span>
+        <button class="wallpaper-btn active" data-bg="bg-1" style="background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=100&auto=format&fit=crop');" title="壁纸1"></button>
+        <button class="wallpaper-btn" data-bg="bg-2" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=100&auto=format&fit=crop');" title="壁纸2"></button>
+        <button class="wallpaper-btn" data-bg="bg-3" style="background-image: url('https://images.unsplash.com/photo-1470071459604-7b5ec3c1e6b3?q=80&w=100&auto=format&fit=crop');" title="壁纸3"></button>
+        <button class="wallpaper-btn" data-bg="bg-4" style="background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=100&auto=format&fit=crop');" title="壁纸4"></button>
+        <button class="wallpaper-btn" data-bg="bg-5" style="background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=100&auto=format&fit=crop');" title="壁纸5"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 筛选 -->
+  <div class="filter-section">
+    <div class="filter-group">
+      <label for="filterTheory"><i class="fas fa-square-root-variable"></i> 基础理论</label>
+      <select id="filterTheory" class="filter-select"><option value="all">全部 (25学分)</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="filterCore"><i class="fas fa-microchip"></i> 专业核心</label>
+      <select id="filterCore" class="filter-select"><option value="all">全部 (≥51学分)</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="filterElective"><i class="fas fa-flask"></i> 专业选修</label>
+      <select id="filterElective" class="filter-select"><option value="all">全部 (≥12学分)</option></select>
+    </div>
+    <div style="flex:1; text-align:right; font-size:0.8rem; color:#b8a8d0;">
+      <i class="fas fa-chevron-circle-down"></i> 点击选课
+    </div>
+  </div>
+
+  <!-- 课程列表 -->
+  <div class="course-list" id="courseList"></div>
+
+  <!-- 底部：统计 + 重置 -->
+  <div class="dashboard">
+    <div class="stats">
+      <div><i class="fas fa-book-open"></i> 已选 <strong id="selectedCount">0</strong></div>
+      <div><i class="fas fa-star"></i> 学分 <strong id="totalCredits">0</strong> / 88</div>
+      <div class="toast-msg" id="toastMsg"><i class="fas fa-circle" style="color:#b28bff; font-size:0.4rem;"></i> 点击选课</div>
+    </div>
+    <button class="action-btn" id="resetBtn"><i class="fas fa-undo-alt"></i> 重置</button>
+  </div>
+
+  <!-- 已选课程统计表格 -->
+  <div class="selected-table-wrapper" id="selectedTableWrapper">
+    <h3><i class="fas fa-table"></i> 已选课程清单</h3>
+    <table class="selected-table" id="selectedTable">
+      <thead>
+        <tr><th>课程代码</th><th>课程名称</th><th>学分</th><th>类别</th></tr>
+      </thead>
+      <tbody id="selectedTableBody">
+        <tr class="empty-row"><td colspan="4">暂无已选课程</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  (function() {
+    // ---------- 课程数据 (同前) ----------
+    const theoryCourses = [
+      { id: 't1', code: '10421055', name: '微积分A(1)', credits: 5, instructor: '数学系' },
+      { id: 't2', code: '10421065', name: '微积分A(2)', credits: 5, instructor: '数学系' },
+      { id: 't3', code: '10421324', name: '线性代数', credits: 4, instructor: '数学系' },
+      { id: 't4', code: '10421373', name: '概率论与随机过程', credits: 3, instructor: '数学系', note: '二选一' },
+      { id: 't5', code: '10420803', name: '概率论与数理统计', credits: 3, instructor: '数学系', note: '二选一' },
+      { id: 't6', code: '10430484', name: '大学物理B(1)', credits: 4, instructor: '物理系', note: '三选一' },
+      { id: 't7', code: '10430344', name: '大学物理(1)英', credits: 4, instructor: '物理系', note: '三选一' },
+      { id: 't8', code: '10431064', name: '大学物理(1)', credits: 4, instructor: '物理系', note: '三选一' },
+      { id: 't9', code: '10430494', name: '大学物理B(2)', credits: 4, instructor: '物理系', note: '三选一' },
+      { id: 't10', code: '10430354', name: '大学物理(2)英', credits: 4, instructor: '物理系', note: '三选一' },
+      { id: 't11', code: '10430194', name: '大学物理(2)', credits: 4, instructor: '物理系', note: '三选一' }
+    ];
+
+    const coreCourses = [
+      { id: 'c1', code: '10421382', name: '高等线性代数选讲', credits: 2, instructor: '数学系' },
+      { id: 'c2', code: '10420252', name: '复变函数引论', credits: 2, instructor: '数学系' },
+      { id: 'c3', code: '20240033', name: '数值分析', credits: 3, instructor: '数学系' },
+      { id: 'c4', code: '10420854', name: '数学实验', credits: 2, instructor: '数学系', note: '二选一' },
+      { id: 'c5', code: '20240013', name: '离散数学(1)', credits: 3, instructor: '计算机系' },
+      { id: 'c6', code: '20240023', name: '离散数学(2)', credits: 3, instructor: '计算机系' },
+      { id: 'c7', code: '30240233', name: '程序设计基础', credits: 3, instructor: '计算机系' },
+      { id: 'c8', code: '30240532', name: '面向对象程序设计基础', credits: 2, instructor: '计算机系' },
+      { id: 'c9', code: '30240343', name: '数字逻辑电路', credits: 3, instructor: '计算机系', note: '二选一' },
+      { id: 'c10', code: '30240353', name: '数字逻辑设计', credits: 3, instructor: '计算机系', note: '二选一' },
+      { id: 'c11', code: '30240551', name: '数字逻辑实验', credits: 1, instructor: '计算机系' },
+      { id: 'c12', code: '30240184', name: '数据结构', credits: 4, instructor: '计算机系' },
+      { id: 'c13', code: '30240593', name: '计算机系统概论', credits: 3, instructor: '计算机系' },
+      { id: 'c14', code: '30240063', name: '信号处理原理', credits: 3, instructor: '计算机系', note: '二选一' },
+      { id: 'c15', code: '30230104', name: '信号与系统', credits: 4, instructor: '电子系', note: '二选一' },
+      { id: 'c16', code: '40240513', name: '计算机网络原理', credits: 3, instructor: '计算机系' },
+      { id: 'c17', code: '40240354', name: '计算机组成原理', credits: 4, instructor: '计算机系' },
+      { id: 'c18', code: '40240163', name: '软件工程', credits: 3, instructor: '计算机系' },
+      { id: 'c19', code: '40240243', name: '操作系统', credits: 3, instructor: '计算机系' },
+      { id: 'c20', code: '40204433', name: '计算机系统结构', credits: 3, instructor: '计算机系' },
+      { id: 'c21', code: '40240432', name: '形式语言与自动机', credits: 2, instructor: '计算机系' },
+      { id: 'c22', code: '30240382', name: '编译原理', credits: 2, instructor: '计算机系' },
+      { id: 'c23', code: '30240042', name: '人工智能导论', credits: 2, instructor: '计算机系' },
+      { id: 'c24', code: '30240573', name: '网络空间安全导论', credits: 3, instructor: '计算机系' }
+    ];
+
+    const electiveCourses = [
+      { id: 'e1', code: '30240253', name: '微计算机技术', credits: 3, instructor: '计算机系', group: 'A1' },
+      { id: 'e2', code: '40240412', name: '数字系统设计自动化', credits: 2, instructor: '计算机系', group: 'A1' },
+      { id: 'e3', code: '30240222', name: 'VLSI设计导论', credits: 2, instructor: '计算机系', group: 'A1' },
+      { id: 'e4', code: '40240572', name: '计算机网络安全技术', credits: 2, instructor: '计算机系', group: 'A1' },
+      { id: 'e5', code: '20240082', name: '初等数论', credits: 2, instructor: '数学系', group: 'A2' },
+      { id: 'e6', code: '30240192', name: '高性能计算导论', credits: 2, instructor: '计算机系', group: 'A2' },
+      { id: 'e7', code: '30240262', name: '数据库系统概论', credits: 2, instructor: '计算机系', group: 'A2' },
+      { id: 'e8', code: '40240502', name: '软件开发方法', credits: 2, instructor: '计算机系', group: 'A2' },
+      { id: 'e9', code: '40240452', name: '模式识别', credits: 2, instructor: '计算机系', group: 'A3' },
+      { id: 'e10', code: '40240062', name: '数字图像处理', credits: 2, instructor: '计算机系', group: 'A3' },
+      { id: 'e11', code: '40240422', name: '计算机图形学基础', credits: 2, instructor: '计算机系', group: 'A3' },
+      { id: 'e12', code: '40240882', name: '计算机网络专题训练', credits: 2, instructor: '计算机系', group: 'A4' },
+      { id: 'e13', code: '30240402', name: '操作系统专题训练', credits: 2, instructor: '计算机系', group: 'A4' },
+      { id: 'e14', code: '30240412', name: '编译原理专题训练', credits: 2, instructor: '计算机系', group: 'A4' },
+      { id: 'e15', code: '40240422', name: '数据库专题训练', credits: 2, instructor: '计算机系', group: 'A4' }
+    ];
+
+    const allCourses = [
+      ...theoryCourses.map(c => ({ ...c, category: 'theory' })),
+      ...coreCourses.map(c => ({ ...c, category: 'core' })),
+      ...electiveCourses.map(c => ({ ...c, category: 'elective' }))
+    ];
+
+    // 状态
+    let selectedIds = new Set();
+
+    // DOM
+    const courseListEl = document.getElementById('courseList');
+    const selectedCountEl = document.getElementById('selectedCount');
+    const totalCreditsEl = document.getElementById('totalCredits');
+    const toastMsg = document.getElementById('toastMsg');
+    const selectedTableBody = document.getElementById('selectedTableBody');
+
+    const filterTheory = document.getElementById('filterTheory');
+    const filterCore = document.getElementById('filterCore');
+    const filterElective = document.getElementById('filterElective');
+
+    // 壁纸切换
+    const wallpaperBtns = document.querySelectorAll('.wallpaper-btn');
+    wallpaperBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const bgClass = this.dataset.bg;
+        document.body.className = bgClass;
+        wallpaperBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // 更新统计 & toast & 表格
+    function updateAll(msg, isOk = true) {
+      let total = 0;
+      allCourses.forEach(c => { if (selectedIds.has(c.id)) total += c.credits; });
+      selectedCountEl.textContent = selectedIds.size;
+      totalCreditsEl.textContent = total;
+
+      if (msg) {
+        toastMsg.innerHTML = `<i class="fas fa-circle" style="color:${isOk ? '#b28bff' : '#f28b82'}; font-size:0.4rem;"></i> ${msg}`;
+      } else {
+        toastMsg.innerHTML = `<i class="fas fa-circle" style="color:#b28bff; font-size:0.4rem;"></i> 点击选课`;
+      }
+
+      // 更新表格
+      renderSelectedTable();
+    }
+
+    // 渲染已选课程表格
+    function renderSelectedTable() {
+      const selectedCourses = allCourses.filter(c => selectedIds.has(c.id));
+      if (selectedCourses.length === 0) {
+        selectedTableBody.innerHTML = `<tr class="empty-row"><td colspan="4">暂无已选课程</td></tr>`;
+        return;
+      }
+      let html = '';
+      selectedCourses.forEach(c => {
+        const cat = c.category === 'theory' ? '基础理论' : c.category === 'core' ? '专业核心' : '专业选修';
+        html += `<tr><td>${c.code}</td><td>${c.name}</td><td>${c.credits}</td><td>${cat}</td></tr>`;
+      });
+      selectedTableBody.innerHTML = html;
+    }
+
+    // 渲染课程列表 (筛选)
+    function renderCourses() {
+      const theoryVal = filterTheory.value;
+      const coreVal = filterCore.value;
+      const electiveVal = filterElective.value;
+
+      let filtered = allCourses.filter(c => {
+        if (c.category === 'theory' && theoryVal !== 'all' && c.id !== theoryVal) return false;
+        if (c.category === 'core' && coreVal !== 'all' && c.id !== coreVal) return false;
+        if (c.category === 'elective' && electiveVal !== 'all' && c.id !== electiveVal) return false;
+        return true;
+      });
+
+      const order = { theory: 0, core: 1, elective: 2 };
+      filtered.sort((a,b) => (order[a.category] || 3) - (order[b.category] || 3));
+
+      courseListEl.innerHTML = '';
+      if (filtered.length === 0) {
+        courseListEl.innerHTML = `<div style="text-align:center; padding:2rem; color:#b8a8d0;">无课程</div>`;
+        return;
+      }
+
+      filtered.forEach(c => {
+        const isSelected = selectedIds.has(c.id);
+        const div = document.createElement('div');
+        div.className = 'course-item';
+        let tag = c.category === 'theory' ? '基础理论' : c.category === 'core' ? '专业核心' : '选修';
+        div.innerHTML = `
+          <div class="course-info">
+            <span class="course-code">${c.code}</span>
+            <span class="course-name">${c.name}</span>
+            <span class="course-credits"><i class="fas fa-star" style="color:#b28bff; font-size:0.7rem;"></i> ${c.credits}学分</span>
+            <span class="course-instructor"><i class="fas fa-user"></i> ${c.instructor}</span>
+            <span class="course-tag">${tag} ${c.note || ''}</span>
+          </div>
+          <div class="course-action">
+            <button class="btn-select ${isSelected ? 'selected' : ''}" data-id="${c.id}">
+              <i class="fas ${isSelected ? 'fa-check' : 'fa-plus'}"></i> ${isSelected ? '已选' : '选课'}
+            </button>
+          </div>
+        `;
+        courseListEl.appendChild(div);
+      });
+
+      updateAll(null);
+    }
+
+    // 选课/退课 (学分上限88)
+    function toggleCourse(courseId) {
+      const course = allCourses.find(c => c.id === courseId);
+      if (!course) return false;
+
+      if (selectedIds.has(courseId)) {
+        selectedIds.delete(courseId);
+        renderCourses();
+        updateAll(`已退选 ${course.code} ${course.name}`, true);
+        return true;
+      } else {
+        let current = 0;
+        allCourses.forEach(c => { if (selectedIds.has(c.id)) current += c.credits; });
+        if (current + course.credits > 88) {
+          updateAll(`⚠️ 学分超限 (当前 ${current} + ${course.credits} > 88)`, false);
+          return false;
+        }
+        selectedIds.add(courseId);
+        renderCourses();
+        updateAll(`✅ 已选 ${course.code} ${course.name}`, true);
+        return true;
+      }
+    }
+
+    // 重置
+    function resetSelection() {
+      if (selectedIds.size === 0) {
+        updateAll('当前无已选课程', false);
+        return;
+      }
+      selectedIds.clear();
+      renderCourses();
+      updateAll('🔄 已重置所有选课', true);
+    }
+
+    // ---- 事件绑定 ----
+    courseListEl.addEventListener('click', function(e) {
+      const btn = e.target.closest('.btn-select');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      if (!id) return;
+      toggleCourse(id);
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', resetSelection);
+
+    filterTheory.addEventListener('change', renderCourses);
+    filterCore.addEventListener('change', renderCourses);
+    filterElective.addEventListener('change', renderCourses);
+
+    // 填充下拉
+    theoryCourses.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.code} ${c.name} (${c.credits}学分)`;
+      filterTheory.appendChild(opt);
+    });
+    coreCourses.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.code} ${c.name} (${c.credits}学分)`;
+      filterCore.appendChild(opt);
+    });
+    electiveCourses.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.code} ${c.name} (${c.credits}学分)`;
+      filterElective.appendChild(opt);
+    });
+
+    // 初始渲染
+    renderCourses();
+    updateAll('✨ 贵系选课 · 学分上限88', true);
+  })();
+</script>
+
+</body>
+</html>
