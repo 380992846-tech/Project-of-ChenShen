@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>紫金量化 · 黑紫投资舱</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background-color: #0b0710;
+            color: #e6e0f0;
+            min-height: 100vh;
+            padding: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .app {
+            width: 1480px;
+            max-width: 100%;
+            background: rgba(22, 16, 35, 0.40);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(160, 120, 255, 0.15);
+            padding: 20px 24px 28px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(160, 120, 255, 0.08);
+        }
+        .app::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 6, 20, 0.30);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .app>* { position: relative; z-index: 1; }
+
+        /* ===== 导航 ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(180, 140, 255, 0.10);
+            margin-bottom: 18px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            background: linear-gradient(145deg, #b28aff, #7a4bff);
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #f0ecff;
+            box-shadow: 0 6px 14px rgba(90, 40, 200, 0.5);
+        }
+        .logo-text {
+            font-weight: 700;
+            font-size: 20px;
+            background: linear-gradient(to right, #d9caff, #b28aff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 0.5px;
+        }
+        .logo-text small {
+            font-weight: 400;
+            font-size: 11px;
+            color: #9480c0;
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            margin-left: 6px;
+        }
+
+        .nav-center {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .wallpaper-strip {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(30, 20, 55, 0.3);
+            padding: 4px 12px 4px 10px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.08);
+        }
+        .wallpaper-strip span {
+            font-size: 11px;
+            color: #b3a1d4;
+            margin-right: 4px;
+        }
+        .wp-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid rgba(200, 180, 255, 0.15);
+            cursor: pointer;
+            transition: 0.2s;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+        .wp-dot:hover { transform: scale(1.12); border-color: #b28aff; }
+        .wp-dot.active { border-color: #b28aff; box-shadow: 0 0 14px rgba(130, 70, 255, 0.3); }
+        .upload-label {
+            background: rgba(130, 70, 255, 0.15);
+            border: 1px solid rgba(160, 120, 255, 0.2);
+            border-radius: 30px;
+            padding: 2px 10px;
+            font-size: 10px;
+            color: #cbb8f0;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .upload-label:hover { background: rgba(130, 70, 255, 0.3); border-color: #b28aff; }
+        #wallpaperUpload { display: none; }
+
+        .nav-clock {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            background: rgba(30, 20, 55, 0.25);
+            padding: 2px 14px 2px 12px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+        }
+        .nav-clock .time { font-size: 16px; font-weight: 600; color: #f0eaff; }
+        .nav-clock .date { font-size: 10px; color: #b3a1d4; }
+
+        .nav-actions i {
+            font-size: 16px;
+            color: #b8a8e0;
+            margin-left: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-actions i:hover { color: #d4c0ff; }
+
+        /* ===== 三列布局 ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: 1.1fr 2fr 0.9fr;
+            gap: 18px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 1100px) {
+            .grid { grid-template-columns: 1fr 1.2fr; }
+        }
+        @media (max-width: 760px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        /* ===== 卡片通用 ===== */
+        .card {
+            background: rgba(12, 8, 22, 0.30);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 24px;
+            padding: 16px 18px 18px;
+            border: 1px solid rgba(160, 120, 255, 0.06);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            transition: 0.2s;
+        }
+        .card:hover { border-color: rgba(160, 120, 255, 0.12); }
+        .card-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #cbb8f0;
+            letter-spacing: 0.3px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title i { color: #9a83c7; font-size: 14px; }
+
+        /* ===== 收益模拟 ===== */
+        .sim-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px 10px;
+            margin-bottom: 10px;
+        }
+        .sim-row label { font-size: 13px; color: #b3a1d4; }
+        .sim-row select {
+            background: rgba(40, 28, 70, 0.5);
+            border: 1px solid rgba(160, 120, 255, 0.15);
+            border-radius: 40px;
+            padding: 5px 12px;
+            color: #e6def5;
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+            min-width: 70px;
+        }
+        .sim-row select:focus { border-color: #9f7aff; }
+        .sim-row .input-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(40, 28, 70, 0.3);
+            border-radius: 40px;
+            padding: 2px 10px 2px 12px;
+            border: 1px solid rgba(160, 120, 255, 0.06);
+        }
+        .sim-row .input-group span { color: #7f6aac; font-size: 12px; }
+        .sim-row .input-group input {
+            background: transparent;
+            border: none;
+            color: #f0eaff;
+            width: 70px;
+            font-size: 13px;
+            padding: 5px 0;
+            outline: none;
+        }
+        .sim-row .input-group input::placeholder { color: #6f5b96; }
+
+        .sim-btn {
+            background: rgba(130, 70, 255, 0.2);
+            border: 1px solid rgba(160, 120, 255, 0.15);
+            border-radius: 40px;
+            padding: 5px 16px;
+            color: #cbb8f0;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .sim-btn:hover { background: rgba(130, 70, 255, 0.35); border-color: #b28aff; }
+
+        .sim-result {
+            background: rgba(10, 6, 20, 0.25);
+            border-radius: 16px;
+            padding: 12px 14px;
+            margin-top: 6px;
+            font-size: 13px;
+            line-height: 1.7;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(160, 120, 255, 0.04);
+            white-space: pre-wrap;
+            color: #ddd2f0;
+        }
+        .sim-result::-webkit-scrollbar { width: 3px; }
+        .sim-result::-webkit-scrollbar-thumb { background: #4e3a78; border-radius: 10px; }
+
+        /* ===== 投资指南 (中间) ===== */
+        .guide-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .guide-grid::-webkit-scrollbar { width: 3px; }
+        .guide-grid::-webkit-scrollbar-thumb { background: #4e3a78; border-radius: 10px; }
+        .guide-item {
+            background: rgba(20, 12, 38, 0.15);
+            border-radius: 14px;
+            padding: 8px 12px;
+            border: 1px solid rgba(160, 120, 255, 0.04);
+            font-size: 12.5px;
+            color: #d4c8f0;
+            line-height: 1.5;
+        }
+        .guide-item i { color: #9a83c7; margin-right: 5px; width: 16px; }
+        .guide-item strong { color: #cbb8f0; }
+
+        .guide-section-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #b28aff;
+            margin: 6px 0 4px;
+            grid-column: 1 / -1;
+            border-bottom: 1px solid rgba(160, 120, 255, 0.06);
+            padding-bottom: 4px;
+        }
+
+        /* ===== 指数 (右侧) ===== */
+        .index-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .index-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(20, 12, 38, 0.2);
+            padding: 6px 12px;
+            border-radius: 14px;
+            border-left: 3px solid #7a4bff;
+            font-size: 13px;
+        }
+        .index-item .name { color: #d4c8f0; }
+        .index-item .price { font-weight: 600; color: #f0eaff; }
+        .index-item .change { font-weight: 500; }
+        .index-item .change.up { color: #7be0b0; }
+        .index-item .change.down { color: #f78b8b; }
+
+        .index-footnote {
+            font-size: 10px;
+            color: #6c5890;
+            text-align: right;
+            margin-top: 6px;
+        }
+
+        /* ===== 底部额外功能 ===== */
+        .extra-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-top: 6px;
+        }
+        @media (max-width: 820px) { .extra-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 480px) { .extra-grid { grid-template-columns: 1fr; } }
+
+        .extra-card {
+            background: rgba(12, 8, 22, 0.25);
+            backdrop-filter: blur(4px);
+            border-radius: 20px;
+            padding: 14px 16px 16px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            transition: 0.2s;
+        }
+        .extra-card:hover { border-color: rgba(160, 120, 255, 0.12); }
+        .extra-card .title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #cbb8f0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .extra-card .title i { color: #9a83c7; }
+        .extra-card .content {
+            font-size: 13px;
+            color: #ddd2f0;
+            line-height: 1.6;
+        }
+        .extra-card .content .val {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f0eaff;
+            margin: 4px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(40, 28, 70, 0.4);
+            border-radius: 10px;
+            margin: 6px 0;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #7a4bff, #b28aff);
+            border-radius: 10px;
+            width: 0%;
+        }
+        .tag {
+            display: inline-block;
+            background: rgba(130, 70, 255, 0.15);
+            border-radius: 20px;
+            padding: 0 10px;
+            font-size: 10px;
+            color: #b28aff;
+            margin-right: 4px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 20, 60, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 10px 28px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.15);
+            color: #e6def5;
+            font-size: 13px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.35s;
+            pointer-events: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        }
+        .toast.show { opacity: 1; }
+
+        @media (max-width: 600px) {
+            .app { padding: 14px; }
+            .navbar { flex-direction: column; align-items: stretch; }
+            .nav-center { flex-wrap: wrap; justify-content: center; }
+            .wallpaper-strip { flex-wrap: wrap; }
+            .sim-row { flex-direction: column; align-items: stretch; }
+            .guide-grid { grid-template-columns: 1fr; max-height: 500px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app" id="appContainer">
+        <!-- 导航 -->
+        <nav class="navbar">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="logo-text">紫金量化 <small>· 黑紫投资舱</small></div>
+            </div>
+            <div class="nav-center">
+                <div class="wallpaper-strip" id="wallpaperStrip">
+                    <span><i class="fas fa-image"></i></span>
+                    <div class="wp-dot active" data-wp="default" style="background: linear-gradient(135deg, #1a1030, #2a1a4a);" title="黑紫"></div>
+                    <div class="wp-dot" data-wp="tokyo" style="background-image: url('https://picsum.photos/seed/tokyo/200/200');" title="东京"></div>
+                    <div class="wp-dot" data-wp="nyc" style="background-image: url('https://picsum.photos/seed/nyc/200/200');" title="纽约"></div>
+                    <div class="wp-dot" data-wp="hk" style="background-image: url('https://picsum.photos/seed/hk/200/200');" title="香港"></div>
+                    <div class="wp-dot" data-wp="london" style="background-image: url('https://picsum.photos/seed/london_/200/200');" title="伦敦"></div>
+                    <div class="wp-dot" data-wp="paris" style="background-image: url('https://picsum.photos/seed/paris/200/200');" title="巴黎"></div>
+                    <div class="wp-dot" data-wp="dubai" style="background-image: url('https://picsum.photos/seed/dubai/200/200');" title="迪拜"></div>
+                    <div class="wp-dot" data-wp="singapore" style="background-image: url('https://picsum.photos/seed/singapore/200/200');" title="新加坡"></div>
+                    <div class="wp-dot" data-wp="sydney" style="background-image: url('https://picsum.photos/seed/sydney/200/200');" title="悉尼"></div>
+                    <label class="upload-label" for="wallpaperUpload"><i class="fas fa-upload"></i> 上传</label>
+                    <input type="file" id="wallpaperUpload" accept="image/*">
+                </div>
+                <div class="nav-clock">
+                    <span class="time" id="clockTime">--:--:--</span>
+                    <span class="date" id="clockDate">--/--</span>
+                </div>
+                <div class="nav-actions">
+                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 三列主网格 -->
+        <div class="grid">
+            <!-- 左: 收益模拟 -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-calculator"></i> 收益模拟 · 含月定投</div>
+                <div class="sim-row">
+                    <label>年化</label>
+                    <select id="returnSelect"></select>
+                    <div class="input-group">
+                        <span>¥</span>
+                        <input type="number" id="initialCapital" value="300000" step="10000" />
+                    </div>
+                </div>
+                <div class="sim-row">
+                    <label>月定投</label>
+                    <div class="input-group">
+                        <span>¥</span>
+                        <input type="number" id="monthlyInvest" value="30000" step="1000" />
+                    </div>
+                    <button class="sim-btn" id="simulateBtn"><i class="fas fa-play"></i> 模拟</button>
+                </div>
+                <div class="sim-result" id="simResult">点击「模拟」查看 5~20 年逐年收益 📈</div>
+            </div>
+
+            <!-- 中: 投资指南 · 15条规律 + 20条常识 (无🧠) -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-book-open"></i> 投资指南 · 规律 & 常识</div>
+                <div class="guide-grid" id="guideGrid"></div>
+            </div>
+
+            <!-- 右: 指数 -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-globe"></i> 市场指数</div>
+                <div class="index-grid" id="indexGrid">
+                    <div class="index-item"><span class="name">上证指数</span><span class="price" id="idx_shi">----</span><span class="change up" id="idx_shi_ch">+0.00%</span></div>
+                    <div class="index-item"><span class="name">科技股指数</span><span class="price" id="idx_tech">----</span><span class="change up" id="idx_tech_ch">+0.00%</span></div>
+                    <div class="index-item"><span class="name">纳斯达克</span><span class="price" id="idx_nas">----</span><span class="change up" id="idx_nas_ch">+0.00%</span></div>
+                    <div class="index-item"><span class="name">纽交所</span><span class="price" id="idx_nyse">----</span><span class="change up" id="idx_nyse_ch">+0.00%</span></div>
+                </div>
+                <div class="index-footnote"><i class="fas fa-sync-alt"></i> 模拟数据 · 每30s更新</div>
+            </div>
+        </div>
+
+        <!-- 底部额外3个功能 -->
+        <div class="extra-grid">
+            <div class="extra-card">
+                <div class="title"><i class="fas fa-arrow-down"></i> 最大回撤估算</div>
+                <div class="content">
+                    <div>基于年化波动 <span class="tag">历史</span></div>
+                    <div class="val" id="maxDrawdown">-18.4%</div>
+                    <div class="progress-bar"><div class="fill" style="width:58%;"></div></div>
+                    <div style="font-size:11px;color:#7f6aac;">近20年模拟 · 风险警示</div>
+                </div>
+            </div>
+            <div class="extra-card">
+                <div class="title"><i class="fas fa-piggy-bank"></i> 定投目标计算</div>
+                <div class="content">
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <span style="font-size:12px;">目标 ¥</span>
+                        <input type="number" id="targetAmount" value="6000000" style="width:80px;background:rgba(40,28,70,0.3);border:1px solid rgba(160,120,255,0.1);border-radius:20px;padding:2px 10px;color:#f0eaff;outline:none;font-size:12px;" />
+                        <button class="sim-btn" id="targetBtn" style="padding:2px 12px;font-size:11px;">算时间</button>
+                    </div>
+                    <div style="margin-top:6px;font-size:13px;" id="targetResult">🏷️ 约 6.9 年 (20% 年化)</div>
+                </div>
+            </div>
+            <div class="extra-card">
+                <div class="title"><i class="fas fa-temperature-high"></i> 市场情绪</div>
+                <div class="content">
+                    <div style="display:flex;justify-content:space-between;font-size:12px;color:#b3a1d4;">
+                        <span>恐慌</span><span>中性</span><span>贪婪</span>
+                    </div>
+                    <div class="progress-bar" style="height:10px;background:rgba(40,28,70,0.5);">
+                        <div class="fill" id="sentimentFill" style="width:62%;background:linear-gradient(90deg,#7a4bff,#f7c948);"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-top:4px;">
+                        <span id="sentimentLabel" style="font-size:13px;font-weight:500;color:#f0eaff;">贪婪</span>
+                        <span id="sentimentScore" style="font-size:12px;color:#b3a1d4;">62/100</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:16px;font-size:10px;color:#4e3a78;text-align:center;border-top:1px solid rgba(160,120,255,0.05);padding-top:12px;">
+            <i class="fas fa-shield-alt"></i> 紫金量化 · 数据仅为模拟演示，不构成投资建议
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            const app = document.getElementById('appContainer');
+            const clockTime = document.getElementById('clockTime');
+            const clockDate = document.getElementById('clockDate');
+            const returnSelect = document.getElementById('returnSelect');
+            const initialCapital = document.getElementById('initialCapital');
+            const monthlyInvest = document.getElementById('monthlyInvest');
+            const simulateBtn = document.getElementById('simulateBtn');
+            const simResult = document.getElementById('simResult');
+            const wallpaperUpload = document.getElementById('wallpaperUpload');
+            const toast = document.getElementById('toast');
+
+            const idxPrice = {
+                shi: document.getElementById('idx_shi'),
+                tech: document.getElementById('idx_tech'),
+                nas: document.getElementById('idx_nas'),
+                nyse: document.getElementById('idx_nyse')
+            };
+            const idxChange = {
+                shi: document.getElementById('idx_shi_ch'),
+                tech: document.getElementById('idx_tech_ch'),
+                nas: document.getElementById('idx_nas_ch'),
+                nyse: document.getElementById('idx_nyse_ch')
+            };
+
+            const targetAmount = document.getElementById('targetAmount');
+            const targetBtn = document.getElementById('targetBtn');
+            const targetResult = document.getElementById('targetResult');
+            const sentimentFill = document.getElementById('sentimentFill');
+            const sentimentLabel = document.getElementById('sentimentLabel');
+            const sentimentScore = document.getElementById('sentimentScore');
+            const maxDrawdown = document.getElementById('maxDrawdown');
+
+            let toastTimer = null;
+            function showToast(msg) {
+                toast.textContent = msg;
+                toast.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+            }
+
+            // ===== 时钟 =====
+            function updateClock() {
+                const now = new Date();
+                clockTime.textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
+                clockDate.textContent = now.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            // ===== 壁纸 =====
+            const wallpapers = [
+                { id: 'default', name: '黑紫' },
+                { id: 'tokyo', name: '东京', url: 'https://picsum.photos/seed/tokyo/1200/800' },
+                { id: 'nyc', name: '纽约', url: 'https://picsum.photos/seed/nyc/1200/800' },
+                { id: 'hk', name: '香港', url: 'https://picsum.photos/seed/hk/1200/800' },
+                { id: 'london', name: '伦敦', url: 'https://picsum.photos/seed/london_/1200/800' },
+                { id: 'paris', name: '巴黎', url: 'https://picsum.photos/seed/paris/1200/800' },
+                { id: 'dubai', name: '迪拜', url: 'https://picsum.photos/seed/dubai/1200/800' },
+                { id: 'singapore', name: '新加坡', url: 'https://picsum.photos/seed/singapore/1200/800' },
+                { id: 'sydney', name: '悉尼', url: 'https://picsum.photos/seed/sydney/1200/800' }
+            ];
+
+            function setWallpaper(id, customUrl = null) {
+                if (id === 'default') {
+                    app.style.backgroundImage = '';
+                    app.style.backgroundColor = 'rgba(22, 16, 35, 0.40)';
+                } else if (customUrl) {
+                    app.style.backgroundImage = `url('${customUrl}')`;
+                    app.style.backgroundColor = 'transparent';
+                } else {
+                    const wp = wallpapers.find(w => w.id === id);
+                    if (wp && wp.url) {
+                        app.style.backgroundImage = `url('${wp.url}')`;
+                        app.style.backgroundColor = 'transparent';
+                    }
+                }
+                document.querySelectorAll('.wp-dot').forEach(d => d.classList.toggle('active', d.dataset.wp === id));
+                localStorage.setItem('quant_wallpaper', id);
+            }
+
+            document.querySelectorAll('.wp-dot').forEach(d => {
+                d.addEventListener('click', function() { setWallpaper(this.dataset.wp); });
+            });
+
+            wallpaperUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    app.style.backgroundImage = `url('${ev.target.result}')`;
+                    app.style.backgroundColor = 'transparent';
+                    document.querySelectorAll('.wp-dot').forEach(d => d.classList.remove('active'));
+                    showToast('✅ 自定义壁纸已应用');
+                    localStorage.setItem('quant_wallpaper', 'custom_' + Date.now());
+                };
+                reader.readAsDataURL(file);
+                this.value = '';
+            });
+
+            const savedWp = localStorage.getItem('quant_wallpaper');
+            if (savedWp && !savedWp.startsWith('custom_')) setWallpaper(savedWp);
+            else setWallpaper('default');
+
+            // ===== 年化下拉 8%~25% =====
+            function populateReturns() {
+                let html = '';
+                for (let r = 8; r <= 25; r++) {
+                    html += `<option value="${r}">${r}%</option>`;
+                }
+                returnSelect.innerHTML = html;
+                returnSelect.value = '20';
+            }
+            populateReturns();
+
+            // ===== 收益模拟 (5~20年逐年) =====
+            function runSimulation(annualRate, initial, monthly) {
+                const rate = annualRate / 100;
+                const monthlyRate = Math.pow(1 + rate, 1 / 12) - 1;
+                let result = `📊 年化 ${annualRate}% · 初始 ¥${initial.toLocaleString()} · 月定投 ¥${monthly.toLocaleString()}\n\n`;
+                for (let y = 5; y <= 20; y++) {
+                    let total = initial;
+                    const months = y * 12;
+                    for (let m = 1; m <= months; m++) {
+                        total = total * (1 + monthlyRate) + monthly;
+                    }
+                    result += `📌 ${y}年后: ¥${Math.round(total).toLocaleString()}\n`;
+                }
+                return result;
+            }
+
+            function updateSimulation() {
+                const rate = parseInt(returnSelect.value);
+                const initial = parseFloat(initialCapital.value) || 300000;
+                const monthly = parseFloat(monthlyInvest.value) || 0;
+                if (initial <= 0) { simResult.textContent = '⚠️ 请输入有效本金'; return; }
+                simResult.textContent = runSimulation(rate, initial, monthly);
+            }
+
+            simulateBtn.addEventListener('click', updateSimulation);
+            initialCapital.addEventListener('keydown', (e) => { if (e.key === 'Enter') updateSimulation(); });
+            monthlyInvest.addEventListener('keydown', (e) => { if (e.key === 'Enter') updateSimulation(); });
+            returnSelect.addEventListener('change', updateSimulation);
+            setTimeout(updateSimulation, 200);
+
+            // ===== 投资指南 (无🧠) =====
+            const rules = [
+                '📌 复利是世界第八大奇迹，时间是最好的朋友。',
+                '📌 长期持有优质资产，远胜于频繁交易。',
+                '📌 市场短期是投票机，长期是称重机。',
+                '📌 风险与收益成正比，高收益必然伴随高风险。',
+                '📌 分散投资是唯一免费的风险对冲。',
+                '📌 不要试图预测市场，而是应对市场。',
+                '📌 定投的核心是“熊市攒份额，牛市享收益”。',
+                '📌 亏损50%需要上涨100%才能回本，控制回撤至关重要。',
+                '📌 情绪是投资最大的敌人，贪婪和恐惧交替主导。',
+                '📌 资产配置决定了90%以上的长期收益。',
+                '📌 保持现金储备，危机时才有子弹。',
+                '📌 投资自己是最好的投资，认知提升带来收益。',
+                '📌 均值回归是市场的铁律，涨多了会跌，跌多了会涨。',
+                '📌 不要加杠杆，杠杆会放大亏损，甚至归零。',
+                '📌 投资是一场马拉松，不是百米冲刺。'
+            ];
+
+            const basics = [
+                '• 股票代表公司所有权，不是投机筹码。',
+                '• 市盈率（PE）是估值常用指标，越低不一定越好。',
+                '• 市净率（PB）适用于重资产行业。',
+                '• 分红是公司回报股东的方式之一。',
+                '• 牛市和熊市交替出现，平均每5-7年一轮。',
+                '• 交易量是市场活跃度的体现。',
+                '• 停牌、涨跌停板是A股特有的交易规则。',
+                '• ETF是一篮子股票，分散风险。',
+                '• 基金分为主动型和被动型（指数基金）。',
+                '• 管理费和托管费是基金的隐性成本。',
+                '• 夏普比率衡量风险调整后的收益。',
+                '• 最大回撤是衡量风险的重要指标。',
+                '• 定投可以平滑成本，降低择时风险。',
+                '• 止盈和止损同样重要，执行纪律。',
+                '• 宏观经济数据（GDP、CPI）影响市场走向。',
+                '• 政策变化（货币政策、财政政策）是市场催化剂。',
+                '• 黑天鹅事件无法预测，但可以通过对冲保护。',
+                '• 流动性是市场的命脉，流动性枯竭时风险最大。',
+                '• 投资组合需要定期再平衡。',
+                '• 长期年化收益率：美股约7-10%，A股约8-12%。'
+            ];
+
+            function renderGuide() {
+                const container = document.getElementById('guideGrid');
+                let html = '';
+                html += `<div class="guide-section-title"><i class="fas fa-gem"></i> 15条投资规律</div>`;
+                rules.forEach(r => { html += `<div class="guide-item">${r}</div>`; });
+                html += `<div class="guide-section-title"><i class="fas fa-database"></i> 20条基础常识</div>`;
+                basics.forEach(b => { html += `<div class="guide-item">${b}</div>`; });
+                container.innerHTML = html;
+            }
+            renderGuide();
+
+            // ===== 指数模拟 =====
+            const basePrices = { shi: 3120, tech: 1650, nas: 18500, nyse: 16500 };
+
+            function randomChange(base) {
+                return base * (1 + (Math.random() - 0.5) * 0.018);
+            }
+
+            function updateIndices() {
+                for (const key of ['shi', 'tech', 'nas', 'nyse']) {
+                    const base = basePrices[key] || 1000;
+                    const newVal = randomChange(base);
+                    basePrices[key] = basePrices[key] * 0.7 + newVal * 0.3;
+                    const price = basePrices[key];
+                    idxPrice[key].textContent = price.toFixed(2);
+                    const changePct = (Math.random() - 0.5) * 0.012;
+                    const chStr = (changePct >= 0 ? '+' : '') + (changePct * 100).toFixed(2) + '%';
+                    idxChange[key].textContent = chStr;
+                    idxChange[key].className = 'change ' + (changePct >= 0 ? 'up' : 'down');
+                }
+            }
+
+            function updateDrawdown() {
+                const dd = (Math.random() * 12 + 8).toFixed(1);
+                maxDrawdown.textContent = '-' + dd + '%';
+                const fill = document.querySelector('.extra-card .progress-bar .fill');
+                if (fill) fill.style.width = Math.min(100, parseFloat(dd) * 2.5) + '%';
+            }
+
+            function updateSentiment() {
+                const score = Math.floor(Math.random() * 40 + 30);
+                sentimentFill.style.width = score + '%';
+                sentimentScore.textContent = score + '/100';
+                if (score > 65) sentimentLabel.textContent = '🔥 贪婪';
+                else if (score > 45) sentimentLabel.textContent = '😐 中性';
+                else sentimentLabel.textContent = '🥶 恐慌';
+            }
+
+            // ===== 定投目标计算 =====
+            function calcTarget() {
+                const target = parseFloat(targetAmount.value);
+                const initial = parseFloat(initialCapital.value) || 300000;
+                const monthly = parseFloat(monthlyInvest.value) || 0;
+                const rate = parseInt(returnSelect.value) / 100;
+                if (!target || target <= initial) { targetResult.textContent = '⚠️ 目标需大于本金'; return; }
+                let months = 0;
+                let total = initial;
+                const monthlyRate = Math.pow(1 + rate, 1 / 12) - 1;
+                while (total < target && months < 600) {
+                    total = total * (1 + monthlyRate) + monthly;
+                    months++;
+                }
+                const years = (months / 12).toFixed(1);
+                if (months >= 600) { targetResult.textContent = '⏳ 超过50年，降低目标或提高收益率'; return; }
+                targetResult.textContent = `🏷️ 约 ${years} 年 (定投 ${returnSelect.value}% 年化)`;
+            }
+
+            targetBtn.addEventListener('click', calcTarget);
+            targetAmount.addEventListener('keydown', (e) => { if (e.key === 'Enter') calcTarget(); });
+
+            // ===== 周期性更新 =====
+            setInterval(() => {
+                updateIndices();
+                updateDrawdown();
+                updateSentiment();
+            }, 8000);
+
+            updateIndices();
+            updateDrawdown();
+            updateSentiment();
+
+            simulateBtn.addEventListener('click', () => {
+                calcTarget();
+                showToast('📈 模拟已更新');
+            });
+
+            console.log('紫金量化 · 黑紫投资舱 已启动');
+        })();
+    </script>
+</body>
+</html>

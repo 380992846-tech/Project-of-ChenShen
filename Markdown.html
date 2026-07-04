@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>黑紫玻璃 · Markdown 清理器</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', 'PingFang SC', Roboto, system-ui, sans-serif;
+      padding: 20px;
+      background-image:
+        url('https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=600&q=80'),
+        url('https://images.unsplash.com/photo-1506703719100-a0f3a48a3e2d?w=1200&q=80');
+      background-size: 35%, cover;
+      background-position: 15% 25%, center;
+      background-repeat: no-repeat, no-repeat;
+      background-blend-mode: normal, normal;
+      background-attachment: fixed;
+      background-color: #0b0710;
+    }
+
+    .glass-card {
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(18, 10, 38, 0.40);
+      backdrop-filter: blur(18px) saturate(200%);
+      -webkit-backdrop-filter: blur(18px) saturate(200%);
+      border-radius: 56px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7),
+                  0 0 0 1px rgba(200, 160, 255, 0.10) inset,
+                  0 0 60px rgba(100, 60, 200, 0.20);
+      padding: 28px 30px 38px;
+      border: 1px solid rgba(220, 190, 255, 0.06);
+    }
+
+    .tool-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(210, 180, 255, 0.08);
+    }
+
+    .tool-header i {
+      font-size: 2.4rem;
+      color: #d6c4ff;
+      text-shadow: 0 0 30px #a07aff, 0 0 12px #6f3fc0;
+      background: rgba(50, 25, 100, 0.3);
+      padding: 10px 14px;
+      border-radius: 40px;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(200, 160, 255, 0.15);
+    }
+
+    .tool-header h1 {
+      font-size: 2rem;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      background: linear-gradient(135deg, #f0eaff, #c9b0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-right: auto;
+    }
+
+    .header-badge {
+      font-size: 0.7rem;
+      background: rgba(150, 100, 255, 0.18);
+      backdrop-filter: blur(4px);
+      padding: 6px 18px;
+      border-radius: 40px;
+      color: #d6caff;
+      border: 1px solid rgba(200, 170, 255, 0.12);
+      letter-spacing: 0.5px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 20px;
+      margin-bottom: 24px;
+      padding: 14px 22px;
+      background: rgba(12, 6, 28, 0.30);
+      backdrop-filter: blur(8px);
+      border-radius: 60px;
+      border: 1px solid rgba(200, 170, 255, 0.05);
+    }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 28px;
+      background: rgba(40, 22, 80, 0.50);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(200, 170, 255, 0.15);
+      border-radius: 60px;
+      color: #efe6ff;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      letter-spacing: 0.3px;
+      user-select: none;
+    }
+
+    .tool-btn i {
+      font-size: 1.1rem;
+      color: #cfbaff;
+    }
+
+    .tool-btn:hover {
+      background: rgba(100, 70, 190, 0.60);
+      border-color: #b392ff;
+      box-shadow: 0 0 28px rgba(140, 100, 255, 0.25);
+      transform: scale(1.02);
+      color: #fff;
+    }
+    .tool-btn:active {
+      transform: scale(0.95);
+    }
+
+    .btn-clean {
+      background: rgba(110, 30, 80, 0.40);
+      border-color: rgba(230, 120, 180, 0.20);
+    }
+    .btn-clean:hover {
+      background: rgba(180, 50, 110, 0.55);
+      border-color: #ff90c0;
+    }
+
+    .btn-export {
+      background: rgba(30, 90, 80, 0.35);
+      border-color: rgba(80, 210, 180, 0.18);
+    }
+    .btn-export:hover {
+      background: rgba(40, 140, 120, 0.50);
+      border-color: #6eddc0;
+    }
+
+    .btn-reset {
+      background: rgba(60, 60, 100, 0.30);
+      border-color: rgba(160, 160, 220, 0.12);
+    }
+    .btn-reset:hover {
+      background: rgba(80, 80, 140, 0.45);
+      border-color: #a0a0ff;
+    }
+
+    .editor-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 6px;
+    }
+
+    .glass-pane {
+      background: rgba(12, 6, 28, 0.30);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 32px;
+      border: 1px solid rgba(200, 170, 255, 0.05);
+      padding: 18px 18px 22px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .pane-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: #d4c6f0;
+      font-weight: 400;
+      letter-spacing: 0.8px;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      opacity: 0.8;
+      border-bottom: 1px solid rgba(200, 170, 255, 0.05);
+      padding-bottom: 8px;
+    }
+    .pane-title i {
+      color: #b79eff;
+    }
+    .pane-title .badge-clean {
+      margin-left: auto;
+      font-size: 0.6rem;
+      background: rgba(160, 100, 200, 0.20);
+      padding: 2px 12px;
+      border-radius: 30px;
+      color: #c8b0f0;
+      letter-spacing: 0.3px;
+    }
+
+    #markdownInput {
+      width: 100%;
+      min-height: 380px;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(200, 170, 255, 0.06);
+      border-radius: 24px;
+      padding: 20px 22px;
+      color: #f2ecff;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      resize: vertical;
+      outline: none;
+      transition: border 0.25s, box-shadow 0.25s;
+      box-shadow: inset 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    #markdownInput:focus {
+      border-color: #b392ff;
+      box-shadow: 0 0 0 3px rgba(140, 100, 255, 0.12), inset 0 4px 16px rgba(0, 0, 0, 0.6);
+    }
+
+    #markdownInput::placeholder {
+      color: rgba(180, 160, 220, 0.25);
+      font-weight: 300;
+    }
+
+    .preview-box {
+      min-height: 380px;
+      background: rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(4px);
+      border-radius: 24px;
+      padding: 20px 24px;
+      border: 1px solid rgba(200, 170, 255, 0.04);
+      color: #ece4ff;
+      word-wrap: break-word;
+      overflow-y: auto;
+      max-height: 500px;
+      box-shadow: inset 0 4px 16px rgba(0, 0, 0, 0.5);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .preview-box h1,
+    .preview-box h2,
+    .preview-box h3 {
+      color: #e4d6ff;
+      border-bottom: 1px solid rgba(180, 140, 255, 0.08);
+      padding-bottom: 6px;
+    }
+    .preview-box h1 {
+      font-size: 1.8rem;
+    }
+    .preview-box h2 {
+      font-size: 1.4rem;
+    }
+    .preview-box h3 {
+      font-size: 1.2rem;
+    }
+    .preview-box a {
+      color: #b392ff;
+    }
+    .preview-box strong {
+      color: #dccaff;
+    }
+    .preview-box code {
+      background: rgba(40, 20, 70, 0.5);
+      padding: 0.2rem 0.5rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #dac6ff;
+    }
+    .preview-box pre {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 12px;
+      border-radius: 16px;
+      overflow-x: auto;
+      border-left: 3px solid #7a4bca;
+    }
+    .preview-box blockquote {
+      border-left: 4px solid #9f7aff;
+      padding-left: 16px;
+      opacity: 0.8;
+      font-style: italic;
+    }
+    .preview-box ul,
+    .preview-box ol {
+      padding-left: 24px;
+    }
+    .preview-box img {
+      max-width: 100%;
+      border-radius: 12px;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+    }
+    .preview-box p {
+      margin: 0.6rem 0;
+    }
+
+    /* 清理日志 */
+    .clean-log {
+      margin-top: 12px;
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 16px;
+      border-left: 3px solid #8a6ad0;
+      font-size: 0.8rem;
+      color: rgba(200, 185, 230, 0.6);
+      min-height: 28px;
+      transition: all 0.2s;
+      font-family: monospace;
+    }
+    .clean-log.success {
+      border-left-color: #6eddc0;
+      color: rgba(160, 230, 210, 0.8);
+    }
+    .clean-log.info {
+      border-left-color: #b392ff;
+      color: rgba(200, 185, 230, 0.8);
+    }
+
+    @media (max-width: 720px) {
+      .editor-panel {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+      .glass-card {
+        padding: 20px 16px 30px;
+        border-radius: 36px;
+      }
+      .toolbar {
+        border-radius: 40px;
+        justify-content: center;
+      }
+      .tool-btn {
+        padding: 8px 18px;
+        font-size: 0.85rem;
+      }
+      .tool-header h1 {
+        font-size: 1.5rem;
+      }
+      body {
+        background-size: 50%, cover;
+        background-position: 30% 20%, center;
+      }
+    }
+
+    .preview-box::-webkit-scrollbar {
+      width: 6px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+    .preview-box::-webkit-scrollbar-thumb {
+      background: #6f4cb0;
+      border-radius: 10px;
+    }
+    .preview-box::-webkit-scrollbar-thumb:hover {
+      background: #9a77e6;
+    }
+
+    .toast-message {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 10, 50, 0.80);
+      backdrop-filter: blur(16px);
+      padding: 14px 32px;
+      border-radius: 60px;
+      border: 1px solid rgba(200, 170, 255, 0.15);
+      color: #e8ddff;
+      font-size: 0.95rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      pointer-events: none;
+      transition: opacity 0.3s;
+      opacity: 0;
+      z-index: 999;
+    }
+    .toast-message.show {
+      opacity: 1;
+    }
+
+    .credit {
+      margin-top: 22px;
+      text-align: right;
+      font-size: 0.7rem;
+      color: rgba(200, 180, 255, 0.12);
+      letter-spacing: 2px;
+      border-top: 1px solid rgba(200, 170, 255, 0.03);
+      padding-top: 14px;
+    }
+    .credit i {
+      color: rgba(180, 140, 255, 0.12);
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass-card">
+    <!-- 头部 -->
+    <div class="tool-header">
+      <i class="fas fa-feather-alt"></i>
+      <h1>紫晶 · 清理器</h1>
+      <span class="header-badge"><i class="fas fa-globe-asia"></i> 地球 · 银河</span>
+    </div>
+
+    <!-- 工具栏 -->
+    <div class="toolbar">
+      <button class="tool-btn btn-clean" id="cleanBtn"><i class="fas fa-broom"></i> 清理 Markdown 格式</button>
+      <button class="tool-btn btn-export" id="exportBtn"><i class="fas fa-file-export"></i> 导出 .md</button>
+      <button class="tool-btn btn-reset" id="resetBtn"><i class="fas fa-undo-alt"></i> 重置示例</button>
+      <span style="flex:1; min-width:10px;"></span>
+      <span style="color:rgba(200,180,255,0.15); font-size:0.7rem; display:flex; align-items:center;">
+        <i class="fas fa-circle" style="font-size:0.35rem; margin-right:8px;"></i> 高透 · 双壁纸
+      </span>
+    </div>
+
+    <!-- 编辑 + 预览 -->
+    <div class="editor-panel">
+      <div class="glass-pane">
+        <div class="pane-title">
+          <i class="fas fa-pen-fancy"></i> 原始文本
+          <span class="badge-clean" id="charCount">0 字符</span>
+        </div>
+        <textarea id="markdownInput" placeholder="输入或粘贴 Markdown 文本 …"></textarea>
+        <!-- 清理日志 -->
+        <div class="clean-log" id="cleanLog">💡 点击「清理 Markdown 格式」移除所有标记符号</div>
+      </div>
+
+      <div class="glass-pane">
+        <div class="pane-title">
+          <i class="fas fa-eye"></i> 预览
+          <span class="badge-clean" id="previewCharCount">0 字符</span>
+        </div>
+        <div id="preview" class="preview-box"></div>
+      </div>
+    </div>
+
+    <div class="credit"><i class="fas fa-gem"></i> 地球 · 银河 双壁纸 · 高透玻璃</div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast-message"></div>
+
+  <script>
+    (function() {
+      "use strict";
+
+      const markdownInput = document.getElementById('markdownInput');
+      const previewDiv = document.getElementById('preview');
+      const cleanBtn = document.getElementById('cleanBtn');
+      const exportBtn = document.getElementById('exportBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const toast = document.getElementById('toast');
+      const cleanLog = document.getElementById('cleanLog');
+      const charCount = document.getElementById('charCount');
+      const previewCharCount = document.getElementById('previewCharCount');
+
+      // ----- 示例文本 (包含您提供的内容) -----
+      const EXAMPLE_TEXT = `# 紫晶 · 清理器
+
+## 清理 Markdown 格式
+
+### 导出 .md
+
+---
+
+### 原始文本
+
+搞定了就好！在电脑版网页下，缩放操作和普通浏览不太一样，分两种情况：
+
+**1. 双指捏合（最推荐）**  
+就像放大照片一样，直接用**两根手指在屏幕上张开或捏合**。这是最通用的方法，所有浏览器都支持，适用于任何网
+
+- 列表项目 1
+- 列表项目 2
+- 列表项目 3
+
+> 引用块：这是一个示例引用
+
+\`行内代码\`
+
+\`\`\`
+代码块
+这里是一段示例代码
+\`\`\`
+
+[链接文字](https://example.com)
+![图片描述](https://example.com/image.png)`;
+
+      // ----- 渲染 Markdown -----
+      function renderMarkdown(md) {
+        if (!md) return '<span style="opacity:0.30;">✨ 文本为空，输入内容即可预览</span>';
+
+        let html = md;
+
+        // 转义 HTML
+        html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        // 代码块
+        html = html.replace(/```([\s\S]*?)```/g, function(match, code) {
+          return '<pre><code>' + code.trim() + '</code></pre>';
+        });
+
+        // 行内代码
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+        // 标题
+        html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+        html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+        html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+        // 粗体
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+
+        // 斜体
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+
+        // 链接
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+        // 图片
+        html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
+
+        // 引用
+        html = html.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
+
+        // 无序列表
+        html = html.replace(/^[\-\*] (.*$)/gim, '<li>$1</li>');
+        // 有序列表
+        html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
+
+        // 包裹 li
+        html = html.replace(/(<li>.*<\/li>)/g, function(m) {
+          if (m.match(/^\d+\./)) return '<ol>' + m + '</ol>';
+          else return '<ul>' + m + '</ul>';
+        });
+
+        // 换行
+        html = html.replace(/\n/g, '<br />');
+
+        // 清理多余的 br
+        html = html.replace(/(<\/h[1-6]>)\s*<br \/>/g, '$1');
+        html = html.replace(/<br \/>\s*(<\/h[1-6]>)/g, '$1');
+        html = html.replace(/(<\/blockquote>)\s*<br \/>/g, '$1');
+        html = html.replace(/<br \/>\s*(<\/blockquote>)/g, '$1');
+
+        return html;
+      }
+
+      // ----- 更新预览 + 字符统计 -----
+      function updatePreview() {
+        const raw = markdownInput.value;
+        const rendered = renderMarkdown(raw);
+        previewDiv.innerHTML = rendered;
+        // 更新字符数
+        charCount.textContent = raw.length + ' 字符';
+        previewCharCount.textContent = raw.replace(/\s/g, '').length + ' 字符(无空格)';
+      }
+
+      // ----- Toast -----
+      function showToast(msg, duration = 2200) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
+      }
+
+      // ----- 设置日志 -----
+      function setLog(msg, type = 'info') {
+        cleanLog.textContent = msg;
+        cleanLog.className = 'clean-log ' + type;
+      }
+
+      // ============================================================
+      // 核心功能：清理 Markdown 格式（保留纯文本 + 基本段落）
+      // ============================================================
+      function cleanMarkdown() {
+        const raw = markdownInput.value;
+        if (!raw.trim()) {
+          showToast('⚠️ 内容为空，无需清理');
+          setLog('⚠️ 内容为空，无需清理', 'info');
+          return;
+        }
+
+        let cleaned = raw;
+
+        // 1. 移除标题标记 # ## ### (行首)
+        cleaned = cleaned.replace(/^#{1,6}\s+/gm, '');
+
+        // 2. 移除粗体 ** 或 __
+        cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '$1');
+        cleaned = cleaned.replace(/__(.*?)__/g, '$1');
+
+        // 3. 移除斜体 * 或 _
+        cleaned = cleaned.replace(/\*(.*?)\*/g, '$1');
+        cleaned = cleaned.replace(/_(.*?)_/g, '$1');
+
+        // 4. 移除行内代码 ` `
+        cleaned = cleaned.replace(/`([^`]+)`/g, '$1');
+
+        // 5. 移除代码块 ``` ```
+        cleaned = cleaned.replace(/```[\s\S]*?```/g, '');
+
+        // 6. 移除链接 [text](url) -> 保留 text
+        cleaned = cleaned.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+
+        // 7. 移除图片 ![alt](url) -> 保留 alt
+        cleaned = cleaned.replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1');
+
+        // 8. 移除引用标记 >
+        cleaned = cleaned.replace(/^>\s+/gm, '');
+
+        // 9. 移除列表标记 - * 数字.
+        cleaned = cleaned.replace(/^[\-\*]\s+/gm, '');
+        cleaned = cleaned.replace(/^\d+\.\s+/gm, '');
+
+        // 10. 移除分割线 --- 或 ***
+        cleaned = cleaned.replace(/^[-*]{3,}\s*$/gm, '');
+
+        // 11. 清理多余空行 (保留最多两个换行)
+        cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+
+        // 12. 去除首尾空白
+        cleaned = cleaned.trim();
+
+        // 如果清理后为空
+        if (!cleaned) {
+          markdownInput.value = '';
+          updatePreview();
+          showToast('🧹 清理完成 (内容变为空)');
+          setLog('✅ 清理完成，所有 Markdown 符号已移除，内容为空', 'success');
+          return;
+        }
+
+        // 更新编辑器
+        markdownInput.value = cleaned;
+        updatePreview();
+
+        // 计算清理掉的字符数
+        const removed = raw.length - cleaned.length;
+        showToast(`🧹 清理完成！移除 ${removed} 个格式字符`);
+        setLog(`✅ 清理完成！原 ${raw.length} 字符 → 现 ${cleaned.length} 字符 (移除 ${removed} 个格式符号)`, 'success');
+      }
+
+      // ----- 导出 .md -----
+      function exportMarkdown() {
+        const content = markdownInput.value;
+        if (!content.trim()) {
+          showToast('⚠️ 无内容可导出');
+          return;
+        }
+        const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '清理后的笔记_' + new Date().toISOString().slice(0, 10) + '.md';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('📥 导出成功');
+        setLog(`📥 已导出 ${content.length} 字符的 .md 文件`, 'info');
+      }
+
+      // ----- 重置示例 -----
+      function resetExample() {
+        markdownInput.value = EXAMPLE_TEXT;
+        updatePreview();
+        showToast('🔄 已加载示例文本');
+        setLog('🔄 已重置为示例文本，包含多种 Markdown 格式', 'info');
+      }
+
+      // ============================================================
+      // 绑定事件 (使用多种方式确保可靠)
+      // ============================================================
+      // 方式1: addEventListener
+      cleanBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        cleanMarkdown();
+      });
+
+      exportBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        exportMarkdown();
+      });
+
+      resetBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        resetExample();
+      });
+
+      // 方式2: onclick 属性后备 (直接绑定)
+      // 但为了保持一致性，我们用 addEventListener 已经足够
+
+      // 输入实时预览
+      markdownInput.addEventListener('input', updatePreview);
+
+      // 额外: 键盘快捷键 Ctrl+Shift+C 清理, Ctrl+Shift+E 导出, Ctrl+Shift+R 重置
+      document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey) {
+          if (e.key === 'C' || e.key === 'c') {
+            e.preventDefault();
+            cleanBtn.click();
+          }
+          if (e.key === 'E' || e.key === 'e') {
+            e.preventDefault();
+            exportBtn.click();
+          }
+          if (e.key === 'R' || e.key === 'r') {
+            e.preventDefault();
+            resetBtn.click();
+          }
+        }
+      });
+
+      // 初始化
+      markdownInput.value = EXAMPLE_TEXT;
+      updatePreview();
+      setLog('💡 点击「清理 Markdown 格式」移除所有标记符号，保留纯文本', 'info');
+
+      console.log('✨ 黑紫玻璃清理器已启动 · 地球 + 银河壁纸');
+      console.log('📌 快捷键: Ctrl+Shift+C 清理 | Ctrl+Shift+E 导出 | Ctrl+Shift+R 重置');
+    })();
+  </script>
+</body>
+</html>

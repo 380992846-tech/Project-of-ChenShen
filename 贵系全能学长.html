@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>贵系学长 · 全能工坊 · 大模型版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'PingFang SC', Roboto, sans-serif; }
+        body {
+            background: #0b0812;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 16px;
+            background-image: radial-gradient(circle at 20% 30%, rgba(102,45,145,0.15) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 70%, rgba(60,20,120,0.20) 0%, transparent 60%);
+        }
+        .card {
+            max-width: 1500px;
+            width: 100%;
+            background: rgba(18, 12, 32, 0.72);
+            backdrop-filter: blur(18px);
+            border-radius: 48px;
+            padding: 20px 24px 24px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.7), 0 0 0 1px rgba(160,120,200,0.15);
+            border: 1px solid rgba(160,120,200,0.20);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(160,120,200,0.10);
+            padding-bottom: 10px;
+        }
+        .header .avatar { display: flex; align-items: center; gap: 8px; }
+        .header .avatar i { font-size: 1.6rem; color: #c4a8e6; background: rgba(102,45,145,0.18); padding: 6px 10px; border-radius: 40px; border: 1px solid rgba(160,120,200,0.15); }
+        .header h1 { font-weight: 650; font-size: 1.4rem; color: #e4d5f5; background: linear-gradient(135deg, #c4a8e6, #a07ac9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header .badge { margin-left: auto; background: rgba(102,45,145,0.14); padding: 4px 14px; border-radius: 60px; color: #d4c0ed; border: 1px solid rgba(160,120,200,0.10); font-weight: 500; font-size: 0.65rem; display: flex; align-items: center; gap: 6px; }
+        .api-row {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 12px;
+            background: rgba(28,18,48,0.30); padding: 6px 12px; border-radius: 60px; border: 1px solid rgba(160,120,200,0.06);
+        }
+        .api-row input { flex: 2 1 180px; padding: 5px 14px; border: 1px solid rgba(160,120,200,0.10); border-radius: 60px; font-size: 0.7rem; background: rgba(10,6,20,0.4); color: #e4d5f5; outline: none; }
+        .api-row input:focus { border-color: #a07ac9; box-shadow: 0 0 0 3px rgba(102,45,145,0.10); }
+        .api-row input::placeholder { color: #5a4a74; }
+        .btn-outline { background: transparent; border: 1.5px solid #a07ac9; color: #c4a8e6; padding: 3px 12px; border-radius: 60px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.65rem; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-outline:hover { background: #a07ac9; color: #0b0812; box-shadow: 0 0 20px rgba(160,120,200,0.15); }
+        .btn-primary { background: #662d91; color: white; border: none; padding: 5px 14px; border-radius: 60px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.7rem; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(102,45,145,0.20); }
+        .btn-primary:hover { background: #4f1f73; transform: scale(1.02); }
+        .btn-secondary { background: rgba(160,120,200,0.06); border: 1px solid rgba(160,120,200,0.06); color: #c4a8e6; padding: 4px 10px; border-radius: 60px; font-weight: 500; cursor: pointer; transition: 0.2s; font-size: 0.65rem; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-secondary:hover { background: rgba(160,120,200,0.12); }
+        .btn:disabled { opacity: 0.4; pointer-events: none; }
+        .nav-tabs {
+            display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 14px;
+            border-bottom: 1px solid rgba(160,120,200,0.06); padding-bottom: 8px;
+        }
+        .nav-tab {
+            padding: 6px 18px; border-radius: 60px; background: transparent; border: 1px solid transparent;
+            color: #9a8ab0; font-weight: 600; font-size: 0.7rem; cursor: pointer; transition: 0.25s;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .nav-tab:hover { color: #e4d5f5; background: rgba(160,120,200,0.05); }
+        .nav-tab.active { background: #662d91; color: white; box-shadow: 0 4px 20px rgba(102,45,145,0.25); border-color: rgba(160,120,200,0.15); }
+        .module-page { display: none; min-height: 65vh; padding: 6px 0 16px; animation: fadeIn 0.3s ease; }
+        .module-page.active { display: block; }
+        @keyframes fadeIn { 0% { opacity: 0.3; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+        .module-page .page-title { font-size: 1.2rem; font-weight: 650; color: #e4d5f5; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .module-page .page-title i { color: #c4a8e6; font-size: 1.4rem; }
+        .module-page .content-area {
+            background: rgba(10,6,20,0.25); border-radius: 20px; padding: 16px 20px;
+            border: 1px solid rgba(160,120,200,0.04); max-height: 72vh; overflow-y: auto;
+            color: #d4c0ed; font-size: 0.85rem; line-height: 1.7;
+        }
+        .module-page .content-area h3 { color: #c4a8e6; margin: 14px 0 6px; font-size: 1rem; }
+        .module-page .content-area p { margin-bottom: 8px; }
+        .module-page .content-area ul { padding-left: 22px; margin-bottom: 10px; }
+        .module-page .content-area li { margin-bottom: 4px; }
+        .algo-review-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; }
+        @media (max-width: 900px) { .algo-review-grid { grid-template-columns: 1fr; } }
+        .algo-panel, .review-panel { background: rgba(10,6,20,0.15); border-radius: 16px; padding: 14px; border: 1px solid rgba(160,120,200,0.04); }
+        .algo-panel .panel-title, .review-panel .panel-title { font-weight: 600; color: #c4a8e6; font-size: 0.8rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .question-list { max-height: 220px; overflow-y: auto; padding: 4px 0; }
+        .question-item { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 40px; cursor: pointer; transition: 0.1s; border-bottom: 1px solid rgba(160,120,200,0.04); color: #c4b8d8; font-size: 0.7rem; }
+        .question-item:hover { background: rgba(160,120,200,0.04); }
+        .question-item.active { background: rgba(102,45,145,0.14); border: 1px solid rgba(160,120,200,0.06); color: #e4d5f5; }
+        .question-item .q-tag { font-size: 0.45rem; background: #662d91; color: white; padding: 0 8px; border-radius: 40px; font-weight: 600; }
+        .question-item .q-name { flex: 1; }
+        .question-item .q-diff { font-size: 0.5rem; padding: 0 6px; border-radius: 40px; background: rgba(160,120,200,0.04); color: #b0a0c8; }
+        .question-item .q-diff.hard { background: rgba(200,80,80,0.08); color: #e8a0a0; }
+        .question-item .q-star { color: #e8c060; cursor: pointer; font-size: 0.6rem; }
+        .question-item .q-star.favorited { color: #f5d742; }
+        .filter-row { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+        .filter-row select { background: rgba(10,6,20,0.3); border: 1px solid rgba(160,120,200,0.06); color: #c4b8d8; padding: 3px 10px; border-radius: 60px; outline: none; font-size: 0.65rem; cursor: pointer; }
+        .action-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+        .review-area { background: rgba(10,6,20,0.2); border-radius: 12px; padding: 10px 14px; min-height: 100px; max-height: 240px; overflow-y: auto; border: 1px solid rgba(160,120,200,0.04); color: #d4c0ed; font-size: 0.75rem; line-height: 1.6; white-space: pre-wrap; }
+        .review-area .placeholder { color: #7a6a94; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px; height: 100%; min-height: 50px; }
+        .code-wrapper { background: rgba(10,6,20,0.4); border-radius: 12px; border: 1px solid rgba(160,120,200,0.06); padding: 8px 12px; margin: 4px 0; }
+        .code-wrapper pre { margin: 0; background: transparent; }
+        .code-wrapper pre code { font-family: 'Courier New', monospace; font-size: 0.7rem; white-space: pre-wrap; word-break: break-all; }
+        .bagu-list, .guide-list { display: flex; flex-wrap: wrap; gap: 3px 6px; margin: 4px 0; }
+        .bagu-tag, .guide-tag { background: rgba(160,120,200,0.04); border: 1px solid rgba(160,120,200,0.04); padding: 2px 14px; border-radius: 40px; font-size: 0.65rem; color: #b0a0c8; cursor: pointer; transition: 0.15s; }
+        .bagu-tag:hover, .guide-tag:hover { background: rgba(160,120,200,0.10); color: #e4d5f5; }
+        .bagu-content, .guide-content { background: rgba(10,6,20,0.15); border-radius: 12px; padding: 12px 16px; margin-top: 4px; font-size: 0.8rem; color: #c4b8d8; border: 1px solid rgba(160,120,200,0.02); white-space: pre-wrap; line-height: 1.7; min-height: 80px; max-height: 300px; overflow-y: auto; }
+        .chat-area { background: rgba(10,6,20,0.2); border-radius: 12px; padding: 10px 14px; min-height: 120px; max-height: 240px; overflow-y: auto; border: 1px solid rgba(160,120,200,0.04); color: #d4c0ed; font-size: 0.8rem; line-height: 1.6; margin-bottom: 8px; }
+        .chat-area .message { margin-bottom: 4px; padding: 3px 0; border-bottom: 1px solid rgba(160,120,200,0.04); }
+        .chat-area .message .sender { color: #c4a8e6; font-weight: 600; margin-right: 4px; }
+        .chat-area .message .sender.user { color: #9ab0e6; }
+        .chat-area .message .text { color: #e4d5f5; }
+        .chat-input-row { display: flex; gap: 6px; }
+        .chat-input-row input { flex: 1; padding: 6px 14px; border: 1px solid rgba(160,120,200,0.06); border-radius: 60px; background: rgba(10,6,20,0.3); color: #e4d5f5; outline: none; font-size: 0.75rem; }
+        .chat-input-row input:focus { border-color: #a07ac9; }
+        .chat-input-row input::placeholder { color: #5a4a74; }
+        .util-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+        @media (max-width: 700px) { .util-grid { grid-template-columns: 1fr; } }
+        .util-card { background: rgba(10,6,20,0.2); border-radius: 14px; padding: 12px 16px; border: 1px solid rgba(160,120,200,0.04); }
+        .util-card h4 { color: #c4a8e6; font-size: 0.8rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .util-card textarea { width: 100%; background: rgba(10,6,20,0.3); border: 1px solid rgba(160,120,200,0.06); border-radius: 10px; padding: 6px 10px; color: #d4c0ed; font-size: 0.7rem; resize: vertical; min-height: 50px; outline: none; font-family: 'Courier New', monospace; }
+        .util-card textarea:focus { border-color: #a07ac9; }
+        .status-tip { display: flex; align-items: center; gap: 6px; font-size: 0.65rem; color: #b0a0c8; margin-top: 6px; }
+        .spinner { display: none; width: 12px; height: 12px; border: 2px solid rgba(160,120,200,0.08); border-top: 2px solid #c4a8e6; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .progress-bar { width: 100%; height: 5px; background: rgba(160,120,200,0.06); border-radius: 10px; margin: 3px 0; overflow: hidden; }
+        .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #662d91, #a07ac9); border-radius: 10px; transition: width 0.3s; }
+        .footer-note { margin-top: 14px; text-align: center; color: #4a3a64; border-top: 1px solid rgba(160,120,200,0.04); padding-top: 12px; font-size: 0.6rem; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(160,120,200,0.02); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(160,120,200,0.08); border-radius: 10px; }
+        .badge-new { background: #e8c060; color: #0b0812; font-size: 0.5rem; padding: 0 8px; border-radius: 40px; font-weight: 700; margin-left: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header">
+        <div class="avatar"><i class="fas fa-user-graduate"></i><h1>贵系学长 · 全能工坊</h1></div>
+        <div class="badge"><i class="fas fa-robot"></i> DeepSeek · 大模型版</div>
+    </div>
+
+    <div class="api-row">
+        <input type="password" id="apiKeyInput" placeholder="sk-... 输入 DeepSeek API Key" />
+        <button class="btn-outline" id="saveKeyBtn"><i class="fas fa-save"></i> 保存</button>
+        <span style="color:#4a3a64; font-size:0.55rem; margin-left:auto;"><i class="fas fa-lock"></i> 本地存储</span>
+        <button class="btn-secondary" id="dailyPushBtn" style="font-size:0.55rem;"><i class="fas fa-bell"></i> 每日一题</button>
+    </div>
+
+    <div class="nav-tabs" id="navTabs">
+        <button class="nav-tab active" data-module="module-algo"><i class="fas fa-code"></i> 算法+批改</button>
+        <button class="nav-tab" data-module="module-bagu"><i class="fas fa-book-open"></i> 大厂八股</button>
+        <button class="nav-tab" data-module="module-llm"><i class="fas fa-brain"></i> 大模型面试 <span class="badge-new">NEW</span></button>
+        <button class="nav-tab" data-module="module-chat"><i class="fas fa-comment-dots"></i> 学长问答</button>
+        <button class="nav-tab" data-module="module-guide"><i class="fas fa-compass"></i> 贵系指南</button>
+        <button class="nav-tab" data-module="module-util"><i class="fas fa-tools"></i> 实用工具</button>
+    </div>
+
+    <!-- 模块1：算法+批改 -->
+    <div class="module-page active" id="module-algo">
+        <div class="page-title"><i class="fas fa-code"></i> 算法题 + 智能批改</div>
+        <div class="content-area">
+            <p style="color:#b0a0c8; font-size:0.8rem;">📌 精选 40 道大厂高频题 + LeetCode Hard。选题 → 写代码 → 一键批改。</p>
+            <div class="algo-review-grid">
+                <div class="algo-panel">
+                    <div class="panel-title"><i class="fas fa-list-ul"></i> 题目列表</div>
+                    <div class="filter-row">
+                        <select id="questionSource">
+                            <option value="all">全部 (40题)</option>
+                            <option value="company">大厂经典</option>
+                            <option value="leetcode">LeetCode Hard</option>
+                            <option value="favorites">⭐ 收藏</option>
+                        </select>
+                        <button class="btn-secondary" id="favoriteToggleBtn" style="font-size:0.6rem;"><i class="fas fa-star"></i> 收藏</button>
+                    </div>
+                    <div class="question-list" id="questionList"><div style="color:#5a4a74; padding:10px; text-align:center; font-size:0.65rem;">加载中...</div></div>
+                    <div style="margin-top:6px; display:flex; gap:4px; flex-wrap:wrap;">
+                        <button class="btn-secondary" id="runCodeBtn" style="font-size:0.6rem;"><i class="fas fa-play"></i> 模拟运行</button>
+                        <button class="btn-secondary" id="clearCodeBtn" style="font-size:0.6rem;"><i class="fas fa-rotate-left"></i> 清空代码</button>
+                    </div>
+                </div>
+                <div class="review-panel">
+                    <div class="panel-title"><i class="fas fa-edit"></i> 代码编辑器</div>
+                    <div class="code-wrapper">
+                        <pre><code id="codeDisplay" class="language-python">def two_sum(nums, target):
+    d = {}
+    for i, num in enumerate(nums):
+        if target - num in d:
+            return [d[target - num], i]
+        d[num] = i
+    return []</code></pre>
+                    </div>
+                    <div style="display:flex; gap:4px; margin:4px 0; flex-wrap:wrap;">
+                        <button class="btn-secondary" id="codeEditBtn" style="font-size:0.6rem;"><i class="fas fa-pen"></i> 编辑</button>
+                        <button class="btn-primary" id="reviewBtn" style="font-size:0.65rem;"><i class="fas fa-wand-magic-sparkles"></i> 批改此题</button>
+                        <button class="btn-secondary" id="clearReviewBtn" style="font-size:0.6rem;"><i class="fas fa-rotate-left"></i> 清空</button>
+                    </div>
+                    <div id="codeEditArea" style="display:none; margin-top:4px;">
+                        <textarea id="codeEditor" style="width:100%; background:rgba(10,6,20,0.4); border:1px solid rgba(160,120,200,0.06); border-radius:10px; padding:6px 10px; color:#d4c0ed; font-family:'Courier New',monospace; font-size:0.7rem; resize:vertical; min-height:60px; outline:none;"></textarea>
+                        <div style="display:flex; gap:4px; margin-top:4px;">
+                            <button class="btn-secondary" id="codeSaveBtn" style="font-size:0.6rem;"><i class="fas fa-check"></i> 保存</button>
+                            <button class="btn-secondary" id="codeCancelBtn" style="font-size:0.6rem;"><i class="fas fa-times"></i> 取消</button>
+                        </div>
+                    </div>
+                    <div class="panel-title" style="margin-top:8px;"><i class="fas fa-graduation-cap"></i> 批改结果</div>
+                    <div class="review-area" id="reviewArea">
+                        <div class="placeholder"><i class="fas fa-robot"></i><span>选题后点击「批改此题」</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模块2：大厂八股 -->
+    <div class="module-page" id="module-bagu">
+        <div class="page-title"><i class="fas fa-book-open"></i> 大厂八股文 · 面试必背</div>
+        <div class="content-area">
+            <p style="color:#b0a0c8;">📌 高频面试知识点，点击标签展开详细内容。</p>
+            <div class="bagu-list" id="baguListFull">
+                <span class="bagu-tag" data-idx="0">TCP/IP 详解</span>
+                <span class="bagu-tag" data-idx="1">进程线程协程</span>
+                <span class="bagu-tag" data-idx="2">Redis 深度</span>
+                <span class="bagu-tag" data-idx="3">MySQL 索引优化</span>
+                <span class="bagu-tag" data-idx="4">JVM 内存与GC</span>
+                <span class="bagu-tag" data-idx="5">设计模式全解</span>
+                <span class="bagu-tag" data-idx="6">操作系统核心</span>
+                <span class="bagu-tag" data-idx="7">HTTP/HTTPS</span>
+                <span class="bagu-tag" data-idx="8">分布式系统</span>
+                <span class="bagu-tag" data-idx="9">消息队列</span>
+                <span class="bagu-tag" data-idx="10">数据库事务</span>
+                <span class="bagu-tag" data-idx="11">Linux 命令</span>
+                <span class="bagu-tag" data-idx="12">算法复杂度</span>
+                <span class="bagu-tag" data-idx="13">网络安全</span>
+            </div>
+            <div class="bagu-content" id="baguContentFull">点击标签查看知识点 👆</div>
+        </div>
+    </div>
+
+    <!-- 模块3：大模型面试题 (新增) -->
+    <div class="module-page" id="module-llm">
+        <div class="page-title"><i class="fas fa-brain"></i> 大模型公司 · 面试题 <span style="font-size:0.7rem; color:#9a8ab0;">含答案</span></div>
+        <div class="content-area">
+            <p style="color:#b0a0c8;">📌 覆盖 OpenAI、Google DeepMind、微软、字节、阿里、腾讯、百度、华为等大模型/AI部门高频面试题。</p>
+            <div class="bagu-list" id="llmListFull">
+                <span class="bagu-tag" data-idx="0">Transformer 原理</span>
+                <span class="bagu-tag" data-idx="1">LLM 训练技巧</span>
+                <span class="bagu-tag" data-idx="2">RLHF 详解</span>
+                <span class="bagu-tag" data-idx="3">模型压缩</span>
+                <span class="bagu-tag" data-idx="4">多模态</span>
+                <span class="bagu-tag" data-idx="5">Agent 智能体</span>
+                <span class="bagu-tag" data-idx="6">RAG 检索增强</span>
+                <span class="bagu-tag" data-idx="7">推理优化</span>
+                <span class="bagu-tag" data-idx="8">评估方法</span>
+                <span class="bagu-tag" data-idx="9">对齐与安全</span>
+            </div>
+            <div class="bagu-content" id="llmContentFull">点击标签查看面试题与答案 👆</div>
+        </div>
+    </div>
+
+    <!-- 模块4：学长问答 -->
+    <div class="module-page" id="module-chat">
+        <div class="page-title"><i class="fas fa-comment-dots"></i> 学长问答 · 200字精炼回复</div>
+        <div class="content-area">
+            <p style="color:#b0a0c8;">📌 算法不会？代码调不通？直接问学长！答案精炼，除非代码题特殊处理。</p>
+            <div class="chat-area" id="chatAreaFull">
+                <div class="message"><span class="sender">🎓 学长</span><span class="text">学弟/学妹好！我是贵系学长，什么问题都可以问我 😄 我会尽量精炼回答。</span></div>
+            </div>
+            <div class="chat-input-row">
+                <input type="text" id="chatInputFull" placeholder="输入你的问题 …" />
+                <button class="btn-primary" id="sendChatFullBtn"><i class="fas fa-paper-plane"></i> 发送</button>
+            </div>
+            <div style="margin-top:10px; font-size:0.7rem; color:#6a5a84;"><i class="fas fa-info-circle"></i> 普通问题回答控制在200字以内，代码题会给出完整解答。</div>
+        </div>
+    </div>
+
+    <!-- 模块5：贵系指南 (5倍字数) -->
+    <div class="module-page" id="module-guide">
+        <div class="page-title"><i class="fas fa-compass"></i> 贵系生存指南 · 学长经验</div>
+        <div class="content-area">
+            <p style="color:#b0a0c8;">📌 清华贵系学长的独家深度经验，覆盖课程、就业、科研、保研、生活。</p>
+            <div class="guide-list" id="guideListFull">
+                <span class="guide-tag" data-idx="0">📚 四年课程深度规划</span>
+                <span class="guide-tag" data-idx="1">💼 就业实习全攻略</span>
+                <span class="guide-tag" data-idx="2">🔬 如何进实验室</span>
+                <span class="guide-tag" data-idx="3">🎓 保研读博详解</span>
+                <span class="guide-tag" data-idx="4">🍜 清华食堂美食</span>
+            </div>
+            <div class="guide-content" id="guideContentFull">点击标签查看详细指南 👆</div>
+        </div>
+    </div>
+
+    <!-- 模块6：实用工具 -->
+    <div class="module-page" id="module-util">
+        <div class="page-title"><i class="fas fa-tools"></i> 实用工具</div>
+        <div class="content-area">
+            <div class="util-grid">
+                <div class="util-card">
+                    <h4><i class="fas fa-terminal"></i> 代码运行器 (模拟)</h4>
+                    <textarea id="runnerInput" placeholder="输入代码，点击运行…">print("Hello, 贵系!")</textarea>
+                    <div style="display:flex; gap:4px; margin-top:4px;">
+                        <button class="btn-primary" id="runnerBtn" style="font-size:0.65rem; padding:3px 12px;"><i class="fas fa-play"></i> 运行</button>
+                        <button class="btn-secondary" id="runnerClearBtn" style="font-size:0.65rem; padding:3px 12px;"><i class="fas fa-rotate-left"></i> 清空</button>
+                    </div>
+                    <div id="runnerOutput" style="background:rgba(10,6,20,0.3); border-radius:10px; padding:6px 10px; margin-top:4px; color:#b0a0c8; font-family:'Courier New',monospace; font-size:0.7rem; min-height:30px; border:1px solid rgba(160,120,200,0.04);">等待运行…</div>
+                </div>
+                <div class="util-card">
+                    <h4><i class="fas fa-chart-simple"></i> 学习进度看板</h4>
+                    <div style="margin:3px 0;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.65rem; color:#b0a0c8;"><span>LeetCode 进度</span><span id="leetcodeProgress">0/200</span></div>
+                        <div class="progress-bar"><div class="fill" id="leetcodeFill" style="width:0%;"></div></div>
+                    </div>
+                    <div style="margin:3px 0;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.65rem; color:#b0a0c8;"><span>八股文掌握</span><span id="baguProgress">0/14</span></div>
+                        <div class="progress-bar"><div class="fill" id="baguFill" style="width:0%;"></div></div>
+                    </div>
+                    <div style="margin:3px 0;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.65rem; color:#b0a0c8;"><span>项目完成</span><span id="projectProgress">0/3</span></div>
+                        <div class="progress-bar"><div class="fill" id="projectFill" style="width:0%;"></div></div>
+                    </div>
+                    <div style="display:flex; gap:4px; margin-top:6px; flex-wrap:wrap;">
+                        <button class="btn-secondary" id="progressAddBtn" style="font-size:0.6rem;"><i class="fas fa-plus"></i> 刷题+1</button>
+                        <button class="btn-secondary" id="progressBaguBtn" style="font-size:0.6rem;"><i class="fas fa-plus"></i> 八股+1</button>
+                        <button class="btn-secondary" id="progressResetBtn" style="font-size:0.6rem;"><i class="fas fa-rotate-left"></i> 重置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-tip">
+        <span id="statusText"><i class="fas fa-circle-info"></i> 就绪</span>
+        <div class="spinner" id="loadingSpinner"></div>
+    </div>
+    <div class="footer-note"><i class="fas fa-shield-alt"></i> 密钥本地 · 大模型面试题 · 学长问答200字精炼 · 贵系指南5倍扩充</div>
+</div>
+
+<script>
+    (function() {
+        "use strict";
+
+        // ==================== 数据 ====================
+        const companyProblems = [
+            { id: 'c1', name: '两数之和 (三数之和变种)', diff: 'Medium', tag: '大厂' },
+            { id: 'c2', name: 'LRU 缓存机制', diff: 'Hard', tag: '大厂' },
+            { id: 'c3', name: '反转链表 (K个一组)', diff: 'Hard', tag: '大厂' },
+            { id: 'c4', name: '寻找中位数 (两个有序数组)', diff: 'Hard', tag: '大厂' },
+            { id: 'c5', name: '最大子数组和 (环形)', diff: 'Medium', tag: '大厂' },
+            { id: 'c6', name: '字符串解码 (嵌套括号)', diff: 'Medium', tag: '大厂' },
+            { id: 'c7', name: '岛屿数量 (DFS/BFS)', diff: 'Medium', tag: '大厂' },
+            { id: 'c8', name: '合并K个排序链表', diff: 'Hard', tag: '大厂' },
+            { id: 'c9', name: '滑动窗口最大值', diff: 'Hard', tag: '大厂' },
+            { id: 'c10', name: '搜索旋转排序数组', diff: 'Medium', tag: '大厂' },
+            { id: 'c11', name: '全排列 (去重)', diff: 'Medium', tag: '大厂' },
+            { id: 'c12', name: '二叉树最大路径和', diff: 'Hard', tag: '大厂' },
+            { id: 'c13', name: '接雨水 (双指针)', diff: 'Hard', tag: '大厂' },
+            { id: 'c14', name: '跳跃游戏 II', diff: 'Medium', tag: '大厂' },
+            { id: 'c15', name: '无重复字符最长子串', diff: 'Medium', tag: '大厂' },
+            { id: 'c16', name: '链表环检测 (II)', diff: 'Medium', tag: '大厂' },
+            { id: 'c17', name: '有效括号 (多种括号)', diff: 'Medium', tag: '大厂' },
+            { id: 'c18', name: '合并区间', diff: 'Medium', tag: '大厂' },
+            { id: 'c19', name: '不同路径 (障碍物)', diff: 'Medium', tag: '大厂' },
+            { id: 'c20', name: '单词搜索 (回溯)', diff: 'Hard', tag: '大厂' }
+        ];
+        const leetcodeHard = [
+            { id: 'l1', name: '正则表达式匹配', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l2', name: '合并K个升序链表', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l3', name: '缺失的第一个正数', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l4', name: '串联所有单词的子串', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l5', name: '最长有效括号', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l6', name: '解数独', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l7', name: 'N皇后 II', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l8', name: '最小覆盖子串', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l9', name: '买卖股票的最佳时机 IV', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l10', name: '最大矩形', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l11', name: '二叉树中的最大路径和', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l12', name: '单词接龙 II', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l13', name: '戳气球', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l14', name: '分割数组的最大值', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l15', name: 'Frog Jump (青蛙过河)', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l16', name: 'LFU 缓存', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l17', name: '滑动窗口最大值 (优化)', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l18', name: '子序列宽度之和', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l19', name: '骑士拨号器', diff: 'Hard', tag: 'LeetCode' },
+            { id: 'l20', name: '最小化数组中的最大值', diff: 'Hard', tag: 'LeetCode' }
+        ];
+        const allQuestions = [...companyProblems, ...leetcodeHard];
+
+        // 八股文数据 (带答案，已扩充)
+        const baguData = [
+            `【TCP/IP 详解】
+            模型：应用层(HTTP/FTP/DNS/SMTP) → 传输层(TCP/UDP) → 网络层(IP/ICMP/ARP) → 网络接口层。
+            三次握手：客户端SYN → 服务端SYN+ACK → 客户端ACK。为什么是三次？防止已失效的连接请求突然传送到服务端。
+            四次挥手：客户端FIN → 服务端ACK → 服务端FIN → 客户端ACK。为什么要四次？因为TCP是全双工，双方都要关闭。
+            常见端口：HTTP 80, HTTPS 443, SSH 22, FTP 21, MySQL 3306, Redis 6379。
+            TCP vs UDP：TCP面向连接、可靠、有序、流量控制；UDP无连接、不可靠、高效。应用场景：TCP→HTTP/邮件，UDP→视频/直播/DNS。
+            TCP拥塞控制：慢启动、拥塞避免、快速重传、快速恢复。
+            滑动窗口：实现流量控制和可靠传输。窗口大小动态调整。
+            HTTP/1.1 长连接：Connection: keep-alive，减少TCP握手开销。
+            HTTP/2：多路复用、头部压缩、服务器推送。
+            HTTP/3：基于QUIC (UDP)，减少连接延迟。`,
+
+            `【进程 · 线程 · 协程】
+            进程：资源分配的最小单位，拥有独立地址空间、文件描述符。进程间通信(IPC)：管道、信号、消息队列、共享内存、信号量、套接字。
+            线程：CPU调度的最小单位，共享进程资源。线程同步：互斥锁、读写锁、条件变量、信号量。
+            协程：用户态轻量级线程，由程序自己调度。Go 的 goroutine、Python 的 asyncio。协程切换开销远小于线程。
+            进程状态：新建 → 就绪 → 运行 → 阻塞 → 终止。
+            上下文切换：保存当前进程状态，加载下一个进程。开销较大。
+            线程池：预先创建线程，复用减少创建销毁开销。核心参数：核心线程数、最大线程数、队列容量。
+            死锁：四个必要条件——互斥、持有并等待、不可抢占、循环等待。预防：破坏任一条件。检测：资源分配图。`,
+
+            `【Redis 深度】
+            Redis：内存数据库，单线程+IO多路复用 (epoll)，性能极高 (~10万QPS)。
+            持久化：RDB (快照，定期保存) 和 AOF (日志，记录每一条写命令)。混合持久化 (RDB+AOF)。
+            数据结构：String (字符串/数字), Hash (对象), List (队列/栈), Set (去重), ZSet (排序集合)。
+            高级功能：Bitmap (位图), HyperLogLog (基数统计), Geo (地理位置), Stream (消息队列)。
+            淘汰策略：LRU (最近最少使用), LFU (最不经常使用), TTL (过期时间), Random。
+            应用场景：缓存 (减少DB压力)、分布式锁 (SETNX)、排行榜 (ZSet)、消息队列 (Stream)、计数器 (INCR)。
+            缓存问题：穿透 (缓存无数据，DB也无数据 → 布隆过滤器)、击穿 (热点key过期 → 互斥锁)、雪崩 (大量key同时过期 → 随机过期时间)。
+            主从复制：一主多从，数据同步。哨兵模式：高可用，故障转移。集群模式：分片存储，水平扩展。`,
+
+            `【MySQL 索引优化】
+            B+树索引：InnoDB 默认。叶子节点存数据，非叶子节点只存索引值。支持范围查询。
+            聚簇索引：主键索引，叶子节点存整行数据。非聚簇索引：辅助索引，叶子节点存主键值 (回表)。
+            最左前缀原则：联合索引 (a,b,c) 能匹配 (a), (a,b), (a,b,c)，不能跳过 a。
+            覆盖索引：查询列全部在索引中，不需要回表，性能高。
+            索引下推 (ICP)：在索引层过滤数据，减少回表次数。
+            索引优化建议：选择区分度高的列；避免隐式类型转换；避免函数操作索引列；避免以 % 开头的 LIKE 查询。
+            Explain 分析：type (ALL/index/range/ref/eq_ref/const/system), key (实际使用的索引), rows (扫描行数)。
+            慢查询日志：记录执行时间超过阈值的 SQL，帮助优化。
+            事务隔离级别：读未提交、读已提交、可重复读 (MySQL默认)、串行化。MVCC 实现可重复读。`,
+
+            `【JVM 内存与 GC】
+            内存模型：堆 (Heap, 存放对象实例)、栈 (VM Stack, 局部变量表)、方法区 (类信息/常量/静态变量)、程序计数器 (线程私有)、本地方法栈。
+            堆：年轻代 (Eden + S0 + S1) + 老年代 (Tenured)。对象优先在 Eden 分配。
+            GC Roots：可达性分析。根对象包括：栈中引用、静态变量、常量引用、JNI引用。
+            垃圾回收算法：复制 (年轻代，效率高)、标记清除 (老年代，有碎片)、标记整理 (老年代，无碎片)。
+            常见收集器：G1 (低延迟，分Region，可预测停顿)、ZGC (超低延迟，TB级内存)、CMS (并发标记清除，已废弃)。
+            类加载机制：加载 → 验证 → 准备 (分配静态变量内存) → 解析 (符号引用转直接引用) → 初始化 (执行静态块)。
+            双亲委派模型：Bootstrap ClassLoader → Extension → Application → 自定义。保证核心类不被篡改。
+            内存溢出 (OOM)：堆溢出 (对象太多)、栈溢出 (递归太深)、方法区溢出 (类太多)、直接内存溢出 (NIO)。`,
+
+            `【设计模式全解】
+            创建型：单例 (一个类只有一个实例。饿汉/懒汉/DCL双重检查/静态内部类/枚举)、工厂 (创建对象，解耦。简单工厂、工厂方法、抽象工厂)、建造者 (分步构建复杂对象。例：StringBuilder)、原型 (通过复制现有对象创建新对象)。
+            结构型：适配器 (接口转换)、装饰者 (动态增强功能。例：Java IO)、代理 (控制访问。静态代理/动态代理)、外观 (简化复杂子系统接口)、桥接 (抽象与实现分离)、组合 (树形结构，一致处理叶子与容器)、享元 (共享对象，减少内存)。
+            行为型：观察者 (一对多依赖。例：消息订阅)、策略 (算法封装，可互换。例：Comparator)、模板方法 (定义骨架，子类重写)、责任链 (多个处理器链式处理)、命令 (请求封装为对象)、状态 (状态变更行为变化)、迭代器 (遍历集合)、中介者 (集中交互)、备忘录 (保存/恢复状态)、访问者 (增加新操作)。
+            设计原则：开闭 (对扩展开放，对修改关闭)、单一职责、依赖倒置 (依赖抽象)、里氏替换、接口隔离、迪米特 (最少知道)。`,
+
+            `【操作系统核心】
+            虚拟内存：每个进程拥有独立地址空间 (4GB 32位)，通过页表映射到物理内存。
+            分页：将虚拟地址空间和物理内存分成固定大小的页 (4KB)。页表实现映射。
+            分段：将程序分为代码段、数据段、栈段等，便于权限管理。段页式结合。
+            页面置换算法：LRU (最近最少使用，维护访问链表)、FIFO (先进先出，简单但效果差)、Clock (近似LRU，硬件实现)、OPT (理想算法，不可实现)。
+            死锁：四个必要条件——互斥、持有并等待、不可抢占、循环等待。
+            死锁处理：预防 (破坏条件)、避免 (银行家算法)、检测 (资源分配图)、恢复 (终止进程/资源抢占)。
+            内存分配：连续分配 (固定分区/动态分区) → 非连续分配 (分页/分段/段页式)。
+            文件系统：inode (索引节点) 存储文件元数据。目录结构 (树形)。文件操作 (open/read/write/close)。
+            I/O 模型：阻塞I/O、非阻塞I/O、I/O多路复用 (select/poll/epoll)、信号驱动I/O、异步I/O (AIO)。`,
+
+            `【HTTP/HTTPS 协议】
+            HTTP：超文本传输协议，无状态。基于TCP。
+            请求方法：GET (获取)、POST (提交)、PUT (更新)、DELETE (删除)、HEAD (响应头)、OPTIONS (查询支持方法)。
+            状态码：2xx 成功 (200 OK, 201 Created)；3xx 重定向 (301 永久, 302 临时, 304 未修改)；4xx 客户端错误 (400 Bad Request, 401 未授权, 403 禁止, 404 Not Found, 429 Too Many Requests)；5xx 服务器错误 (500 Internal Error, 502 Bad Gateway, 504 Timeout)。
+            请求头：Host, User-Agent, Accept, Content-Type, Authorization, Cookie。
+            响应头：Content-Type, Content-Length, Set-Cookie, Cache-Control。
+            HTTPS = HTTP + SSL/TLS：加密传输，防止中间人攻击。非对称加密交换密钥 (RSA/ECDHE)，对称加密传输数据 (AES)。
+            TLS握手：ClientHello → ServerHello (证书) → ClientKeyExchange → Finished → 加密通信。
+            RESTful API：资源导向，使用名词，通过HTTP方法操作。无状态。URL 设计规范。
+            WebSocket：全双工通信，用于实时应用 (聊天/游戏)。基于HTTP升级。`,
+
+            `【分布式系统】
+            CAP 定理：一致性 (C) + 可用性 (A) + 分区容错性 (P)，三者最多同时满足两个。网络分区不可避免，所以 P 必须保证，实际在 CA 之间权衡。
+            BASE 理论：基本可用 (BA)、软状态 (S)、最终一致性 (E)。牺牲强一致性，保证最终一致。
+            分布式事务：2PC (两阶段提交，有阻塞)、3PC (三阶段提交，改进)、TCC (Try-Confirm-Cancel，业务补偿)、Saga (长事务，补偿回滚)。
+            一致性协议：Paxos (经典，难实现)、Raft (更易理解，分段复制)、ZAB (ZooKeeper使用)。
+            服务注册与发现：Consul, Eureka, Nacos。服务启动时注册，调用时从注册中心获取地址。
+            负载均衡：客户端 (Ribbon) / 服务端 (Nginx, HAProxy)。算法：轮询、随机、加权、一致性哈希。
+            分布式缓存：一致性哈希解决节点变化时的缓存失效问题。
+            分布式 ID：雪花算法 (Snowflake, 64位，时间戳+机器ID+序列号)。`,
+
+            `【消息队列】
+            作用：解耦、削峰填谷 (缓冲突发流量)、异步处理。
+            Kafka：高吞吐 (百万级 TPS)，持久化到磁盘，分区顺序消费，适合日志采集/大数据流。
+            RabbitMQ：可靠 (ACK机制)，支持多种协议 (AMQP)，灵活路由，适合业务系统。
+            RocketMQ：阿里开源，金融级可靠性，支持事务消息 (分布式事务)。
+            核心概念：Producer (生产者)、Consumer (消费者)、Broker (服务节点)、Topic (主题)、Partition (分区，Kafka)、Queue (队列，RabbitMQ)。
+            消息可靠性：持久化 (存入磁盘)、ACK确认 (消费完成后确认)、重试机制 (消费失败重试)、死信队列 (处理失败消息)。
+            顺序消息：Kafka 中一个分区内顺序消费。RocketMQ 支持全局顺序和分区顺序。
+            消息堆积：消费者处理慢导致。解决方案：增加消费者、优化处理逻辑、限流。
+            事务消息：RocketMQ 支持，保证本地事务和消息发送的原子性。`,
+
+            `【数据库事务】
+            ACID：原子性 (Atomicity, 全部成功或回滚)、一致性 (Consistency, 事务前后数据完整)、隔离性 (Isolation, 并发事务互不影响)、持久性 (Durability, 提交后永久保存)。
+            隔离级别：读未提交 (RU, 脏读)、读已提交 (RC, 不可重复读)、可重复读 (RR, MySQL默认, 幻读)、串行化 (Serializable, 性能最低)。
+            脏读：读到未提交的数据。不可重复读：同一事务两次读取结果不同 (其他事务修改)。幻读：同一事务两次查询记录数不同 (其他事务插入/删除)。
+            MVCC (多版本并发控制)：通过隐藏字段 + undo log 实现可重复读。每行数据有创建版本和删除版本。
+            Redo Log：重做日志，保证持久性。Write-Ahead Logging (WAL)，先写日志再写数据。
+            Undo Log：回滚日志，用于事务回滚和 MVCC。
+            锁：行锁 (InnoDB，粒度细)、表锁 (MyISAM，粒度粗)、间隙锁 (防止幻读)、意向锁 (提升表锁效率)。`,
+
+            `【Linux 常用命令】
+            文件操作：ls (列出)、cd (切换)、pwd (当前路径)、cp (复制)、mv (移动/重命名)、rm (删除)、touch (创建文件)、mkdir (创建目录)、cat (查看内容)、less (分页查看)、head/tail (查看首尾)。
+            权限管理：chmod (修改权限 rwx), chown (修改所有者), chgrp (修改组)。
+            进程管理：ps (查看进程), top (动态查看), kill (终止进程), jobs (后台任务), bg (后台运行), fg (前台运行)。
+            网络：ping (测试连通性), netstat (查看端口), ss (更快的socket统计), curl (HTTP请求), wget (下载)。
+            系统信息：uname -a (内核版本), df -h (磁盘空间), du -sh (目录大小), free -h (内存使用), uptime (负载)。
+            文本处理：grep (搜索), sed (替换), awk (格式化), sort (排序), uniq (去重), wc (统计行/词/字符)。
+            压缩：tar, gzip, zip。
+            SSH：远程登录 (ssh user@host), scp (文件传输)。
+            Vim：三种模式 (命令/插入/可视)。常用命令：i (插入), :wq (保存退出), :q! (强制退出), / (搜索), dd (删除行), yy (复制行), p (粘贴)。`,
+
+            `【算法复杂度分析】
+            时间复杂度：衡量算法执行时间随输入规模增长的变化。
+            常见复杂度 (从优到差)：O(1) 常数 < O(log n) 对数 < O(n) 线性 < O(n log n) 线性对数 < O(n^2) 平方 < O(2^n) 指数 < O(n!) 阶乘。
+            空间复杂度：算法运行所需的额外内存空间。
+            大O表示法：忽略低阶项和常数系数。例：O(2n) → O(n)。
+            递归复杂度：T(n) = a*T(n/b) + f(n)，主定理求解。
+            均摊复杂度：多次操作的平均复杂度，如动态数组扩容。
+            最优/最坏/平均情况：快速排序最优 O(n log n)，最坏 O(n^2)，平均 O(n log n)。
+            常见算法复杂度：二分查找 O(log n)，快速排序 O(n log n)，归并排序 O(n log n)，冒泡排序 O(n^2)，DFS/BFS O(V+E)。`,
+
+            `【网络安全】
+            对称加密：AES, DES, RC4。加密解密用同一密钥，速度快。密钥分发困难。
+            非对称加密：RSA, ECC (椭圆曲线)。公钥加密，私钥解密。速度慢，用于密钥交换和数字签名。
+            哈希算法：MD5 (已破解), SHA-1 (已弱化), SHA-256 (安全)。不可逆，用于密码存储和文件校验。
+            数字签名：私钥签名，公钥验证。保证数据完整性和不可否认性。
+            证书：CA (证书颁发机构) 签发，包含公钥和身份信息。X.509 格式。
+            SSL/TLS：在 TCP 之上提供加密传输。TLS 1.3 简化握手，提高安全性和速度。
+            常见攻击：中间人 (MITM)、SQL注入 (参数化查询)、XSS (输入过滤/转义)、CSRF (Token/Referer 验证)、DDoS (流量攻击)。
+            WAF (Web应用防火墙)：拦截恶意请求，保护 Web 服务。
+            OWASP Top 10：Web 应用十大安全风险，包括注入、失效身份认证、敏感信息泄露等。`
+        ];
+
+        // ===== 大模型面试题 (含答案) =====
+        const llmData = [
+            `【Transformer 原理】
+            Q: 请解释 Transformer 的核心架构和 Attention 机制。
+            A: Transformer 由 Encoder 和 Decoder 组成，核心是 Self-Attention。输入通过 Embedding + Positional Encoding，经过 Multi-Head Self-Attention (QKV 投影，计算相似度，缩放点积) 和 FFN (两层全连接，ReLU/GeLU)。每个子层有残差连接 + LayerNorm。优点：并行计算，长距离依赖。缺点：O(n^2) 复杂度。`,
+
+            `【LLM 训练技巧】
+            Q: 大语言模型训练有哪些关键技巧？
+            A: 1) 预训练：海量文本，自回归 (AR) 或 MLM，使用 AdamW 优化器，Warmup + 余弦退火学习率。2) 微调：指令微调 (Instruction Tuning)，使用对话数据，LoRA (低秩适配) 减少参数量。3) 混合精度训练 (FP16/BF16) 节省显存。4) 梯度检查点 (Gradient Checkpointing) 降低显存占用。5) ZeRO 优化器分片。`,
+
+            `【RLHF 详解】
+            Q: 请解释 RLHF (基于人类反馈的强化学习) 的流程。
+            A: 1) 监督微调 (SFT)：在高质量对话数据上微调预训练模型。2) 训练奖励模型 (RM)：收集人类偏好数据 (对比两个回答)，训练 RM 输出奖励分数。3) 强化学习 (PPO)：使用 SFT 作为初始策略，以 RM 的奖励为信号，通过 PPO 算法优化策略，同时加入 KL 惩罚防止偏离太远。`,
+
+            `【模型压缩】
+            Q: 大模型部署时常用的压缩技术有哪些？
+            A: 1) 量化 (Quantization)：FP32 → INT8/INT4，减少显存和加速。如 GPTQ、AWQ。2) 剪枝 (Pruning)：移除不重要的权重或神经元。3) 蒸馏 (Distillation)：用大模型 (Teacher) 教小模型 (Student)。4) 低秩分解 (Low-Rank)：如 LoRA，用低秩矩阵近似权重更新。5) 知识蒸馏 + 量化结合。`,
+
+            `【多模态】
+            Q: 请介绍多模态大模型的主流架构。
+            A: 主流架构：1) CLIP 类：双编码器 (图像+文本) 对齐，对比学习。2) Flamingo：冻结的视觉编码器 + LLM，通过 Perceiver Resampler 和交叉注意力融合视觉特征。3) LLaVA：视觉编码器 + 投影层 + Vicuna，通过视觉指令微调。4) GPT-4V：闭源，支持图像理解。5) 最新趋势：统一 Transformer，联合训练视觉和语言。`,
+
+            `【Agent 智能体】
+            Q: 大模型 Agent 的核心组件是什么？
+            A: 1) 规划 (Planning)：任务分解 (Chain-of-Thought)，自我反思 (ReAct)。2) 工具使用 (Tool Use)：调用外部 API (搜索、计算器、代码执行)。3) 记忆 (Memory)：短期上下文，长期向量数据库 (RAG)。4) 行动 (Action)：执行决策，与环境交互。典型框架：AutoGPT, LangChain, BabyAGI。`,
+
+            `【RAG 检索增强】
+            Q: 请解释 RAG 的工作原理和关键组件。
+            A: RAG = 检索 (Retrieval) + 生成 (Generation)。流程：1) 用户问题 → 向量化 (Embedding) → 在知识库 (向量数据库) 中检索相似文档。2) 将检索到的文档作为上下文与问题拼接。3) 大模型生成答案。关键组件：嵌入模型 (如 BGE)、向量数据库 (Milvus, Pinecone)、重排序器 (Reranker) 提升检索质量。`,
+
+            `【推理优化】
+            Q: 大模型推理加速有哪些常用方法？
+            A: 1) KV Cache：缓存已生成的 Key/Value，避免重复计算。2) FlashAttention：IO 优化注意力计算，减少显存读写。3) 批处理 (Batching)：合并多个请求。4) 量化 (INT8/INT4) + 算子融合。5) 投机采样 (Speculative Decoding)：用小模型快速生成候选，大模型验证。6) 模型并行 (Tensor Parallelism)。`,
+
+            `【评估方法】
+            Q: 如何评估大语言模型的性能？
+            A: 1) 自动评估：困惑度 (PPL)、BLEU/ROUGE (生成任务)、MMLU (多任务语言理解)、GSM8K (数学推理)、HumanEval (代码生成)。2) 人工评估：有用性、诚实性、无害性 (HHH)。3) 对抗性测试：红队攻击，检测鲁棒性。4) 基准榜单：Open LLM Leaderboard, SuperGLUE, Big-Bench。`,
+
+            `【对齐与安全】
+            Q: 大模型对齐 (Alignment) 的核心挑战和解决方案。
+            A: 挑战：模型可能生成有害、偏见、虚假信息。解决方案：1) RLHF (人类反馈强化学习) + 宪法 AI (Constitutional AI) 使用规则自我修正。2) 安全微调 (Safety Fine-tuning)：用安全数据微调。3) 输入/输出过滤：检测并拦截不安全内容。4) 可解释性：研究模型内部机制，发现潜在风险。5) 红队测试：持续对抗性测试。`
+        ];
+
+        // ===== 贵系指南 (5倍字数) =====
+        const guideData = [
+            `【📚 贵系四年课程深度规划】
+            大一：高等数学 (微积分、线性代数)、程序设计基础 (C/C++)、离散数学 (集合论、图论、数理逻辑)、大学物理。建议：打好数学基础，C++ 要熟练掌握 STL 和面向对象。
+            大二：数据结构 (树、图、哈希、排序)、操作系统 (进程管理、内存管理、文件系统)、数字逻辑电路、计算机组成原理。建议：开始刷 LeetCode，数据结构课一定要吃透，这是所有面试的基础。
+            大三：计算机网络 (TCP/IP 协议栈)、数据库系统 (SQL、事务、索引)、编译原理 (词法分析、语法分析、代码生成)、软件工程 (敏捷开发、设计模式)、算法设计 (贪心、动态规划、图算法)。建议：大三进实验室，参与科研项目，积累论文或工程经验。
+            大四：毕业设计、专业实习、选修课 (人工智能、分布式系统、网络安全、大数据)。建议：秋招在大四上，春招补录在大四下。毕业设计要认真做，这是大学四年的总结。
+            核心课程排名：数据结构 > 操作系统 > 计算机网络 > 数据库 > 算法。这些是面试频率最高的课程。
+            选课建议：不要只选给分高的课，要选有硬核内容的课。推荐课程：操作系统 (陈渝)、计网 (李丹)、数据结构 (邓俊辉)。`,
+
+            `【💼 就业实习全攻略】
+            时间线：大二暑期实习 (提前批，3-4月投递) → 大三秋招 (黄金期，7-8月提前批，9-10月正式批) → 大四春招 (补录，3-4月)。
+            准备清单：
+            1) 算法：LeetCode 至少 200 题 (剑指 Offer + Hot 100 + 公司题库)。重点：链表、树、动态规划、双指针、回溯。
+            2) 八股文：背熟操作系统、计网、数据库、Java/Python 基础。
+            3) 项目：2-3 个有深度的项目 (Web 开发、分布式系统、AI 应用)。项目要能讲出技术难点和解决方案。
+            4) 简历：突出实习/项目经历，量化成果 (如性能提升 X%，用户增长 Y%)。使用 STAR 法则描述。
+            大厂目标：字节跳动 (抖音/电商/推荐)、阿里巴巴 (淘宝/阿里云)、腾讯 (微信/游戏)、百度 (AI/搜索)、美团 (外卖/到店)、拼多多 (电商)、华为 (ICT/终端)。
+            面试技巧：先自我介绍 (1-2分钟，突出亮点)，然后算法题 (讲思路 → 写代码 → 分析复杂度)，最后反问 (问业务、问团队)。
+            薪资谈判：了解市场行情 (OfferShow, 脉脉)，有多个 Offer 时更有底气。`,
+
+            `【🔬 如何进实验室】
+            时间点：大二下学期是最佳时机 (已经学过数据结构和操作系统，有一定基础)。
+            方式：发邮件给导师，附上简历、成绩单、感兴趣的研究方向。邮件要简洁有诚意，说明为什么对导师的研究感兴趣。
+            方向选择：
+            - AI (计算机视觉、NLP、强化学习)：热门，竞争激烈。推荐导师：朱军 (机器学习)、唐杰 (NLP)。
+            - 系统 (分布式系统、操作系统、数据库)：硬核，工程性强。推荐导师：陈文光 (并行计算)。
+            - 网络：计网、SDN、物联网。推荐导师：李丹。
+            - 软件工程：程序分析、测试。
+            进组后：踏实干活，从小任务开始，逐步深入。定期向导师汇报进展。争取发论文 (CCF A/B 类会议)。
+            科研建议：多读顶会论文 (CVPR, ICML, NeurIPS, SIGCOMM)，复现经典模型，找到自己感兴趣的子方向。
+            如果进不了理想实验室，可以考虑校外实习 (MSRA、旷视、商汤) 积累经验。`,
+
+            `【🎓 保研读博详解】
+            保研：
+            - 排名：前 10% 稳，前 20% 有机会。贵系保研率约 30%。
+            - 加分项：科研经历 (论文)、竞赛获奖 (ACM, 数学建模)、国奖。
+            - 流程：夏令营 (大三暑假，4-6月报名) → 预推免 (大四上，8-9月) → 九推 (9月底)。
+            - 本校保研：联系导师，参加实验室面试。外校保研：清华、北大、上交、浙大、中科院。
+            读博：
+            - 要求：热爱科研，能承受压力 (博士 4-6 年)。
+            - 选导师：学术水平 (顶会论文数量) + 人品 (是否 PUA 学生) + 方向 (是否有前景)。
+            - 申请：研究计划 (Research Proposal) + 推荐信 (3封) + 论文 (如有)。
+            - 海外读博：美国 (CS 四大: MIT, Stanford, CMU, Berkeley)、英国 (剑桥, 牛津)。
+            - 奖学金：CSC (国家留学基金委)、全奖 (RA/TA)。
+            学长建议：读博要慎重，一定要有足够的兴趣和毅力。硕士性价比更高，适合就业导向的同学。`,
+
+            `【🍜 清华食堂美食】
+            紫荆园 (紫荆公寓附近)：
+            - 四层：香锅 (必吃！中辣 + 肥牛 + 午餐肉 + 金针菇 + 宽粉)，人均 30-40 元。
+            - 一层：酸菜鱼、烤鸭、小炒。
+            清芬园 (图书馆附近)：
+            - 烤鸭 (20元/份，皮脆肉嫩)、小笼包、麻辣烫。
+            桃李园 (紫荆对面)：
+            - 麻辣烫 (汤底浓郁)、石锅拌饭 (韩式酱料)、铁板烧。
+            玉树园 (东门附近)：
+            - 小炒 (现炒现做，推荐宫保鸡丁、水煮牛肉)。
+            观畴园 (万人食堂)：
+            - 自助餐 (按重量计费，适合想吃多种菜品的同学)、红烧肉、糖醋里脊。
+            其他推荐：清芬园早上的豆浆油条，紫荆园夜宵 (烤串、小龙虾)。
+            学长最爱组合：紫荆香锅 (中辣) + 清芬烤鸭 + 桃李麻辣烫。
+            避雷：食堂高峰期 (12:00-12:30, 17:30-18:00) 人很多，建议错峰就餐。`
+        ];
+
+        // ==================== DOM ====================
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const saveKeyBtn = document.getElementById('saveKeyBtn');
+        const dailyPushBtn = document.getElementById('dailyPushBtn');
+        const statusText = document.getElementById('statusText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // 算法题
+        const questionSource = document.getElementById('questionSource');
+        const questionListEl = document.getElementById('questionList');
+        const reviewBtn = document.getElementById('reviewBtn');
+        const clearReviewBtn = document.getElementById('clearReviewBtn');
+        const reviewArea = document.getElementById('reviewArea');
+        const favoriteToggleBtn = document.getElementById('favoriteToggleBtn');
+        const codeDisplay = document.getElementById('codeDisplay');
+        const codeEditor = document.getElementById('codeEditor');
+        const codeEditBtn = document.getElementById('codeEditBtn');
+        const codeSaveBtn = document.getElementById('codeSaveBtn');
+        const codeCancelBtn = document.getElementById('codeCancelBtn');
+        const codeEditArea = document.getElementById('codeEditArea');
+        const runCodeBtn = document.getElementById('runCodeBtn');
+        const clearCodeBtn = document.getElementById('clearCodeBtn');
+
+        // 八股
+        const baguListFull = document.getElementById('baguListFull');
+        const baguContentFull = document.getElementById('baguContentFull');
+
+        // 大模型面试题
+        const llmListFull = document.getElementById('llmListFull');
+        const llmContentFull = document.getElementById('llmContentFull');
+
+        // 学长问答
+        const chatInputFull = document.getElementById('chatInputFull');
+        const sendChatFullBtn = document.getElementById('sendChatFullBtn');
+        const chatAreaFull = document.getElementById('chatAreaFull');
+
+        // 贵系指南
+        const guideListFull = document.getElementById('guideListFull');
+        const guideContentFull = document.getElementById('guideContentFull');
+
+        // 实用工具
+        const runnerInput = document.getElementById('runnerInput');
+        const runnerBtn = document.getElementById('runnerBtn');
+        const runnerClearBtn = document.getElementById('runnerClearBtn');
+        const runnerOutput = document.getElementById('runnerOutput');
+        const leetcodeProgress = document.getElementById('leetcodeProgress');
+        const leetcodeFill = document.getElementById('leetcodeFill');
+        const baguProgress = document.getElementById('baguProgress');
+        const baguFill = document.getElementById('baguFill');
+        const projectProgress = document.getElementById('projectProgress');
+        const projectFill = document.getElementById('projectFill');
+        const progressAddBtn = document.getElementById('progressAddBtn');
+        const progressBaguBtn = document.getElementById('progressBaguBtn');
+        const progressResetBtn = document.getElementById('progressResetBtn');
+
+        // ==================== 状态 ====================
+        let currentQuestions = [...allQuestions];
+        let selectedQuestionId = null;
+        let favorites = JSON.parse(localStorage.getItem('favorite_questions') || '[]');
+        let currentCode = codeDisplay.textContent;
+        let leetcodeDone = parseInt(localStorage.getItem('leetcode_done') || '0');
+        let baguDone = parseInt(localStorage.getItem('bagu_done') || '0');
+        let projectDone = parseInt(localStorage.getItem('project_done') || '0');
+
+        // ==================== 工具 ====================
+        function setStatus(msg, color = '#b0a0c8') {
+            if (statusText) {
+                statusText.innerHTML = `<i class="fas fa-circle-info"></i> ${msg}`;
+                statusText.style.color = color;
+            }
+        }
+
+        function setLoading(isLoading) {
+            if (loadingSpinner) loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
+        }
+
+        function highlightCode(code, lang = 'python') {
+            if (!code.trim()) { codeDisplay.textContent = '// 空代码'; return; }
+            codeDisplay.textContent = code;
+            codeDisplay.className = `language-${lang}`;
+            if (window.hljs) hljs.highlightElement(codeDisplay);
+            currentCode = code;
+        }
+
+        function updateProgress() {
+            leetcodeProgress.textContent = `${leetcodeDone}/200`;
+            leetcodeFill.style.width = `${Math.min(leetcodeDone/200*100, 100)}%`;
+            baguProgress.textContent = `${baguDone}/14`;
+            baguFill.style.width = `${Math.min(baguDone/14*100, 100)}%`;
+            projectProgress.textContent = `${projectDone}/3`;
+            projectFill.style.width = `${Math.min(projectDone/3*100, 100)}%`;
+            localStorage.setItem('leetcode_done', leetcodeDone);
+            localStorage.setItem('bagu_done', baguDone);
+            localStorage.setItem('project_done', projectDone);
+        }
+
+        // ==================== 题目渲染 ====================
+        function renderQuestions(list) {
+            if (!list || list.length === 0) {
+                questionListEl.innerHTML = `<div style="color:#5a4a74; padding:10px; text-align:center; font-size:0.65rem;">暂无题目</div>`;
+                return;
+            }
+            let html = '';
+            list.forEach(q => {
+                const active = (q.id === selectedQuestionId) ? 'active' : '';
+                const diffClass = q.diff.toLowerCase() === 'hard' ? 'hard' : '';
+                const isFav = favorites.includes(q.id) ? 'favorited' : '';
+                html += `
+                    <div class="question-item ${active}" data-id="${q.id}">
+                        <span class="q-tag">${q.tag}</span>
+                        <span class="q-name">${q.name}</span>
+                        <span class="q-diff ${diffClass}">${q.diff}</span>
+                        <span class="q-star ${isFav}" data-id="${q.id}"><i class="fas fa-star"></i></span>
+                    </div>
+                `;
+            });
+            questionListEl.innerHTML = html;
+
+            document.querySelectorAll('.question-item').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    if (e.target.closest('.q-star')) return;
+                    selectedQuestionId = this.dataset.id;
+                    document.querySelectorAll('.question-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    setStatus(`已选: ${this.querySelector('.q-name').textContent}`);
+                    reviewArea.innerHTML = `<div class="placeholder"><i class="fas fa-robot"></i><span>选题后点击「批改此题」</span></div>`;
+                });
+            });
+
+            document.querySelectorAll('.q-star').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = this.dataset.id;
+                    toggleFavorite(id);
+                });
+            });
+        }
+
+        function filterQuestions(source) {
+            let list = [];
+            if (source === 'company') list = [...companyProblems];
+            else if (source === 'leetcode') list = [...leetcodeHard];
+            else if (source === 'favorites') list = allQuestions.filter(q => favorites.includes(q.id));
+            else list = [...allQuestions];
+            currentQuestions = list;
+            selectedQuestionId = null;
+            renderQuestions(currentQuestions);
+        }
+
+        function toggleFavorite(id) {
+            const idx = favorites.indexOf(id);
+            if (idx > -1) favorites.splice(idx, 1);
+            else favorites.push(id);
+            localStorage.setItem('favorite_questions', JSON.stringify(favorites));
+            const source = questionSource.value;
+            filterQuestions(source);
+            setStatus(`⭐ ${idx > -1 ? '取消收藏' : '已收藏'}`, '#e8c060');
+        }
+
+        // ==================== API ====================
+        async function callDeepSeek(prompt, apiKey) {
+            const url = 'https://api.deepseek.com/v1/chat/completions';
+            const body = {
+                model: 'deepseek-chat',
+                messages: [{ role: 'user', content: prompt }],
+                temperature: 0.7,
+                max_tokens: 2000
+            };
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify(body)
+            });
+            if (!response.ok) {
+                let errMsg = `API 请求失败 (${response.status})`;
+                try { const errData = await response.json(); errMsg = errData?.error?.message || errMsg; } catch (_) {}
+                throw new Error(errMsg);
+            }
+            const data = await response.json();
+            if (data.choices && data.choices.length > 0) {
+                return data.choices[0].message.content;
+            }
+            throw new Error('API 返回格式异常');
+        }
+
+        // ==================== 批改 ====================
+        reviewBtn.addEventListener('click', async function() {
+            const apiKey = apiKeyInput.value.trim();
+            if (!apiKey) { setStatus('❌ 请先保存 API 密钥', '#e8a0a0'); return; }
+            if (!selectedQuestionId) { setStatus('⚠️ 请选择一道题目', '#e8c060'); return; }
+            const question = currentQuestions.find(q => q.id === selectedQuestionId);
+            if (!question) { setStatus('❌ 题目不存在', '#e8a0a0'); return; }
+            const userCode = codeDisplay.textContent.trim();
+            if (!userCode) { setStatus('⚠️ 请写代码', '#e8c060'); return; }
+
+            setLoading(true);
+            reviewArea.innerHTML = `<div class="placeholder"><i class="fas fa-spinner"></i><span>学长批改中...</span></div>`;
+            try {
+                const prompt = `你是清华贵系算法助教。批改代码并给出正确答案和解释。
+        题目：${question.name} (${question.diff})
+        代码：
+        \`\`\`
+        ${userCode}
+        \`\`\`
+        输出：1.批改意见 2.正确答案(完整代码+注释) 3.复杂度分析 4.优化建议 5.易错点`;
+                const answer = await callDeepSeek(prompt, apiKey);
+                reviewArea.innerHTML = `<pre style="margin:0; white-space:pre-wrap; color:#d4c0ed; font-size:0.75rem; line-height:1.6;">${answer}</pre>`;
+                setStatus('✅ 批改完成', '#8ac4a0');
+            } catch (error) {
+                reviewArea.innerHTML = `<div style="color:#e8a0a0;">❌ 批改失败: ${error.message}</div>`;
+                setStatus(`❌ ${error.message}`, '#e8a0a0');
+            } finally { setLoading(false); }
+        });
+
+        clearReviewBtn.addEventListener('click', function() {
+            reviewArea.innerHTML = `<div class="placeholder"><i class="fas fa-robot"></i><span>已清空，重新选题批改</span></div>`;
+            setStatus('🔄 已清空', '#b0a0c8');
+        });
+
+        // ==================== 代码编辑 ====================
+        codeEditBtn.addEventListener('click', function() {
+            codeEditor.value = codeDisplay.textContent;
+            codeEditArea.style.display = 'block';
+            codeEditBtn.style.display = 'none';
+        });
+        codeSaveBtn.addEventListener('click', function() {
+            highlightCode(codeEditor.value);
+            codeEditArea.style.display = 'none';
+            codeEditBtn.style.display = 'inline-flex';
+            setStatus('✅ 代码已更新', '#8ac4a0');
+        });
+        codeCancelBtn.addEventListener('click', function() {
+            codeEditArea.style.display = 'none';
+            codeEditBtn.style.display = 'inline-flex';
+        });
+
+        runCodeBtn.addEventListener('click', function() {
+            const code = codeDisplay.textContent.trim() || '// 没有代码';
+            setStatus('⚡ 模拟运行', '#c4a8e6');
+            alert(`[模拟运行]\n${code.substring(0, 500)}${code.length > 500 ? '...' : ''}`);
+        });
+
+        clearCodeBtn.addEventListener('click', function() {
+            highlightCode('# 清空');
+            setStatus('🔄 代码已清空', '#b0a0c8');
+        });
+
+        // ==================== 学长问答 (200字精炼) ====================
+        sendChatFullBtn.addEventListener('click', async function() {
+            const apiKey = apiKeyInput.value.trim();
+            if (!apiKey) { setStatus('❌ 请保存 API 密钥', '#e8a0a0'); return; }
+            const q = chatInputFull.value.trim();
+            if (!q) { setStatus('⚠️ 输入问题', '#e8c060'); return; }
+            chatInputFull.value = '';
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message';
+            msgDiv.innerHTML = `<span class="sender user">🧑‍💻 我</span><span class="text">${q}</span>`;
+            chatAreaFull.appendChild(msgDiv);
+            chatAreaFull.scrollTop = chatAreaFull.scrollHeight;
+
+            setLoading(true);
+            try {
+                let prompt = `你是清华贵系学长，帮助学弟学妹解答算法、编程、求职、学习问题。`;
+                // 检测是否代码题 (包含 "代码" "写" "实现" 等关键词)
+                const isCodeQuery = /代码|写|实现|编程|函数|算法|如何|怎么|步骤|方法/.test(q) && q.length > 10;
+                if (isCodeQuery) {
+                    prompt += `用户问的是技术/代码相关问题，请给出完整详细的解答，包含代码示例和解释。`;
+                } else {
+                    prompt += `请用简洁精炼的语言回答，控制在200字以内，去掉markdown格式，直接输出纯文本。`;
+                }
+                prompt += `\n问题：${q}`;
+                const answer = await callDeepSeek(prompt, apiKey);
+                // 去掉可能的markdown
+                const cleanAnswer = answer.replace(/[#*`~_]/g, '').trim();
+                const replyDiv = document.createElement('div');
+                replyDiv.className = 'message';
+                replyDiv.innerHTML = `<span class="sender">🎓 学长</span><span class="text">${cleanAnswer}</span>`;
+                chatAreaFull.appendChild(replyDiv);
+                chatAreaFull.scrollTop = chatAreaFull.scrollHeight;
+                setStatus('✅ 学长回复了', '#8ac4a0');
+            } catch (error) {
+                const errDiv = document.createElement('div');
+                errDiv.className = 'message';
+                errDiv.innerHTML = `<span class="sender">🎓 学长</span><span class="text">😅 出错啦: ${error.message}</span>`;
+                chatAreaFull.appendChild(errDiv);
+                setStatus(`❌ ${error.message}`, '#e8a0a0');
+            } finally { setLoading(false); }
+        });
+
+        chatInputFull.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); sendChatFullBtn.click(); }
+        });
+
+        // ==================== 每日一题 ====================
+        dailyPushBtn.addEventListener('click', function() {
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+            const idx = dayOfYear % allQuestions.length;
+            const q = allQuestions[idx];
+            setStatus(`📌 每日一题: ${q.name} (${q.diff})`, '#e8c060');
+            alert(`📌 今日推荐题目:\n${q.name} (${q.diff})\n来自 ${q.tag}\n\n去「算法题+批改」模块刷起来吧！`);
+        });
+
+        // ==================== 收藏按钮 ====================
+        favoriteToggleBtn.addEventListener('click', function() {
+            if (!selectedQuestionId) { setStatus('⚠️ 先选题', '#e8c060'); return; }
+            toggleFavorite(selectedQuestionId);
+        });
+
+        // ==================== 八股文 ====================
+        baguListFull.addEventListener('click', function(e) {
+            const tag = e.target.closest('.bagu-tag');
+            if (!tag) return;
+            const idx = parseInt(tag.dataset.idx);
+            if (isNaN(idx) || idx < 0 || idx >= baguData.length) return;
+            baguContentFull.textContent = baguData[idx];
+            document.querySelectorAll('#baguListFull .bagu-tag').forEach(t => t.style.borderColor = 'rgba(160,120,200,0.04)');
+            tag.style.borderColor = '#a07ac9';
+            setStatus(`📖 ${tag.textContent}`, '#c4a8e6');
+        });
+
+        // ==================== 大模型面试题 ====================
+        llmListFull.addEventListener('click', function(e) {
+            const tag = e.target.closest('.bagu-tag');
+            if (!tag) return;
+            const idx = parseInt(tag.dataset.idx);
+            if (isNaN(idx) || idx < 0 || idx >= llmData.length) return;
+            llmContentFull.textContent = llmData[idx];
+            document.querySelectorAll('#llmListFull .bagu-tag').forEach(t => t.style.borderColor = 'rgba(160,120,200,0.04)');
+            tag.style.borderColor = '#a07ac9';
+            setStatus(`🧠 ${tag.textContent}`, '#c4a8e6');
+        });
+
+        // ==================== 贵系指南 ====================
+        guideListFull.addEventListener('click', function(e) {
+            const tag = e.target.closest('.guide-tag');
+            if (!tag) return;
+            const idx = parseInt(tag.dataset.idx);
+            if (isNaN(idx) || idx < 0 || idx >= guideData.length) return;
+            guideContentFull.textContent = guideData[idx];
+            document.querySelectorAll('#guideListFull .guide-tag').forEach(t => t.style.borderColor = 'rgba(160,120,200,0.04)');
+            tag.style.borderColor = '#a07ac9';
+            setStatus(`🧭 ${tag.textContent}`, '#c4a8e6');
+        });
+
+        // ==================== 实用工具 ====================
+        runnerBtn.addEventListener('click', function() {
+            const code = runnerInput.value.trim() || '# 空代码';
+            runnerOutput.textContent = `> 运行输出 (模拟):\n${code.split('\n').map(line => `  ${line}`).join('\n')}\n\n[模拟] 执行完成 ✅`;
+            setStatus('⚡ 代码已运行', '#c4a8e6');
+        });
+        runnerClearBtn.addEventListener('click', function() {
+            runnerInput.value = '';
+            runnerOutput.textContent = '等待运行…';
+            setStatus('🔄 已清空', '#b0a0c8');
+        });
+
+        progressAddBtn.addEventListener('click', function() {
+            leetcodeDone = Math.min(leetcodeDone + 1, 200);
+            updateProgress();
+            setStatus(`📈 刷题进度: ${leetcodeDone}/200`, '#8ac4a0');
+        });
+        progressBaguBtn.addEventListener('click', function() {
+            baguDone = Math.min(baguDone + 1, 14);
+            updateProgress();
+            setStatus(`📈 八股进度: ${baguDone}/14`, '#8ac4a0');
+        });
+        progressResetBtn.addEventListener('click', function() {
+            if (confirm('重置所有进度？')) {
+                leetcodeDone = 0; baguDone = 0; projectDone = 0;
+                updateProgress();
+                setStatus('🔄 已重置进度', '#b0a0c8');
+            }
+        });
+
+        // ==================== 标签切换 ====================
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.module-page').forEach(p => p.classList.remove('active'));
+                document.getElementById(this.dataset.module).classList.add('active');
+                setStatus(`📂 ${this.textContent.replace('NEW', '').trim()}`, '#c4a8e6');
+            });
+        });
+
+        // ==================== 保存密钥 ====================
+        saveKeyBtn.addEventListener('click', function() {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem('deepseek_api_key', key);
+                setStatus('✅ 密钥已保存', '#8ac4a0');
+            } else {
+                localStorage.removeItem('deepseek_api_key');
+                setStatus('⚠️ 密钥已清除', '#e8c060');
+            }
+        });
+
+        // ==================== 初始化 ====================
+        const savedKey = localStorage.getItem('deepseek_api_key');
+        if (savedKey) apiKeyInput.value = savedKey;
+
+        filterQuestions('all');
+        highlightCode(codeDisplay.textContent);
+        updateProgress();
+
+        // 八股默认
+        baguContentFull.textContent = baguData[0];
+        document.querySelector('#baguListFull .bagu-tag').style.borderColor = '#a07ac9';
+
+        // 大模型面试默认
+        llmContentFull.textContent = llmData[0];
+        document.querySelector('#llmListFull .bagu-tag').style.borderColor = '#a07ac9';
+
+        // 贵系指南默认
+        guideContentFull.textContent = guideData[0];
+        document.querySelector('#guideListFull .guide-tag').style.borderColor = '#a07ac9';
+
+        setStatus('🚀 大模型版已启动！新增「大模型面试题」，学长问答200字精炼', '#c4a8e6');
+        console.log('贵系学长 · 全能工坊 · 大模型版 (LLM面试题 + 200字精炼)');
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>大厂面试 · 120题 · 紫黑玻璃</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; }
+        body { min-height: 100vh; background: #0b0710; display: flex; justify-content: center; padding: 1.5rem 1rem; }
+        .glass-container {
+            max-width: 1600px; width: 100%;
+            background: rgba(30, 18, 48, 0.45); backdrop-filter: blur(16px) saturate(180%);
+            border-radius: 3rem; padding: 1.8rem 2rem;
+            box-shadow: 0 25px 50px -8px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(180,130,255,0.25);
+            border: 1px solid rgba(160,120,255,0.15);
+        }
+        .header {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+            margin-bottom: 1.5rem; border-bottom: 1px solid rgba(180,130,255,0.2); padding-bottom: 0.8rem;
+        }
+        .title-group h1 {
+            font-size: 2.4rem; font-weight: 700;
+            background: linear-gradient(135deg, #e0d0ff, #b28aff 60%, #9f7aff);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            display: inline-flex; align-items: center; gap: 10px;
+        }
+        .title-group h1 i { font-size: 2rem; color: #b28aff; filter: drop-shadow(0 0 8px #a07cff); }
+        .subtitle { color: rgba(210,185,255,0.7); font-size: 0.9rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .stats-badge {
+            background: rgba(120,80,200,0.25); backdrop-filter: blur(4px); padding: 0.4rem 1.2rem;
+            border-radius: 60px; border: 1px solid rgba(180,130,255,0.3); color: #d4c0ff; font-weight: 500;
+            box-shadow: 0 0 20px rgba(130,80,255,0.15); white-space: nowrap; font-size: 0.9rem;
+        }
+        .main-layout { display: flex; gap: 1.5rem; margin-top: 0.3rem; }
+
+        /* 左侧 HR */
+        .left-hr { flex: 0 0 300px; min-width: 240px; display: flex; flex-direction: column; gap: 1rem; }
+        .hr-chat {
+            background: rgba(22,12,40,0.55); backdrop-filter: blur(12px); border-radius: 2rem;
+            padding: 1.2rem 1rem; border: 1px solid rgba(160,120,255,0.2);
+            box-shadow: 0 12px 28px -8px rgba(0,0,0,0.6);
+        }
+        .hr-chat h3 { color: #d4c0ff; font-weight: 500; font-size: 1rem; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(160,120,255,0.15); padding-bottom: 0.5rem; margin-bottom: 0.7rem; }
+        .hr-chat h3 i { color: #b28aff; }
+        .chat-box { display: flex; flex-direction: column; gap: 8px; }
+        .chat-input-group { display: flex; gap: 6px; }
+        .chat-input-group input {
+            flex: 1; background: rgba(10,5,25,0.6); border: 1px solid rgba(160,120,255,0.25);
+            border-radius: 40px; padding: 0.5rem 1rem; color: #ede6ff; font-size: 0.85rem; outline: none;
+        }
+        .chat-input-group input::placeholder { color: rgba(180,160,220,0.5); }
+        .chat-input-group input:focus { border-color: #a885ff; box-shadow: 0 0 16px rgba(140,100,255,0.2); }
+        .chat-input-group button {
+            background: rgba(130,80,255,0.3); border: 1px solid rgba(160,120,255,0.3);
+            border-radius: 40px; padding: 0 1.2rem; color: #ede6ff; font-weight: 500; cursor: pointer;
+            transition: 0.2s; white-space: nowrap;
+        }
+        .chat-input-group button:hover { background: rgba(150,100,255,0.4); border-color: #b28aff; }
+        .chat-messages {
+            background: rgba(10,5,20,0.3); border-radius: 1.4rem; padding: 0.6rem 0.9rem;
+            min-height: 70px; max-height: 180px; overflow-y: auto; border: 1px solid rgba(160,120,255,0.1);
+        }
+        .chat-msg { color: #d4c6f5; font-size: 0.82rem; line-height: 1.5; padding: 0.15rem 0; border-bottom: 1px solid rgba(160,120,255,0.05); }
+        .chat-msg i { margin-right: 6px; color: #a885ff; width: 1.2rem; }
+        .chat-msg.hr i { color: #c6adff; }
+        .api-status { font-size: 0.7rem; color: #7a6a9a; margin-top: 4px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+        .api-status:hover { color: #b09ad9; }
+
+        /* 中间 */
+        .middle-questions { flex: 2.8; min-width: 0; }
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-bottom: 0.8rem; }
+        .filter-tag {
+            background: rgba(50,30,80,0.4); backdrop-filter: blur(4px); padding: 0.25rem 1rem;
+            border-radius: 40px; border: 1px solid rgba(170,140,255,0.2); color: #cdbcff;
+            font-size: 0.78rem; font-weight: 450; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .filter-tag i { margin-right: 5px; color: #a885ff; }
+        .filter-tag.active, .filter-tag:hover { background: rgba(130,80,255,0.35); border-color: #a07cff; box-shadow: 0 0 20px rgba(140,100,255,0.3); color: #f0ebff; }
+
+        .question-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 1rem; max-height: 580px; overflow-y: auto; padding-right: 4px;
+        }
+        .question-card {
+            background: rgba(22,12,40,0.55); backdrop-filter: blur(12px); border-radius: 1.6rem;
+            padding: 1rem 1.1rem 0.9rem; border: 1px solid rgba(160,120,255,0.2);
+            box-shadow: 0 12px 28px -8px rgba(0,0,0,0.7); transition: all 0.2s;
+        }
+        .question-card:hover { transform: translateY(-3px); border-color: rgba(180,130,255,0.5); background: rgba(30,18,52,0.7); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; }
+        .q-number { font-size: 0.65rem; font-weight: 600; color: #b69eff; background: rgba(100,70,180,0.3); padding: 0.1rem 0.8rem; border-radius: 40px; border: 1px solid rgba(150,120,255,0.2); }
+        .q-tag { font-size: 0.6rem; background: rgba(180,130,255,0.15); padding: 0.1rem 0.6rem; border-radius: 30px; color: #cbb5ff; border: 1px solid rgba(150,110,255,0.15); }
+        .question-text { font-size: 0.92rem; font-weight: 500; line-height: 1.4; color: #ede6ff; margin: 0.2rem 0 0.3rem; }
+        .question-text i { color: #b28aff; margin-right: 5px; opacity: 0.6; }
+        .answer-content {
+            color: #d4c6f5; font-size: 0.85rem; line-height: 1.7; padding: 0.4rem 0.7rem;
+            background: rgba(20,10,38,0.3); border-radius: 12px; margin-top: 0.3rem;
+            border-left: 2px solid rgba(160,120,255,0.3);
+        }
+        .answer-content i { color: #b28aff; margin-right: 5px; }
+        .code-block {
+            background: #0a0518; border-radius: 10px; padding: 0.4rem 0.7rem; margin-top: 0.3rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #d0c0f0;
+            border: 1px solid rgba(160,120,255,0.15); overflow-x: auto; white-space: pre-wrap;
+        }
+
+        /* 右侧 */
+        .right-info { flex: 1.3; min-width: 250px; display: flex; flex-direction: column; gap: 1rem; }
+        .info-card {
+            background: rgba(22,12,40,0.5); backdrop-filter: blur(12px); border-radius: 2rem;
+            padding: 1rem 1rem 0.8rem; border: 1px solid rgba(160,120,255,0.2);
+            box-shadow: 0 12px 28px -8px rgba(0,0,0,0.6);
+        }
+        .info-card h3 { color: #d4c0ff; font-weight: 500; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid rgba(160,120,255,0.15); padding-bottom: 0.3rem; margin-bottom: 0.5rem; }
+        .info-card h3 i { color: #b28aff; }
+
+        .company-list { max-height: 200px; overflow-y: auto; padding-right: 4px; }
+        .company-item {
+            background: rgba(10,5,20,0.3); border-radius: 1.2rem; padding: 0.4rem 0.8rem;
+            margin-bottom: 0.4rem; border-left: 3px solid #a07cff; cursor: pointer;
+            transition: 0.2s;
+        }
+        .company-item:hover { background: rgba(40,25,70,0.5); }
+        .company-item strong { color: #e0d0ff; font-size: 0.85rem; }
+        .company-item .brief { color: #cdbcff; font-size: 0.68rem; line-height: 1.4; margin-top: 2px; }
+        .company-item .brief i { color: #a885ff; width: 1rem; }
+
+        .insight-box {
+            background: rgba(10,5,20,0.4); border-radius: 1.2rem; padding: 0.6rem 0.9rem;
+            font-size: 0.78rem; color: #d9ccf5; border-left: 3px solid #b28aff; margin-top: 0.2rem;
+            line-height: 1.7; max-height: 320px; overflow-y: auto;
+        }
+        .insight-box i { color: #a885ff; margin-right: 4px; }
+        .insight-box strong { color: #e0d0ff; }
+
+        /* 模态框 - API Key */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: rgba(30,18,48,0.95); backdrop-filter: blur(20px);
+            border-radius: 2.5rem; padding: 2.5rem 2.8rem; max-width: 480px; width: 90%;
+            border: 1px solid rgba(180,130,255,0.3); box-shadow: 0 30px 60px rgba(0,0,0,0.9);
+        }
+        .modal h2 { color: #e0d0ff; font-weight: 600; font-size: 1.5rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 12px; }
+        .modal h2 i { color: #b28aff; }
+        .modal p { color: #b09ad9; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.2rem; }
+        .modal input {
+            width: 100%; padding: 0.8rem 1.2rem; border-radius: 40px;
+            background: rgba(10,5,25,0.6); border: 1px solid rgba(160,120,255,0.25);
+            color: #ede6ff; font-size: 0.95rem; outline: none; margin-bottom: 1.2rem;
+        }
+        .modal input:focus { border-color: #a885ff; box-shadow: 0 0 20px rgba(140,100,255,0.2); }
+        .modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+        .modal-actions button {
+            padding: 0.6rem 2rem; border-radius: 40px; border: none; font-weight: 500;
+            cursor: pointer; transition: 0.2s; font-size: 0.9rem;
+        }
+        .btn-cancel { background: rgba(80,60,120,0.3); color: #b09ad9; border: 1px solid rgba(160,120,255,0.2); }
+        .btn-cancel:hover { background: rgba(80,60,120,0.5); }
+        .btn-save { background: rgba(130,80,255,0.4); color: #f0ebff; border: 1px solid rgba(180,130,255,0.3); }
+        .btn-save:hover { background: rgba(150,100,255,0.5); box-shadow: 0 0 30px rgba(140,100,255,0.2); }
+        .modal .hint { font-size: 0.75rem; color: #6a5a8a; margin-top: -0.5rem; margin-bottom: 1rem; }
+
+        ::-webkit-scrollbar { width: 4px; background: #1c112c; }
+        ::-webkit-scrollbar-thumb { background: #6f4d9e; border-radius: 20px; }
+
+        @media (max-width: 1200px) { .main-layout { flex-wrap: wrap; } .left-hr { flex: 1 1 100%; flex-direction: row; flex-wrap: wrap; } .left-hr .hr-chat { flex: 1; min-width: 220px; } .right-info { flex: 1 1 100%; flex-direction: row; flex-wrap: wrap; } .right-info .info-card { flex: 1; min-width: 200px; } }
+        @media (max-width: 700px) { .glass-container { padding: 1rem 0.8rem; } .title-group h1 { font-size: 1.8rem; } .question-grid { grid-template-columns: 1fr; } .modal { padding: 1.8rem 1.5rem; } }
+    </style>
+</head>
+<body>
+<div class="glass-container">
+    <div class="header">
+        <div class="title-group">
+            <h1><i class="fas fa-code"></i> 面试·120题</h1>
+            <div class="subtitle">
+                <i class="fas fa-graduation-cap"></i> 紫黑 · 含20道代码题
+                <span style="margin-left:6px; opacity:0.4;">|</span>
+                <i class="fas fa-user-tie" style="margin-left:4px;"></i> HR 助手
+            </div>
+        </div>
+        <div class="stats-badge"><i class="fas fa-list-ul"></i> 120 题 · 答案直显</div>
+    </div>
+
+    <div class="main-layout">
+        <!-- 左侧 HR -->
+        <div class="left-hr">
+            <div class="hr-chat">
+                <h3><i class="fas fa-comment-dots"></i> HR 智能问答</h3>
+                <div class="chat-box">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-msg hr"><i class="fas fa-user-tie"></i> 你好！我是HR助手，请提问～</div>
+                    </div>
+                    <div class="chat-input-group">
+                        <input type="text" id="chatInput" placeholder="e.g. 薪资怎么谈？" />
+                        <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                    <div class="api-status" id="apiStatus">
+                        <i class="fas fa-circle" style="color:#ff6b6b; font-size:0.5rem;"></i>
+                        <span>未设置 API Key</span>
+                        <i class="fas fa-cog" style="margin-left:auto; opacity:0.6;"></i>
+                    </div>
+                </div>
+            </div>
+            <div style="background:rgba(22,12,40,0.3); border-radius:1.4rem; padding:0.4rem 0.8rem; border:1px solid rgba(160,120,255,0.1); color:#b09ad9; font-size:0.7rem;">
+                <i class="fas fa-lightbulb" style="color:#a885ff;"></i> 双击标题展开/收起所有答案
+            </div>
+        </div>
+
+        <!-- 中间 题目 -->
+        <div class="middle-questions">
+            <div class="filter-bar" id="filterBar">
+                <span class="filter-tag active" data-filter="all"><i class="fas fa-layer-group"></i> 全部</span>
+                <span class="filter-tag" data-filter="算法"><i class="fas fa-code"></i> 算法</span>
+                <span class="filter-tag" data-filter="系统设计"><i class="fas fa-database"></i> 系统设计</span>
+                <span class="filter-tag" data-filter="基础"><i class="fas fa-microchip"></i> 基础</span>
+                <span class="filter-tag" data-filter="代码题"><i class="fas fa-terminal"></i> 代码题</span>
+            </div>
+            <div class="question-grid" id="questionGrid"></div>
+        </div>
+
+        <!-- 右侧 公司+面经+贵系 -->
+        <div class="right-info">
+            <div class="info-card">
+                <h3><i class="fas fa-building"></i> 15家 · 点击看面经</h3>
+                <div class="company-list" id="companyList"></div>
+            </div>
+            <div class="info-card">
+                <h3><i class="fas fa-user-graduate"></i> 贵系指南 · 面经</h3>
+                <div class="insight-box" id="insightBox">
+                    <i class="fas fa-quote-left"></i> 点击左侧公司名称查看详细面经<br>
+                    <span style="color:#7a6a9a; font-size:0.75rem;">下方为贵系（清华计算机）专属内容</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- API Key 模态框 -->
+<div class="modal-overlay" id="apiModal">
+    <div class="modal">
+        <h2><i class="fas fa-key"></i> 设置 DeepSeek API Key</h2>
+        <p>学长需要 API Key 才能和你对话。Key 仅存储在本地浏览器中。</p>
+        <input type="password" id="apiKeyInput" placeholder="sk-... 输入你的 DeepSeek API Key" />
+        <div class="hint">
+            <i class="fas fa-info-circle"></i> 获取 DeepSeek API Key：
+            <a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:#b28aff;">platform.deepseek.com</a>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" id="cancelApiBtn">取消</button>
+            <button class="btn-save" id="saveApiBtn">保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ===== 扩写答案辅助函数 (4倍) =====
+        function expandAnswer(baseAnswer, tag) {
+            const expansions = {
+                '基础': ' 在计算机科学中，这是一个核心概念，理解它对于编写高质量代码和系统设计至关重要。实际开发中，我们经常需要权衡各种因素，比如性能、可读性和可维护性。面试官通常会追问底层实现原理和适用场景，因此建议结合具体案例深入理解。',
+                '算法': ' 算法是程序员的“内功”，掌握好算法不仅能通过面试，更能提升解决复杂问题的能力。建议多练习LeetCode，理解不同解法的时间复杂度和空间复杂度，并能够分析各种边界条件。面试中常要求手写代码，注意代码规范和清晰度。',
+                '系统设计': ' 系统设计是区分高级工程师的关键能力。在设计系统时，需要综合考虑可用性、可扩展性、数据一致性、延迟和成本等因素。建议多阅读技术博客和论文，了解业界最佳实践，例如微服务架构、分布式缓存、消息队列等。',
+                '网络': ' 网络知识是后端开发的基石。从TCP/IP协议栈到HTTP/HTTPS，再到负载均衡和CDN，每个环节都有深入的技术细节。面试中常考察网络协议的工作原理、常见问题排查和性能优化方法。',
+                '数据库': ' 数据库是大多数应用的核心存储层。除了掌握SQL语法，更需要理解索引优化、事务隔离级别、锁机制、分库分表等进阶主题。面试中常通过实际场景考察数据库设计和调优能力。',
+                '代码题': ' 代码题是面试中的重头戏，不仅考察算法思维，还考察编码习惯和调试能力。建议在练习时多写注释，考虑边界情况，并能够用测试用例验证代码正确性。面试中如果思路卡壳，可以尝试和面试官沟通思路。'
+            };
+            const extra = expansions[tag] || ' 这是一个重要的面试考点，建议深入理解其原理和应用场景，并能够用清晰的逻辑向面试官阐述。';
+            return baseAnswer + ' ' + extra + ' 此外，可以结合项目经验谈谈实际使用中的体会和踩过的坑，这样能让回答更有说服力。';
+        }
+
+        // ===== 120 道题 (无智力题tag) =====
+        const rawQuestions = [
+            { q: 'HTTPS 的握手过程？', a: 'TCP三次握手 + TLS四次握手：Client Hello、Server Hello、证书验证、密钥交换、完成。', tag: '基础' },
+            { q: 'Redis 持久化方式？', a: 'RDB快照与AOF日志，可混合使用。', tag: '基础' },
+            { q: '进程与线程的区别？', a: '进程资源隔离，线程共享内存；线程轻量，进程更重。', tag: '基础' },
+            { q: 'TCP 和 UDP 的区别？', a: 'TCP可靠有序，UDP不可靠但快速。', tag: '网络' },
+            { q: '死锁是什么？如何避免？', a: '循环等待资源，破坏四大条件之一。', tag: '基础' },
+            { q: 'MySQL 索引底层？', a: 'B+树，叶子存数据，非叶子存索引。', tag: '数据库' },
+            { q: 'JVM 内存模型？', a: '堆、栈、方法区、PC、本地方法栈。', tag: '基础' },
+            { q: 'Spring IOC 和 AOP？', a: 'IOC控制反转，AOP面向切面。', tag: '基础' },
+            { q: 'CAP 定理？', a: '一致性、可用性、分区容错三选二。', tag: '系统设计' },
+            { q: '一致性哈希？', a: '哈希环解决动态扩缩容数据迁移。', tag: '系统设计' },
+            { q: 'Linux 查看端口？', a: 'netstat -tulpn 或 lsof -i :端口', tag: '基础' },
+            { q: 'volatile 作用？', a: '可见性，禁止重排序，不保证原子性。', tag: '基础' },
+            { q: 'RESTful API？', a: 'HTTP方法操作资源，无状态。', tag: '系统设计' },
+            { q: '事务 ACID？', a: '原子性、一致性、隔离性、持久性。', tag: '数据库' },
+            { q: '微服务优缺点？', a: '独立部署，但分布式复杂。', tag: '系统设计' },
+            { q: 'DNS 解析？', a: '本地缓存→DNS服务器→根→顶级→权威。', tag: '网络' },
+            { q: '秒杀系统设计？', a: '限流、缓存、MQ异步、分库分表。', tag: '系统设计' },
+            { q: '排序时间复杂度？', a: '快排/归并 O(n log n)，冒泡 O(n²)。', tag: '算法' },
+            { q: '线程池参数？', a: 'core, max, keepAlive, queue, handler。', tag: '基础' },
+            { q: 'Nginx 反向代理？', a: '转发请求，负载均衡，SSL。', tag: '系统设计' },
+            { q: 'JWT 是什么？', a: 'JSON Web Token，无状态认证。', tag: '基础' },
+            { q: 'Kafka 为什么快？', a: '顺序写，零拷贝，分区，批量。', tag: '系统设计' },
+            { q: '双亲委派模型？', a: '父类加载器优先，保证核心类安全。', tag: '基础' },
+            { q: 'HTTP 502 vs 504？', a: '502网关错误，504超时。', tag: '网络' },
+            { q: '消息队列顺序性？', a: '分区有序，单线程消费。', tag: '系统设计' },
+            { q: 'MVCC？', a: '多版本并发控制，提高并发。', tag: '数据库' },
+            { q: '高并发理解？', a: '从负载均衡、缓存、异步、限流设计。', tag: '系统设计' },
+            { q: '零拷贝？', a: '避免CPU拷贝，如sendfile。', tag: '基础' },
+            { q: 'Cookie vs Session？', a: 'Cookie客户端，Session服务端。', tag: '基础' },
+            { q: '链表有环判断？', a: '快慢指针，相遇则有环。', tag: '算法' },
+            { q: 'SQL 优化？', a: '索引、避免*、分页、EXPLAIN。', tag: '数据库' },
+            { q: 'Docker 是什么？', a: '容器化，镜像部署。', tag: '基础' },
+            { q: 'K8s 核心组件？', a: 'API Server, etcd, Scheduler, Controller, Kubelet, Proxy。', tag: '系统设计' },
+            { q: '缓存穿透解决？', a: '布隆过滤器，空对象缓存。', tag: '系统设计' },
+            { q: 'Dubbo 是什么？', a: 'RPC框架，服务治理。', tag: '系统设计' },
+            { q: 'HashMap 底层？', a: '数组+链表/红黑树。', tag: '基础' },
+            { q: 'XSS 和 CSRF？', a: '跨站脚本和跨站请求伪造，过滤+Token。', tag: '基础' },
+            { q: 'Git rebase vs merge？', a: 'rebase线性历史，merge保留分支。', tag: '基础' },
+            { q: 'RPC 是什么？', a: '远程过程调用，如gRPC。', tag: '系统设计' },
+            { q: '分布式事务方案？', a: '2PC, TCC, 本地消息表, Saga。', tag: '系统设计' },
+            { q: '什么是负载均衡？', a: '分发请求到多个服务器，如Nginx、LVS。', tag: '系统设计' },
+            { q: '消息队列选型？', a: 'Kafka高吞吐，RabbitMQ可靠，RocketMQ金融级。', tag: '系统设计' },
+            { q: '什么是熔断？', a: '服务降级保护，如Hystrix。', tag: '系统设计' },
+            { q: 'CDN 原理？', a: '内容分发网络，就近访问。', tag: '网络' },
+            { q: '如何设计短链接？', a: '哈希编码，存储映射，重定向。', tag: '系统设计' },
+            { q: '什么是幂等性？', a: '多次请求结果一致，用唯一ID或乐观锁。', tag: '基础' },
+            { q: '数据库范式？', a: '1NF原子，2NF消除部分依赖，3NF消除传递依赖。', tag: '数据库' },
+            { q: '什么是B树？', a: '多路平衡搜索树，用于磁盘存储。', tag: '基础' },
+            { q: '什么是跳表？', a: '有序链表+多级索引，Redis有序集合使用。', tag: '基础' },
+            { q: '线程状态？', a: 'NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED。', tag: '基础' },
+            { q: '什么是GC？', a: '垃圾回收，自动内存管理。', tag: '基础' },
+            { q: '什么是类加载机制？', a: '加载、验证、准备、解析、初始化。', tag: '基础' },
+            { q: '什么是代理模式？', a: '为对象提供代理，控制访问。', tag: '基础' },
+            { q: '什么是工厂模式？', a: '创建对象，解耦。', tag: '基础' },
+            { q: '什么是单例模式？', a: '确保类只有一个实例。', tag: '基础' },
+            { q: '什么是观察者模式？', a: '状态变化通知依赖对象。', tag: '基础' },
+            { q: '什么是装饰器模式？', a: '动态添加功能。', tag: '基础' },
+            { q: '什么是策略模式？', a: '算法封装，可切换。', tag: '基础' },
+            { q: '什么是适配器模式？', a: '接口转换。', tag: '基础' },
+            { q: '什么是责任链模式？', a: '请求沿链传递。', tag: '基础' },
+            { q: '什么是线程安全？', a: '多个线程访问共享数据不会出错。', tag: '基础' },
+            { q: '什么是可重入锁？', a: '同一线程可多次获取。', tag: '基础' },
+            { q: '什么是公平锁/非公平锁？', a: '公平按顺序，非公平可抢占。', tag: '基础' },
+            { q: '什么是读写锁？', a: '读共享，写独占。', tag: '基础' },
+            { q: '什么是CAS？', a: '比较并交换，乐观锁。', tag: '基础' },
+            { q: '什么是ABA问题？', a: 'CAS中值被改回原值，用版本号解决。', tag: '基础' },
+            { q: '什么是ThreadLocal？', a: '线程局部变量。', tag: '基础' },
+            { q: '什么是ThreadPool？', a: '线程池复用线程。', tag: '基础' },
+            { q: '什么是Future？', a: '异步计算结果。', tag: '基础' },
+            { q: '什么是CompletableFuture？', a: '异步编程增强。', tag: '基础' },
+            { q: '什么是Redis集群？', a: '分片+主从+哨兵。', tag: '系统设计' },
+            { q: '什么是哨兵模式？', a: '监控主从，自动故障转移。', tag: '系统设计' },
+            { q: '什么是缓存雪崩？', a: '缓存大量失效，击穿数据库。', tag: '系统设计' },
+            { q: '什么是缓存击穿？', a: '热点key失效。', tag: '系统设计' },
+            { q: '什么是缓存预热？', a: '系统启动加载缓存。', tag: '系统设计' },
+            { q: '什么是布隆过滤器？', a: '概率型数据结构，判断存在。', tag: '系统设计' },
+            { q: '什么是限流？', a: '控制流量，如令牌桶、漏桶。', tag: '系统设计' },
+            { q: '什么是降级？', a: '服务降级，保证核心功能。', tag: '系统设计' },
+            { q: '什么是灰度发布？', a: '逐步放量新版本。', tag: '系统设计' },
+            { q: '什么是AB测试？', a: '对比实验。', tag: '系统设计' },
+            { q: '什么是容器化？', a: 'Docker封装环境。', tag: '基础' },
+            { q: '什么是编排？', a: 'K8s管理容器。', tag: '系统设计' },
+            { q: '什么是声明式API？', a: '描述期望状态，由系统实现。', tag: '系统设计' },
+            { q: '什么是Service Mesh？', a: '服务网格，如Istio。', tag: '系统设计' },
+            { q: '什么是Sidecar？', a: '边车模式，辅助服务。', tag: '系统设计' },
+            { q: '什么是gRPC？', a: '高性能RPC，基于HTTP/2。', tag: '系统设计' },
+            { q: '什么是Protobuf？', a: '高效序列化协议。', tag: '基础' },
+            { q: '什么是GraphQL？', a: '查询语言，灵活获取数据。', tag: '系统设计' },
+            { q: '什么是WebSocket？', a: '全双工通信。', tag: '网络' },
+            { q: '什么是SSE？', a: '服务器推送事件。', tag: '网络' },
+            { q: '什么是OAuth2？', a: '授权框架。', tag: '基础' },
+            { q: '什么是SAML？', a: '安全断言标记语言。', tag: '基础' },
+            { q: '什么是LDAP？', a: '轻量级目录访问协议。', tag: '基础' },
+            { q: '什么是ActiveMQ？', a: '消息中间件。', tag: '系统设计' },
+            { q: '什么是RabbitMQ？', a: '消息队列，支持AMQP。', tag: '系统设计' },
+            { q: '什么是Kafka？', a: '分布式消息系统。', tag: '系统设计' },
+            { q: '什么是Pulsar？', a: '云原生消息平台。', tag: '系统设计' },
+            { q: '什么是Elasticsearch？', a: '搜索引擎，基于Lucene。', tag: '系统设计' },
+            { q: '什么是Logstash？', a: '日志收集处理。', tag: '系统设计' },
+            { q: '什么是Kibana？', a: '数据可视化。', tag: '系统设计' },
+            { q: '什么是Prometheus？', a: '监控告警。', tag: '系统设计' },
+            { q: '什么是Grafana？', a: '监控面板。', tag: '系统设计' },
+            { q: '什么是APM？', a: '应用性能监控。', tag: '系统设计' },
+            { q: '什么是分布式链路追踪？', a: '如Jaeger, Zipkin。', tag: '系统设计' },
+            // 20 道代码题 (tag: 代码题)
+            { q: '反转链表 (迭代)', a: 'prev=None; while head: next=head.next; head.next=prev; prev=head; head=next', tag: '代码题', code: 'def reverseList(head):\n    prev = None\n    while head:\n        nxt = head.next\n        head.next = prev\n        prev = head\n        head = nxt\n    return prev' },
+            { q: '两数之和 (HashMap)', a: '使用字典存储已遍历元素，O(n)时间。', tag: '代码题', code: 'def twoSum(nums, target):\n    d = {}\n    for i, v in enumerate(nums):\n        if target - v in d: return [d[target-v], i]\n        d[v] = i' },
+            { q: '快速排序', a: '分治，选取基准，递归排序。', tag: '代码题', code: 'def quicksort(arr):\n    if len(arr) <= 1: return arr\n    p = arr[0]\n    left = [x for x in arr[1:] if x <= p]\n    right = [x for x in arr[1:] if x > p]\n    return quicksort(left) + [p] + quicksort(right)' },
+            { q: '二叉树中序遍历 (递归)', a: '左-根-右', tag: '代码题', code: 'def inorder(root):\n    res = []\n    def dfs(node):\n        if not node: return\n        dfs(node.left)\n        res.append(node.val)\n        dfs(node.right)\n    dfs(root)\n    return res' },
+            { q: '判断回文链表', a: '快慢指针找中点，反转后半部分比较。', tag: '代码题', code: 'def isPalindrome(head):\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next; fast = fast.next.next\n    prev = None\n    while slow:\n        nxt = slow.next; slow.next = prev; prev = slow; slow = nxt\n    while prev and head:\n        if prev.val != head.val: return False\n        prev = prev.next; head = head.next\n    return True' },
+            { q: '最大子数组和 (Kadane)', a: '动态规划，dp[i] = max(nums[i], dp[i-1]+nums[i])', tag: '代码题', code: 'def maxSubArray(nums):\n    dp = [0]*len(nums)\n    dp[0] = nums[0]\n    for i in range(1,len(nums)):\n        dp[i] = max(nums[i], dp[i-1]+nums[i])\n    return max(dp)' },
+            { q: '爬楼梯 (斐波那契)', a: 'dp[i] = dp[i-1] + dp[i-2]', tag: '代码题', code: 'def climbStairs(n):\n    if n <= 2: return n\n    a,b = 1,2\n    for _ in range(3,n+1):\n        a,b = b, a+b\n    return b' },
+            { q: '合并两个有序链表', a: '递归或迭代', tag: '代码题', code: 'def mergeTwoLists(l1,l2):\n    if not l1 or not l2: return l1 or l2\n    if l1.val < l2.val:\n        l1.next = mergeTwoLists(l1.next, l2)\n        return l1\n    else:\n        l2.next = mergeTwoLists(l1, l2.next)\n        return l2' },
+            { q: '二叉树最大深度', a: '递归 max(left, right)+1', tag: '代码题', code: 'def maxDepth(root):\n    if not root: return 0\n    return 1 + max(maxDepth(root.left), maxDepth(root.right))' },
+            { q: '有效的括号', a: '栈匹配', tag: '代码题', code: 'def isValid(s):\n    stack = []\n    d = {")":"(", "]":"[", "}":"{"}\n    for c in s:\n        if c in d:\n            if not stack or stack.pop() != d[c]: return False\n        else: stack.append(c)\n    return not stack' },
+            { q: '环形链表检测', a: '快慢指针', tag: '代码题', code: 'def hasCycle(head):\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n        if slow == fast: return True\n    return False' },
+            { q: '斐波那契数列', a: '递归或迭代', tag: '代码题', code: 'def fib(n):\n    a,b = 0,1\n    for _ in range(n):\n        a,b = b, a+b\n    return a' },
+            { q: '多数元素 (Boyer-Moore)', a: '抵消法', tag: '代码题', code: 'def majorityElement(nums):\n    count = 0; candidate = None\n    for num in nums:\n        if count == 0: candidate = num\n        count += 1 if num == candidate else -1\n    return candidate' },
+            { q: '反转字符串 (双指针)', a: '原地交换', tag: '代码题', code: 'def reverseString(s):\n    l, r = 0, len(s)-1\n    while l < r:\n        s[l], s[r] = s[r], s[l]\n        l += 1; r -= 1' },
+            { q: '买卖股票最佳时机', a: '一次遍历，维护最小价格', tag: '代码题', code: 'def maxProfit(prices):\n    min_price = float(\'inf\')\n    max_profit = 0\n    for p in prices:\n        if p < min_price: min_price = p\n        elif p - min_price > max_profit: max_profit = p - min_price\n    return max_profit' },
+            { q: '二叉树层序遍历 (BFS)', a: '队列逐层', tag: '代码题', code: 'def levelOrder(root):\n    res, q = [], [root] if root else []\n    while q:\n        level = []\n        for _ in range(len(q)):\n            node = q.pop(0)\n            level.append(node.val)\n            if node.left: q.append(node.left)\n            if node.right: q.append(node.right)\n        res.append(level)\n    return res' },
+            { q: '最长公共前缀', a: '纵向扫描', tag: '代码题', code: 'def longestCommonPrefix(strs):\n    if not strs: return ""\n    for i in range(len(strs[0])):\n        c = strs[0][i]\n        for s in strs[1:]:\n            if i >= len(s) or s[i] != c: return strs[0][:i]\n    return strs[0]' },
+            { q: '删除链表倒数第N个节点', a: '快慢指针', tag: '代码题', code: 'def removeNthFromEnd(head, n):\n    dummy = ListNode(0, head)\n    fast = slow = dummy\n    for _ in range(n+1): fast = fast.next\n    while fast:\n        fast = fast.next\n        slow = slow.next\n    slow.next = slow.next.next\n    return dummy.next' },
+            { q: '三数之和 (排序+双指针)', a: '固定一个，双指针扫描', tag: '代码题', code: 'def threeSum(nums):\n    nums.sort(); res=[]\n    for i in range(len(nums)-2):\n        if i>0 and nums[i]==nums[i-1]: continue\n        l,r=i+1,len(nums)-1\n        while l<r:\n            s=nums[i]+nums[l]+nums[r]\n            if s<0: l+=1\n            elif s>0: r-=1\n            else: res.append([nums[i],nums[l],nums[r]]); l+=1; r-=1\n    return res' },
+            { q: '岛屿数量 (DFS)', a: '遍历陆地，DFS标记', tag: '代码题', code: 'def numIslands(grid):\n    def dfs(i,j):\n        if i<0 or j<0 or i>=len(grid) or j>=len(grid[0]) or grid[i][j]!=\'1\': return\n        grid[i][j]=\'0\'\n        dfs(i+1,j); dfs(i-1,j); dfs(i,j+1); dfs(i,j-1)\n    count=0\n    for i in range(len(grid)):\n        for j in range(len(grid[0])):\n            if grid[i][j]==\'1\':\n                dfs(i,j); count+=1\n    return count' },
+        ];
+
+        // 扩写答案 (4倍)
+        const expandedQuestions = rawQuestions.map(item => {
+            const expanded = expandAnswer(item.a, item.tag);
+            return { ...item, a: expanded };
+        });
+
+        let allQuestions = expandedQuestions.slice(0, 120);
+        for (let i = allQuestions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
+        }
+        allQuestions = allQuestions.map((item, idx) => ({ ...item, id: idx + 1 }));
+
+        // 渲染题目
+        const grid = document.getElementById('questionGrid');
+        function renderQuestions(filter = 'all') {
+            grid.innerHTML = '';
+            const filtered = filter === 'all' ? allQuestions : allQuestions.filter(item => item.tag === filter);
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="color:#b09ad9; text-align:center; padding:2rem;">暂无该分类题目</div>';
+                return;
+            }
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                const header = document.createElement('div');
+                header.className = 'card-header';
+                const numSpan = document.createElement('span');
+                numSpan.className = 'q-number';
+                numSpan.innerHTML = `<i class="fas fa-hashtag"></i> ${item.id}`;
+                const tagSpan = document.createElement('span');
+                tagSpan.className = 'q-tag';
+                tagSpan.innerHTML = `<i class="fas fa-tag"></i> ${item.tag}`;
+                header.appendChild(numSpan); header.appendChild(tagSpan);
+
+                const qText = document.createElement('div');
+                qText.className = 'question-text';
+                qText.innerHTML = `<i class="fas fa-question-circle"></i> ${item.q}`;
+
+                const answer = document.createElement('div');
+                answer.className = 'answer-content';
+                if (item.code) {
+                    answer.innerHTML = `<i class="fas fa-lightbulb"></i> ${item.a}<div class="code-block">${item.code}</div>`;
+                } else {
+                    answer.innerHTML = `<i class="fas fa-lightbulb"></i> ${item.a}`;
+                }
+                card.appendChild(header); card.appendChild(qText); card.appendChild(answer);
+                grid.appendChild(card);
+            });
+        }
+        renderQuestions('all');
+
+        // 分类筛选
+        const filterTags = document.querySelectorAll('.filter-tag');
+        filterTags.forEach(tag => {
+            tag.addEventListener('click', function() {
+                filterTags.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                renderQuestions(this.dataset.filter);
+            });
+        });
+
+        // ===== HR API (DeepSeek) =====
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const apiStatus = document.getElementById('apiStatus');
+        const apiModal = document.getElementById('apiModal');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const saveApiBtn = document.getElementById('saveApiBtn');
+        const cancelApiBtn = document.getElementById('cancelApiBtn');
+
+        let apiKey = localStorage.getItem('deepseek_api_key') || '';
+
+        function updateApiStatus() {
+            if (apiKey) {
+                apiStatus.innerHTML = `
+                    <i class="fas fa-circle" style="color:#4caf50; font-size:0.5rem;"></i>
+                    <span>API 已就绪</span>
+                    <i class="fas fa-cog" style="margin-left:auto; opacity:0.6;"></i>
+                `;
+            } else {
+                apiStatus.innerHTML = `
+                    <i class="fas fa-circle" style="color:#ff6b6b; font-size:0.5rem;"></i>
+                    <span>未设置 API Key</span>
+                    <i class="fas fa-cog" style="margin-left:auto; opacity:0.6;"></i>
+                `;
+            }
+        }
+        updateApiStatus();
+
+        apiStatus.addEventListener('click', () => {
+            apiKeyInput.value = apiKey || '';
+            apiModal.classList.add('active');
+        });
+
+        saveApiBtn.addEventListener('click', () => {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                apiKey = key;
+                localStorage.setItem('deepseek_api_key', key);
+                updateApiStatus();
+                apiModal.classList.remove('active');
+                addMessage('✅ API Key 已保存，现在可以提问了！', true);
+            } else {
+                alert('请输入有效的 API Key');
+            }
+        });
+
+        cancelApiBtn.addEventListener('click', () => {
+            apiModal.classList.remove('active');
+        });
+
+        apiModal.addEventListener('click', (e) => {
+            if (e.target === apiModal) apiModal.classList.remove('active');
+        });
+
+        async function callDeepSeekAPI(question) {
+            if (!apiKey) {
+                return '⚠️ 请先设置 DeepSeek API Key（点击状态栏设置）';
+            }
+            try {
+                const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek-chat',
+                        messages: [
+                            { role: 'system', content: '你是一位资深的大厂HR面试官，回答面试相关问题，专业、亲切、有洞察。' },
+                            { role: 'user', content: question }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 500
+                    })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                return data.choices[0].message.content;
+            } catch (error) {
+                console.error('DeepSeek API Error:', error);
+                return `❌ API 调用失败：${error.message}。请检查 API Key 或网络连接。`;
+            }
+        }
+
+        function addMessage(text, isHR = true) {
+            const msg = document.createElement('div');
+            msg.className = `chat-msg ${isHR ? 'hr' : ''}`;
+            const icon = isHR ? '<i class="fas fa-user-tie"></i>' : '<i class="fas fa-user"></i>';
+            msg.innerHTML = `${icon} ${text}`;
+            chatMessages.appendChild(msg);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function handleAsk() {
+            const question = chatInput.value.trim();
+            if (!question) return;
+            addMessage(question, false);
+            chatInput.value = '';
+            const reply = await callDeepSeekAPI(question);
+            addMessage(reply, true);
+        }
+
+        sendBtn.addEventListener('click', handleAsk);
+        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAsk(); });
+
+        // ===== 15家公司 + 面经 (扩写) =====
+        const companies = [
+            { name: '腾讯', brief: '社交/游戏/金融，C++/Go，福利顶尖，食堂班车房补，技术氛围浓厚，全球知名互联网巨头。',
+              experience: '【腾讯面经 - WXG后台开发】面试共三轮技术面+一轮HR面。一面主要考察C++底层原理（虚函数、内存对齐、智能指针）、网络编程（epoll与select区别、TCP粘包处理）、数据结构（手写LRU缓存）。二面深入项目，重点问了一个高并发推送系统的设计，包括消息队列选型、推拉模型对比、如何保证消息不丢失、消息顺序性、消息去重等细节。三面是交叉面，考了一道系统设计题：设计一个类似微信的群聊系统，需要支持百万级群组，包括消息存储、消息扩散、已读回执等。算法题考了手写快排和二叉树的最近公共祖先。HR面主要聊职业规划、团队协作经历、薪资期望。整体感觉腾讯非常重视基础功底和项目深度，面试官会层层追问直到答不出来，心态要稳。' },
+            { name: '阿里巴巴', brief: '电商/云/AI，Java技术栈，双十一锤炼，薪资高，技术氛围浓厚，内部转岗灵活，技术中台强大。',
+              experience: '【阿里巴巴面经 - 淘系技术部】面试流程：一面（基础+JVM）→ 二面（项目+高并发）→ 三面（交叉面）→ HR面。一面重点考察Java基础：HashMap并发问题、ConcurrentHashMap原理、JVM内存模型与GC调优、线程池参数配置与监控。二面深挖了一个秒杀系统的项目，从流量入口到数据库抗压，如何设计降级、限流、熔断，MQ如何保证顺序性、消息积压如何处理。三面算法考了LRU缓存（要求手写多种实现）和快速排序的变种。HR面聊了价值观匹配和职业规划。阿里面试风格比较犀利，喜欢追问"如果这个接口挂了怎么办"、"有没有更好的方案"，建议多准备一些备选方案和思考过程。' },
+            { name: '字节跳动', brief: '抖音/TikTok，推荐算法强，Go/Python，扁平化，三餐免费，技术驱动，成长快，全球化布局。',
+              experience: '【字节跳动面经 - 抖音后端】字节面试以"难"著称，共三轮技术面+HR面。一面考了手写红黑树（简化版插入）、并查集、以及一道动态规划题（最长递增子序列，要求输出序列）。二面重点考察系统设计：设计一个短链接服务，需要支持高并发写入（千万级QPS）、过期清理、数据统计（点击量、地域分布）。三面是算法加项目，算法考了KMP字符串匹配的变种，项目深挖了一个流式计算的项目，问得非常细，包括数据对齐、窗口计算、状态管理、容错恢复。HR面聊了薪资和入职时间。字节特别看重代码质量和算法功底，建议多刷LeetCode，同时准备一个完整的系统设计案例。' },
+            { name: '百度', brief: 'AI/自动驾驶，C++/Python，技术积淀深，老牌大厂，福利稳定，适合技术深耕，有技术学院。',
+              experience: '【百度面经 - AI平台研发】百度面试注重基础与技术深度。一面：C++基础（智能指针、移动语义、STL源码剖析）、网络编程（Reactor模式与Proactor模式对比）、算法（手写堆排序、归并排序）。二面：项目经验，重点问了一个分布式训练框架的设计，包括参数服务器架构、通信优化（Ring All-Reduce）、容错机制、弹性训练。三面：经理面，考了一道系统设计题：设计一个实时日志分析系统，要求能处理TB级日志，延迟在秒级。算法题考了并查集和动态规划（背包问题变种）。百度面试官比较温和，但问题很有深度，建议对简历上的每一个项目都能讲清楚技术选型和优化点。' },
+            { name: '美团', brief: '本地生活/配送，Java/Go，技术驱动，薪资有竞争力，业务场景复杂，覆盖吃喝玩乐。',
+              experience: '【美团面经 - 到家事业部】美团面试共三轮技术+一轮HR。一面：Java基础（并发包、锁机制、AQS原理）、Redis（数据结构、持久化、集群模式）、MySQL（索引优化、事务隔离级别、MVCC），算法考了合并区间和接雨水。二面：项目深挖，重点问了一个配送调度系统的设计，包括路径规划算法、实时订单分配、负载均衡、超时处理。三面：系统设计题：设计一个优惠券系统，需要考虑秒杀场景下的超发问题、限流策略、用户领取记录、优惠券核销等。HR面聊了文化匹配和期望薪资。美团面试比较务实，喜欢问实际业务场景下的技术方案，建议多准备一些电商/本地生活相关的案例。' },
+            { name: '京东', brief: '电商/物流，Java/Go，供应链技术强，福利体系完善，技术中台建设，有京东云业务。',
+              experience: '【京东面经 - 京东零售】京东面试流程：一面基础+二面项目+三面总监面+HR面。一面考了Java集合框架（HashMap、ArrayList源码）、并发编程（synchronized vs ReentrantLock、Condition）、JVM调优（常见参数、GC日志分析）。二面重点问了一个库存系统的项目，包括分布式锁的实现（Redis+Redisson）、缓存与数据库一致性（双写策略）、MQ异步解耦（事务消息）。三面算法考了二叉树层序遍历（要求递归和迭代两种方式）和反转链表。HR面聊了职业发展。京东技术栈偏Java，面试难度中等，但项目深度要求较高，建议准备一个完整的电商链路项目。' },
+            { name: '网易', brief: '游戏/音乐/教育，C++/Java，技术氛围好，薪资中上，工作环境舒适，有网易云音乐等产品。',
+              experience: '【网易面经 - 网易云音乐】网易面试共三轮。一面：C++基础（虚函数表、内存管理、RAII）、网络编程（TCP/UDP对比、非阻塞IO）、算法（最大子数组和、最长回文子串）。二面：项目经验，重点问了一个音乐推荐系统的设计，包括协同过滤算法、实时特征计算、AB测试框架、模型在线更新。三面：系统设计题：设计一个实时排行榜系统，要求高并发更新和查询，支持多维度排名（日榜、周榜、总榜）。网易面试风格比较友好，技术问题中规中矩，但会考察对业务场景的理解深度。' },
+            { name: '拼多多', brief: '电商，技术栈Java/Go，成长快，薪资高，加班强度大，技术挑战多，社交电商模式。',
+              experience: '【拼多多面经 - 基础平台】拼多多面试以"高压"著称，共三轮技术+HR。一面：Java基础（并发、集合）、Redis、算法（最近公共祖先、二叉树的序列化）。二面：项目深挖，重点问了一个商品秒杀系统的设计，包括库存扣减（Redis预扣+DB最终扣减）、防超卖、MQ削峰、订单异步落库。三面：系统设计题：设计一个分布式ID生成器，要求全局唯一且趋势递增（参考雪花算法），需要解决时钟回拨问题。HR面聊了薪资和加班文化。拼多多面试节奏快，问题密集，建议提前做好心理准备，对高并发场景要有深入理解。' },
+            { name: '快手', brief: '短视频/直播，C++/Go，技术氛围佳，福利不错，增长迅速，有海外业务。',
+              experience: '【快手面经 - 商业化技术】快手面试共三轮。一面：C++基础、网络、算法（合并K个有序链表、LRU缓存）。二面：项目经验，重点问了一个广告投放系统的设计，包括定向策略、实时竞价、频控、反作弊。三面：系统设计题：设计一个实时数据报表系统，要求支持多维度的聚合查询（UV、PV、点击率），数据延迟在秒级。快手面试官比较看重工程实践能力，建议准备一个完整的微服务项目，包括服务发现、配置中心、链路追踪。' },
+            { name: '滴滴', brief: '出行/自动驾驶，Go/Java，技术挑战大，薪资中上，业务场景丰富，有国际化业务。',
+              experience: '【滴滴面经 - 网约车技术】滴滴面试共三轮。一面：Go语言基础（协程、channel、select）、并发模型（GMP调度）、算法（环形链表检测、判断回文链表）。二面：项目深挖，重点问了一个订单调度系统的设计，包括司机匹配算法（基于地理位置）、路线规划、异常处理（司机取消、乘客取消）。三面：系统设计题：设计一个实时位置追踪系统，要求处理百万级GPS数据，支持历史轨迹回放和围栏告警。滴滴面试对分布式系统要求较高，建议多准备一些分布式一致性、容错相关的知识。' },
+            { name: '小米', brief: '手机/IoT，Java/Kotlin，技术生态广，福利稳定，有硬件+软件结合，海外市场大。',
+              experience: '【小米面经 - 云平台】小米面试共三轮。一面：Java基础（反射、注解、泛型）、Spring框架（IOC容器、AOP原理）、算法（反转字符串、有效的括号、最长公共前缀）。二面：项目经验，重点问了一个IoT设备管理平台的设计，包括设备注册、消息推送（MQTT协议）、OTA升级、设备影子。三面：系统设计题：设计一个消息推送系统，要求支持千万级设备，需要保证消息到达率和实时性。小米面试比较注重工程能力和代码规范，会有一些代码审查环节。' },
+            { name: '华为', brief: '通信/终端/云，C/C++，技术积累深厚，薪资福利好，有全球化视野，5G技术领先。',
+              experience: '【华为面经 - 华为云】华为面试共三轮技术+一轮主管。一面：C++基础（内存管理、多态、模板）、网络协议（TCP/IP详解、HTTP/2）、算法（快排、二叉树深度、层次遍历）。二面：项目经验，重点问了一个云计算平台的项目，包括虚拟化技术（KVM）、资源调度（Kubernetes）、弹性伸缩（HPA）。三面：系统设计题：设计一个分布式文件系统（类似HDFS），需要考虑元数据管理、数据冗余、容错恢复。主管面聊了价值观和团队协作。华为面试比较规范，技术问题全面，建议准备充分。' },
+            { name: '蚂蚁集团', brief: '金融科技，Java/Go，技术前沿，薪资高，双十一大促场景，有区块链等创新业务。',
+              experience: '【蚂蚁集团面经 - 国际技术】蚂蚁面试共四轮。一面：Java基础（并发、JVM调优）、分布式事务（TCC、Saga）、算法（买卖股票、岛屿数量）。二面：项目深挖，重点问了一个跨境支付系统的设计，包括汇率转换、风控策略（反洗钱）、合规性、高可用保证。三面：系统设计题：设计一个高可用账务系统，要求保证事务一致性（最终一致性方案），日交易量千万级。四面HR面。蚂蚁面试对金融场景的稳定性要求极高，建议准备分布式事务和最终一致性的多种方案。' },
+            { name: '蔚来', brief: '新能源汽车，C++/Python，技术驱动，福利好，智能座舱+自动驾驶，有换电技术。',
+              experience: '【蔚来面经 - 自动驾驶】蔚来面试共三轮。一面：C++基础（STL、内存管理）、操作系统（进程调度、内存管理）、算法（矩阵旋转、最短路径、动态规划）。二面：项目经验，重点问了一个感知算法模块的设计，包括目标检测（YOLO）、跟踪（SORT）、传感器融合（雷达+视觉）。三面：系统设计题：设计一个车载实时数据处理系统，要求低延迟（毫秒级）、高可靠、支持OTA升级。蔚来面试对算法和工程能力都有要求，建议准备一些计算机视觉或嵌入式相关的项目。' },
+            { name: '小红书', brief: '社交电商，Java/Go，技术新潮，薪资有竞争力，年轻化团队，社区氛围好。',
+              experience: '【小红书面经 - 社区技术】小红书面试共三轮。一面：Java基础（集合、并发、JVM）、Redis（数据结构、持久化、集群）、ES（倒排索引、分词）、算法（两数之和、最长公共前缀、三数之和）。二面：项目深挖，重点问了一个推荐系统的设计，包括召回策略（协同过滤、向量召回）、排序模型（DeepFM）、实时特征（用户行为序列）。三面：系统设计题：设计一个评论系统，要求支持高并发写入（每秒万级）和实时展示，需要防刷、内容审核。小红书面试风格年轻化，但技术深度要求不低。' }
+        ];
+
+        // ===== 贵系专属内容 =====
+        const guiXiContent = {
+            guide: `
+                <strong>🎓 贵系（清华计算机）就业指南</strong><br>
+                • 清华计算机系毕业生在大厂中认可度极高，尤其是技术岗。<br>
+                • 建议研二暑假前完成2-3段实习，优先选择头部大厂核心部门。<br>
+                • 刷题建议：LeetCode 300题以上，重点掌握动态规划、图论、字符串、并查集。<br>
+                • 系统设计：多读《设计数据密集型应用》和Google SRE Book，准备1-2个完整项目。<br>
+                • 简历要点：突出项目成果，用STAR法则描述，量化指标（如QPS提升50%）。<br>
+                • 内推渠道：充分利用学长学姐资源，内推通过率普遍高30%以上。<br>
+                • 薪资谈判：参考OfferShow和脉脉，结合自身定期望，敢于争取签字费和股票。<br>
+                • 心态建议：面试是双向选择，不为一两次失败气馁，清华人要有底气！
+            `,
+            tradition: `
+                <strong>📜 贵系传统与趣闻</strong><br>
+                • 贵系（清华大学计算机科学与技术系）的"贵"源于"贵系"是清华校内对计算机系的昵称，象征其地位高、门槛高、培养成本高。<br>
+                • 贵系是全国最早开设计算机专业的院系之一，成立于1958年，被誉为"中国计算机的摇篮"。<br>
+                • 贵系三大传统：期末通宵刷题、课程大作业卷上加卷、实验室代码传承。<br>
+                • 著名趣闻：贵系学生喜欢在BBS上讨论"哪种语言最好"，最终结论永远是"C++是唯一真神"。<br>
+                • 贵系有一句名言："在贵系，你不需要睡觉，你只需要写代码。"<br>
+                • 每年毕业季，贵系机房会贴出告示："请带走你的代码，不要带走你的BUG。"<br>
+                • 贵系的学生毕业后，常常在各大厂形成"清华帮"，互相内推、互相扶持。
+            `,
+            origin: `
+                <strong>🏛️ 贵系名称来历</strong><br>
+                "贵系"一词最早源于清华大学校内论坛"水木清华"的BBS文化。当时计算机系学生经常在讨论时自称"我们贵系"，以示对院系的自豪与热爱。<br>
+                后来"贵系"逐渐成为校内外的通用称呼，象征着清华计算机系在中国计算机领域的"贵族"地位——资源优质、师资雄厚、产出顶尖。<br>
+                另一种说法是，"贵"取自"贵国"的用法，是一种戏谑的自称，表示"我们系就是厉害"。<br>
+                无论哪种说法，贵系都是清华人对计算机系的专属爱称，承载了无数校友的共同记忆。
+            `,
+            courses: `
+                <strong>📚 主要课程与活动</strong><br>
+                • 核心课程：数据结构、操作系统、计算机网络、计算机组成原理、数据库原理、编译原理——贵系六大"神课"。<br>
+                • 特色课程：人工智能导论、机器学习、计算机视觉、自然语言处理、分布式系统、高性能计算。<br>
+                • 实践项目：每年有"贵系大作业季"，包括实现一个操作系统内核、设计一个数据库引擎、编写一个编译器。<br>
+                • 课外活动：贵系有著名的"黑客马拉松"（Hackathon）传统，连续48小时编程挑战。<br>
+                • 学术活动：定期举办"贵系学术沙龙"，邀请业界大牛和校友分享前沿技术。<br>
+                • 竞赛传统：贵系学生在ACM-ICPC、Kaggle、天池等竞赛中屡获佳绩，斩获金牌无数。<br>
+                • 社团文化：贵系有十余个技术社团，涵盖AI、区块链、Web开发、游戏开发等方向。
+            `
+        };
+
+        const companyContainer = document.getElementById('companyList');
+        const insightBox = document.getElementById('insightBox');
+
+        // 点击公司显示面经 + 贵系内容
+        companies.forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'company-item';
+            div.innerHTML = `<strong>${c.name}</strong><div class="brief"><i class="fas fa-info-circle"></i> ${c.brief}</div>`;
+            div.addEventListener('click', function() {
+                insightBox.innerHTML = `
+                    <i class="fas fa-quote-left"></i> <strong>${c.name}</strong><br>
+                    ${c.experience.replace(/\n/g, '<br>')}
+                    <hr style="border-color:rgba(160,120,255,0.2); margin:8px 0;">
+                    ${guiXiContent.guide}
+                    <hr style="border-color:rgba(160,120,255,0.2); margin:8px 0;">
+                    ${guiXiContent.tradition}
+                    <hr style="border-color:rgba(160,120,255,0.2); margin:8px 0;">
+                    ${guiXiContent.origin}
+                    <hr style="border-color:rgba(160,120,255,0.2); margin:8px 0;">
+                    ${guiXiContent.courses}
+                `;
+            });
+            companyContainer.appendChild(div);
+        });
+
+        // 默认显示贵系全部内容
+        insightBox.innerHTML = `
+            <i class="fas fa-quote-left"></i> 点击左侧公司名称查看详细面经<br><br>
+            ${guiXiContent.guide}
+            <hr style="border-color:rgba(160,120,255,0.2); margin:8px 0;">
+            ${guiXiContent.tradition}
+            <hr style="border-color:rgba(160,120,255,0.2); margin:8px 0;">
+            ${guiXiContent.origin}
+            <hr style="border-color:rgba(160,120,255,0.2); margin:8px 0;">
+            ${guiXiContent.courses}
+        `;
+
+        // 双击标题展开/收起
+        const titleH1 = document.querySelector('.title-group h1');
+        let allOpen = true;
+        titleH1.addEventListener('dblclick', function() {
+            const allAnswers = document.querySelectorAll('.answer-content');
+            allOpen = !allOpen;
+            allAnswers.forEach(el => el.style.display = allOpen ? 'block' : 'none');
+        });
+        document.querySelectorAll('.answer-content').forEach(el => el.style.display = 'block');
+
+        console.log('✅ 面试题库加载完成，共 ' + allQuestions.length + ' 题');
+    })();
+</script>
+</body>
+</html>

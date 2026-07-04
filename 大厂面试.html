@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>大厂面试 · 紫黑玻璃 · HR助手</title>
+  <!-- Font Awesome 6 (免费) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #0b0710;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .glass-container {
+      max-width: 1480px;
+      width: 100%;
+      background: rgba(30, 18, 48, 0.45);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-radius: 3.5rem;
+      padding: 2.5rem 2.8rem;
+      box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(180, 130, 255, 0.25);
+      border: 1px solid rgba(160, 120, 255, 0.15);
+      position: relative;
+    }
+
+    /* 头部 */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 1.8rem;
+      border-bottom: 1px solid rgba(180, 130, 255, 0.2);
+      padding-bottom: 1.2rem;
+    }
+
+    .title-group h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #e0d0ff 0%, #b28aff 60%, #9f7aff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 20px rgba(150, 100, 255, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      cursor: default;
+    }
+
+    .title-group h1 i {
+      font-size: 2.4rem;
+      color: #b28aff;
+      filter: drop-shadow(0 0 8px #a07cff);
+    }
+
+    .subtitle {
+      color: rgba(210, 185, 255, 0.7);
+      font-weight: 400;
+      margin-top: 6px;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .stats-badge {
+      background: rgba(120, 80, 200, 0.25);
+      backdrop-filter: blur(4px);
+      padding: 0.6rem 1.6rem;
+      border-radius: 60px;
+      border: 1px solid rgba(180, 130, 255, 0.3);
+      color: #d4c0ff;
+      font-weight: 500;
+      font-size: 1rem;
+      box-shadow: 0 0 20px rgba(130, 80, 255, 0.15);
+      white-space: nowrap;
+    }
+
+    /* 布局：左侧列表 + 右侧面板 */
+    .main-layout {
+      display: flex;
+      gap: 2rem;
+      margin-top: 0.5rem;
+    }
+
+    .left-column {
+      flex: 2.2;
+      min-width: 0;
+    }
+
+    .right-column {
+      flex: 1.2;
+      min-width: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+    }
+
+    /* 过滤标签 */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-tag {
+      background: rgba(50, 30, 80, 0.4);
+      backdrop-filter: blur(4px);
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      border: 1px solid rgba(170, 140, 255, 0.2);
+      color: #cdbcff;
+      font-size: 0.9rem;
+      font-weight: 450;
+      transition: all 0.2s;
+      cursor: default;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .filter-tag i { margin-right: 8px; color: #a885ff; }
+    .filter-tag.active {
+      background: rgba(130, 80, 255, 0.35);
+      border-color: #a07cff;
+      box-shadow: 0 0 20px rgba(140, 100, 255, 0.3);
+      color: #f0ebff;
+    }
+
+    /* 题目网格 — 滚动 */
+    .question-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .question-card {
+      background: rgba(22, 12, 40, 0.55);
+      backdrop-filter: blur(12px) saturate(150%);
+      border-radius: 2rem;
+      padding: 1.5rem 1.5rem 1.3rem;
+      border: 1px solid rgba(160, 120, 255, 0.2);
+      box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(200, 170, 255, 0.15);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .question-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(180, 130, 255, 0.5);
+      box-shadow: 0 24px 48px -12px #1f0f3a, 0 0 0 1px rgba(170, 130, 255, 0.3);
+      background: rgba(30, 18, 52, 0.7);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+
+    .q-number {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #b69eff;
+      background: rgba(100, 70, 180, 0.3);
+      padding: 0.2rem 1rem;
+      border-radius: 40px;
+      border: 1px solid rgba(150, 120, 255, 0.2);
+    }
+
+    .q-tag {
+      font-size: 0.7rem;
+      background: rgba(180, 130, 255, 0.15);
+      padding: 0.2rem 0.8rem;
+      border-radius: 30px;
+      color: #cbb5ff;
+      border: 1px solid rgba(150, 110, 255, 0.15);
+    }
+
+    .question-text {
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: #ede6ff;
+      margin: 0.2rem 0 0.6rem;
+    }
+
+    .question-text i { color: #b28aff; margin-right: 6px; opacity: 0.6; }
+
+    .answer-area {
+      margin-top: 0.2rem;
+      border-top: 1px solid rgba(160, 120, 255, 0.15);
+      padding-top: 0.7rem;
+    }
+
+    .answer-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #b9a5f0;
+      font-weight: 450;
+      font-size: 0.8rem;
+      cursor: pointer;
+      background: rgba(80, 50, 140, 0.15);
+      padding: 0.2rem 1rem 0.2rem 0.8rem;
+      border-radius: 40px;
+      border: 1px solid transparent;
+      transition: 0.2s;
+    }
+
+    .answer-toggle:hover {
+      color: #d7c6ff;
+      background: rgba(120, 80, 200, 0.2);
+      border-color: rgba(160, 120, 255, 0.3);
+    }
+
+    .answer-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1), opacity 0.25s;
+      opacity: 0;
+      color: #d4c6f5;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      padding: 0 0.2rem;
+      background: rgba(20, 10, 38, 0.3);
+      border-radius: 16px;
+      margin-top: 0;
+    }
+
+    .answer-content.show {
+      max-height: 400px;
+      opacity: 1;
+      padding: 0.7rem 1rem;
+      margin-top: 0.6rem;
+      border-left: 2px solid rgba(160, 120, 255, 0.3);
+    }
+
+    .fa-chevron-down { transition: transform 0.3s; }
+    .rotate-icon { transform: rotate(180deg); }
+
+    /* 右侧卡片 */
+    .info-card {
+      background: rgba(22, 12, 40, 0.5);
+      backdrop-filter: blur(12px);
+      border-radius: 2rem;
+      padding: 1.5rem 1.4rem;
+      border: 1px solid rgba(160, 120, 255, 0.2);
+      box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
+    }
+
+    .info-card h3 {
+      color: #d4c0ff;
+      font-weight: 500;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(160, 120, 255, 0.15);
+      padding-bottom: 0.6rem;
+    }
+
+    .info-card h3 i { color: #b28aff; }
+
+    .info-card ul, .info-card p {
+      color: #cdbcff;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      list-style: none;
+    }
+
+    .info-card li { margin-bottom: 0.3rem; }
+    .info-card li i { color: #a885ff; width: 1.4rem; }
+
+    .template-box {
+      background: rgba(10, 5, 20, 0.4);
+      border-radius: 1.2rem;
+      padding: 0.8rem 1rem;
+      font-size: 0.85rem;
+      border-left: 3px solid #a07cff;
+      margin-top: 0.5rem;
+      color: #d9ccf5;
+    }
+
+    /* HR 问答框 */
+    .hr-chat {
+      background: rgba(22, 12, 40, 0.5);
+      backdrop-filter: blur(12px);
+      border-radius: 2rem;
+      padding: 1.5rem 1.4rem;
+      border: 1px solid rgba(160, 120, 255, 0.2);
+      box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
+    }
+
+    .hr-chat h3 {
+      color: #d4c0ff;
+      font-weight: 500;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(160, 120, 255, 0.15);
+      padding-bottom: 0.6rem;
+    }
+
+    .chat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chat-input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-input-group input {
+      flex: 1;
+      background: rgba(10, 5, 25, 0.6);
+      border: 1px solid rgba(160, 120, 255, 0.25);
+      border-radius: 40px;
+      padding: 0.7rem 1.2rem;
+      color: #ede6ff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: 0.2s;
+      backdrop-filter: blur(4px);
+    }
+
+    .chat-input-group input::placeholder { color: rgba(180, 160, 220, 0.5); }
+    .chat-input-group input:focus { border-color: #a885ff; box-shadow: 0 0 16px rgba(140, 100, 255, 0.2); }
+
+    .chat-input-group button {
+      background: rgba(130, 80, 255, 0.3);
+      border: 1px solid rgba(160, 120, 255, 0.3);
+      border-radius: 40px;
+      padding: 0 1.4rem;
+      color: #ede6ff;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      backdrop-filter: blur(4px);
+      white-space: nowrap;
+    }
+
+    .chat-input-group button:hover {
+      background: rgba(150, 100, 255, 0.4);
+      border-color: #b28aff;
+      box-shadow: 0 0 20px rgba(140, 100, 255, 0.3);
+    }
+
+    .chat-messages {
+      background: rgba(10, 5, 20, 0.3);
+      border-radius: 1.4rem;
+      padding: 0.8rem 1rem;
+      min-height: 90px;
+      max-height: 160px;
+      overflow-y: auto;
+      border: 1px solid rgba(160, 120, 255, 0.1);
+    }
+
+    .chat-msg {
+      color: #d4c6f5;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      padding: 0.2rem 0;
+      border-bottom: 1px solid rgba(160, 120, 255, 0.05);
+    }
+
+    .chat-msg i { margin-right: 8px; color: #a885ff; width: 1.2rem; }
+    .chat-msg.hr i { color: #c6adff; }
+
+    /* 滚动 */
+    ::-webkit-scrollbar { width: 5px; background: #1c112c; }
+    ::-webkit-scrollbar-thumb { background: #6f4d9e; border-radius: 20px; }
+    ::-webkit-scrollbar-thumb:hover { background: #8b66c4; }
+
+    @media (max-width: 1000px) {
+      .main-layout { flex-direction: column; }
+      .right-column { flex: 1; min-width: 0; }
+      .question-grid { max-height: 480px; }
+    }
+    @media (max-width: 700px) {
+      .glass-container { padding: 1.5rem 1rem; }
+      .title-group h1 { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="glass-container">
+  <!-- 头部 -->
+  <div class="header">
+    <div class="title-group">
+      <h1><i class="fas fa-code"></i> 面试·100题</h1>
+      <div class="subtitle">
+        <i class="fas fa-graduation-cap"></i> 清华紫黑 · 大厂真题
+        <span style="margin-left: 10px; opacity:0.4;">|</span>
+        <i class="fas fa-user-tie" style="margin-left: 8px;"></i> HR 助手
+      </div>
+    </div>
+    <div class="stats-badge"><i class="fas fa-list-ul"></i> 100 道 · 无重复</div>
+  </div>
+
+  <!-- 主布局 -->
+  <div class="main-layout">
+    <!-- 左侧：题目列表 -->
+    <div class="left-column">
+      <div class="filter-bar">
+        <span class="filter-tag active"><i class="fas fa-layer-group"></i> 全部</span>
+        <span class="filter-tag"><i class="fas fa-code"></i> 算法</span>
+        <span class="filter-tag"><i class="fas fa-database"></i> 系统设计</span>
+        <span class="filter-tag"><i class="fas fa-microchip"></i> 基础</span>
+        <span class="filter-tag"><i class="fas fa-puzzle-piece"></i> 智力题</span>
+      </div>
+      <div class="question-grid" id="questionGrid"></div>
+    </div>
+
+    <!-- 右侧：流程 + 模板 + HR问答 -->
+    <div class="right-column">
+      <!-- 面试流程 -->
+      <div class="info-card">
+        <h3><i class="fas fa-timeline"></i> 大厂面试流程</h3>
+        <ul>
+          <li><i class="fas fa-file-signature"></i> 简历筛选 / 内推</li>
+          <li><i class="fas fa-phone-alt"></i> HR 初步沟通 (10-20min)</li>
+          <li><i class="fas fa-laptop-code"></i> 笔试 / 在线编码 (2-3题)</li>
+          <li><i class="fas fa-users"></i> 技术一面 (基础+算法)</li>
+          <li><i class="fas fa-users"></i> 技术二面 (项目+系统设计)</li>
+          <li><i class="fas fa-users"></i> 交叉面 / 总监面</li>
+          <li><i class="fas fa-handshake"></i> HR 终面 (薪资+文化)</li>
+          <li><i class="fas fa-check-circle"></i> Offer 发放</li>
+        </ul>
+      </div>
+
+      <!-- 自我介绍模板 -->
+      <div class="info-card">
+        <h3><i class="fas fa-user-edit"></i> 自我介绍模板</h3>
+        <div class="template-box">
+          <p><i class="fas fa-quote-left" style="color:#a885ff;"></i> 面试官好，我是 <strong>XXX</strong>，<br>
+          毕业于 <strong>XX大学</strong> · 计算机相关专业。<br>
+          有 <strong>X年</strong> 后端开发经验，曾在 <strong>XX公司</strong> 负责 <strong>XX项目</strong>。<br>
+          技术栈：Java / Go / Python，熟悉微服务、高并发。<br>
+          平时喜欢钻研技术，也写博客/参与开源。<br>
+          今天非常期待与您交流，谢谢！
+          </p>
+        </div>
+        <p style="margin-top: 10px; font-size:0.8rem; color:#b09ad9;">
+          <i class="fas fa-lightbulb"></i> 建议时长1-2分钟，突出亮点
+        </p>
+      </div>
+
+      <!-- HR 问答框 -->
+      <div class="hr-chat">
+        <h3><i class="fas fa-comment-dots"></i> HR 智能问答</h3>
+        <div class="chat-box">
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg hr"><i class="fas fa-user-tie"></i> 你好！我是大厂HR，有什么面试问题可以问我～</div>
+          </div>
+          <div class="chat-input-group">
+            <input type="text" id="chatInput" placeholder="例如：薪资怎么谈？" />
+            <button id="sendBtn"><i class="fas fa-paper-plane"></i> 问</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---------- 无重复 100 道题库 (扩展版) ----------
+    const uniqueQuestions = [
+      { q: 'HTTPS 的握手过程？', a: 'TCP三次握手 + TLS四次握手：Client Hello、Server Hello、证书验证、密钥交换、完成。' },
+      { q: 'Redis 持久化方式？', a: 'RDB快照与AOF日志，可混合使用。' },
+      { q: '进程与线程的区别？', a: '进程资源隔离，线程共享内存；线程轻量，进程更重。' },
+      { q: 'TCP 和 UDP 的区别？', a: 'TCP可靠有序，UDP不可靠但快速。' },
+      { q: '死锁是什么？如何避免？', a: '循环等待资源，破坏四大条件之一。' },
+      { q: 'MySQL 索引底层？', a: 'B+树，叶子存数据，非叶子存索引。' },
+      { q: 'JVM 内存模型？', a: '堆、栈、方法区、PC、本地方法栈。' },
+      { q: 'Spring IOC 和 AOP？', a: 'IOC控制反转，AOP面向切面。' },
+      { q: 'CAP 定理？', a: '一致性、可用性、分区容错三选二。' },
+      { q: '一致性哈希？', a: '哈希环解决动态扩缩容数据迁移。' },
+      { q: 'Linux 查看端口？', a: 'netstat -tulpn 或 lsof -i :端口' },
+      { q: 'volatile 作用？', a: '可见性，禁止重排序，不保证原子性。' },
+      { q: 'RESTful API？', a: 'HTTP方法操作资源，无状态。' },
+      { q: '事务 ACID？', a: '原子性、一致性、隔离性、持久性。' },
+      { q: '微服务优缺点？', a: '独立部署，但分布式复杂。' },
+      { q: 'DNS 解析？', a: '本地缓存→DNS服务器→根→顶级→权威。' },
+      { q: '秒杀系统设计？', a: '限流、缓存、MQ异步、分库分表。' },
+      { q: '排序时间复杂度？', a: '快排/归并 O(n log n)，冒泡 O(n²)。' },
+      { q: '线程池参数？', a: 'core, max, keepAlive, queue, handler。' },
+      { q: 'Nginx 反向代理？', a: '转发请求，负载均衡，SSL。' },
+      { q: 'JWT 是什么？', a: 'JSON Web Token，无状态认证。' },
+      { q: 'Kafka 为什么快？', a: '顺序写，零拷贝，分区，批量。' },
+      { q: '双亲委派模型？', a: '父类加载器优先，保证核心类安全。' },
+      { q: 'HTTP 502 vs 504？', a: '502网关错误，504超时。' },
+      { q: '消息队列顺序性？', a: '分区有序，单线程消费。' },
+      { q: 'MVCC？', a: '多版本并发控制，提高并发。' },
+      { q: '高并发理解？', a: '从负载均衡、缓存、异步、限流设计。' },
+      { q: '零拷贝？', a: '避免CPU拷贝，如sendfile。' },
+      { q: 'Cookie vs Session？', a: 'Cookie客户端，Session服务端。' },
+      { q: '链表有环判断？', a: '快慢指针，相遇则有环。' },
+      { q: 'SQL 优化？', a: '索引、避免*、分页、EXPLAIN。' },
+      { q: 'Docker 是什么？', a: '容器化，镜像部署。' },
+      { q: 'K8s 核心组件？', a: 'API Server, etcd, Scheduler, Controller, Kubelet, Proxy。' },
+      { q: '缓存穿透解决？', a: '布隆过滤器，空对象缓存。' },
+      { q: 'Dubbo 是什么？', a: 'RPC框架，服务治理。' },
+      { q: 'HashMap 底层？', a: '数组+链表/红黑树。' },
+      { q: 'XSS 和 CSRF？', a: '跨站脚本和跨站请求伪造，过滤+Token。' },
+      { q: 'Git rebase vs merge？', a: 'rebase线性历史，merge保留分支。' },
+      { q: 'RPC 是什么？', a: '远程过程调用，如gRPC。' },
+      { q: '分布式事务方案？', a: '2PC, TCC, 本地消息表, Saga。' },
+      { q: '什么是负载均衡？', a: '分发请求到多个服务器，如Nginx、LVS。' },
+      { q: '消息队列选型？', a: 'Kafka高吞吐，RabbitMQ可靠，RocketMQ金融级。' },
+      { q: '什么是熔断？', a: '服务降级保护，如Hystrix。' },
+      { q: 'CDN 原理？', a: '内容分发网络，就近访问。' },
+      { q: '如何设计一个短链接？', a: '哈希编码，存储映射，重定向。' },
+      { q: '什么是幂等性？', a: '多次请求结果一致，用唯一ID或乐观锁。' },
+      { q: '数据库范式？', a: '1NF原子，2NF消除部分依赖，3NF消除传递依赖。' },
+      { q: '什么是B树？', a: '多路平衡搜索树，用于磁盘存储。' },
+      { q: '什么是跳表？', a: '有序链表+多级索引，Redis有序集合使用。' },
+      { q: '线程状态？', a: 'NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED。' },
+      { q: '什么是GC？', a: '垃圾回收，自动内存管理。' },
+      { q: '什么是类加载机制？', a: '加载、验证、准备、解析、初始化。' },
+      { q: '什么是代理模式？', a: '为对象提供代理，控制访问。' },
+      { q: '什么是工厂模式？', a: '创建对象，解耦。' },
+      { q: '什么是单例模式？', a: '确保类只有一个实例。' },
+      { q: '什么是观察者模式？', a: '状态变化通知依赖对象。' },
+      { q: '什么是装饰器模式？', a: '动态添加功能。' },
+      { q: '什么是策略模式？', a: '算法封装，可切换。' },
+      { q: '什么是适配器模式？', a: '接口转换。' },
+      { q: '什么是责任链模式？', a: '请求沿链传递。' },
+      { q: '什么是线程安全？', a: '多个线程访问共享数据不会出错。' },
+      { q: '什么是可重入锁？', a: '同一线程可多次获取。' },
+      { q: '什么是公平锁/非公平锁？', a: '公平按顺序，非公平可抢占。' },
+      { q: '什么是读写锁？', a: '读共享，写独占。' },
+      { q: '什么是CAS？', a: '比较并交换，乐观锁。' },
+      { q: '什么是ABA问题？', a: 'CAS中值被改回原值，用版本号解决。' },
+      { q: '什么是ThreadLocal？', a: '线程局部变量。' },
+      { q: '什么是ThreadPool？', a: '线程池复用线程。' },
+      { q: '什么是Future？', a: '异步计算结果。' },
+      { q: '什么是CompletableFuture？', a: '异步编程增强。' },
+      { q: '什么是Redis集群？', a: '分片+主从+哨兵。' },
+      { q: '什么是哨兵模式？', a: '监控主从，自动故障转移。' },
+      { q: '什么是缓存雪崩？', a: '缓存大量失效，击穿数据库。' },
+      { q: '什么是缓存击穿？', a: '热点key失效。' },
+      { q: '什么是缓存预热？', a: '系统启动加载缓存。' },
+      { q: '什么是布隆过滤器？', a: '概率型数据结构，判断存在。' },
+      { q: '什么是限流？', a: '控制流量，如令牌桶、漏桶。' },
+      { q: '什么是降级？', a: '服务降级，保证核心功能。' },
+      { q: '什么是灰度发布？', a: '逐步放量新版本。' },
+      { q: '什么是AB测试？', a: '对比实验。' },
+      { q: '什么是容器化？', a: 'Docker封装环境。' },
+      { q: '什么是编排？', a: 'K8s管理容器。' },
+      { q: '什么是声明式API？', a: '描述期望状态，由系统实现。' },
+      { q: '什么是Service Mesh？', a: '服务网格，如Istio。' },
+      { q: '什么是Sidecar？', a: '边车模式，辅助服务。' },
+      { q: '什么是gRPC？', a: '高性能RPC，基于HTTP/2。' },
+      { q: '什么是Protobuf？', a: '高效序列化协议。' },
+      { q: '什么是GraphQL？', a: '查询语言，灵活获取数据。' },
+      { q: '什么是WebSocket？', a: '全双工通信。' },
+      { q: '什么是SSE？', a: '服务器推送事件。' },
+      { q: '什么是OAuth2？', a: '授权框架。' },
+      { q: '什么是JWT？', a: '身份认证令牌。' },
+      { q: '什么是SAML？', a: '安全断言标记语言。' },
+      { q: '什么是LDAP？', a: '轻量级目录访问协议。' },
+      { q: '什么是ActiveMQ？', a: '消息中间件。' },
+      { q: '什么是RabbitMQ？', a: '消息队列，支持AMQP。' },
+      { q: '什么是Kafka？', a: '分布式消息系统。' },
+      { q: '什么是Pulsar？', a: '云原生消息平台。' },
+      { q: '什么是Elasticsearch？', a: '搜索引擎，基于Lucene。' },
+      { q: '什么是Logstash？', a: '日志收集处理。' },
+      { q: '什么是Kibana？', a: '数据可视化。' },
+      { q: '什么是Prometheus？', a: '监控告警。' },
+      { q: '什么是Grafana？', a: '监控面板。' },
+      { q: '什么是APM？', a: '应用性能监控。' },
+      { q: '什么是分布式链路追踪？', a: '如Jaeger, Zipkin。' },
+    ];
+
+    // 确保正好100条 (若不足则循环补充，但已超100，取前100)
+    const finalQuestions = uniqueQuestions.slice(0, 100);
+
+    // 打乱顺序
+    for (let i = finalQuestions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [finalQuestions[i], finalQuestions[j]] = [finalQuestions[j], finalQuestions[i]];
+    }
+
+    // 分配tag (随机)
+    const topics = ['算法', '系统设计', '基础', '智力题', '网络', '数据库', '操作系统'];
+    const tagged = finalQuestions.map((item, idx) => {
+      const tag = topics[Math.floor(Math.random() * topics.length)];
+      return { ...item, id: idx + 1, tag };
+    });
+
+    // 渲染
+    const grid = document.getElementById('questionGrid');
+    grid.innerHTML = '';
+    tagged.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'question-card';
+
+      const header = document.createElement('div');
+      header.className = 'card-header';
+      const numSpan = document.createElement('span');
+      numSpan.className = 'q-number';
+      numSpan.innerHTML = `<i class="fas fa-hashtag" style="margin-right:4px;"></i>${item.id}`;
+      const tagSpan = document.createElement('span');
+      tagSpan.className = 'q-tag';
+      tagSpan.innerHTML = `<i class="fas fa-tag"></i> ${item.tag}`;
+      header.appendChild(numSpan);
+      header.appendChild(tagSpan);
+
+      const qText = document.createElement('div');
+      qText.className = 'question-text';
+      qText.innerHTML = `<i class="fas fa-question-circle"></i> ${item.q}`;
+
+      const answerArea = document.createElement('div');
+      answerArea.className = 'answer-area';
+      const toggleBtn = document.createElement('div');
+      toggleBtn.className = 'answer-toggle';
+      toggleBtn.innerHTML = `<i class="fas fa-chevron-down"></i> 显示答案`;
+      const answerContent = document.createElement('div');
+      answerContent.className = 'answer-content';
+      answerContent.innerHTML = `<p><i class="fas fa-lightbulb" style="color:#b28aff;margin-right:8px;"></i> ${item.a}</p>`;
+
+      toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const content = this.parentElement.querySelector('.answer-content');
+        const icon = this.querySelector('.fa-chevron-down');
+        if (content.classList.contains('show')) {
+          content.classList.remove('show');
+          icon.classList.remove('rotate-icon');
+          this.innerHTML = `<i class="fas fa-chevron-down"></i> 显示答案`;
+        } else {
+          content.classList.add('show');
+          icon.classList.add('rotate-icon');
+          this.innerHTML = `<i class="fas fa-chevron-down rotate-icon"></i> 收起答案`;
+        }
+      });
+
+      answerArea.appendChild(toggleBtn);
+      answerArea.appendChild(answerContent);
+      card.appendChild(header);
+      card.appendChild(qText);
+      card.appendChild(answerArea);
+      grid.appendChild(card);
+    });
+
+    // ---------- HR 问答 (模拟) ----------
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // 模拟HR回复库
+    const hrReplies = [
+      '这个问题建议你从项目经验中提炼亮点，用STAR法则回答。',
+      '薪资谈判时，可以先了解市场行情，再结合自身能力提出期望。',
+      '面试时请保持自信，逻辑清晰，展现你的思考过程。',
+      '我们很看重候选人的学习能力和团队协作精神。',
+      '你可以多准备一些关于高并发、系统设计的案例。',
+      '自我介绍请控制在1-2分钟，突出关键成就。',
+      '对于技术问题，即使不会，也要展示分析思路。',
+      '大厂面试通常包含算法、项目、系统设计三轮。',
+      '建议你提前研究公司业务，在面试中体现你的热情。',
+      '面试结束后，可以主动询问反馈，但不要过于频繁。'
+    ];
+
+    function addMessage(text, isHR = true) {
+      const msg = document.createElement('div');
+      msg.className = `chat-msg ${isHR ? 'hr' : ''}`;
+      const icon = isHR ? '<i class="fas fa-user-tie"></i>' : '<i class="fas fa-user"></i>';
+      msg.innerHTML = `${icon} ${text}`;
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function handleAsk() {
+      const question = chatInput.value.trim();
+      if (!question) return;
+      addMessage(question, false);
+      chatInput.value = '';
+
+      // 模拟HR回复 (随机)
+      const reply = hrReplies[Math.floor(Math.random() * hrReplies.length)];
+      setTimeout(() => {
+        addMessage(reply, true);
+      }, 400 + Math.random() * 400);
+    }
+
+    sendBtn.addEventListener('click', handleAsk);
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleAsk();
+    });
+
+    // 双击标题全展开/收起 (彩蛋保留)
+    const titleH1 = document.querySelector('.title-group h1');
+    let allOpen = false;
+    titleH1.addEventListener('dblclick', function() {
+      const allAnswers = document.querySelectorAll('.answer-content');
+      const allToggles = document.querySelectorAll('.answer-toggle');
+      allOpen = !allOpen;
+      allAnswers.forEach((el, i) => {
+        if (allOpen) {
+          el.classList.add('show');
+          const icon = allToggles[i]?.querySelector('.fa-chevron-down');
+          if (icon) icon.classList.add('rotate-icon');
+          if (allToggles[i]) allToggles[i].innerHTML = `<i class="fas fa-chevron-down rotate-icon"></i> 收起答案`;
+        } else {
+          el.classList.remove('show');
+          const icon = allToggles[i]?.querySelector('.fa-chevron-down');
+          if (icon) icon.classList.remove('rotate-icon');
+          if (allToggles[i]) allToggles[i].innerHTML = `<i class="fas fa-chevron-down"></i> 显示答案`;
+        }
+      });
+    });
+
+  })();
+</script>
+</body>
+</html>

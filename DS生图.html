@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>清华紫 · AI绘图工坊</title>
+    <!-- Font Awesome 6 (免费) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #f2edf8;  /* 清华紫氛围底色 */
+            background-image: radial-gradient(circle at 10% 30%, rgba(102, 45, 145, 0.06) 0%, transparent 30%),
+                              radial-gradient(circle at 90% 70%, rgba(102, 45, 145, 0.08) 0%, transparent 40%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        /* 主卡片 —— 清华紫 · 典雅光影 */
+        .card {
+            max-width: 1040px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 56px;
+            padding: 40px 38px 44px;
+            box-shadow: 0 28px 60px rgba(60, 20, 100, 0.20), 0 12px 28px rgba(80, 30, 130, 0.08);
+            border: 1px solid rgba(255, 215, 255, 0.35);
+            transition: box-shadow 0.35s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 36px 72px rgba(60, 20, 100, 0.26);
+        }
+
+        /* 头部 —— 清华标识 + 二校门灵感 */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid rgba(102, 45, 145, 0.18);
+            padding-bottom: 18px;
+        }
+
+        .header .icon-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header i {
+            font-size: 2.4rem;
+            color: #662d91; /* 清华紫 */
+            background: rgba(102, 45, 145, 0.08);
+            padding: 12px 14px;
+            border-radius: 30px;
+            transition: 0.2s;
+        }
+
+        .header h1 {
+            font-weight: 650;
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+            color: #321b4a;
+            background: linear-gradient(145deg, #4a1a6b, #7b3fa0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-right: 6px;
+        }
+
+        .header .tsinghua-badge {
+            margin-left: auto;
+            background: rgba(102, 45, 145, 0.12);
+            padding: 6px 22px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: 550;
+            color: #4a1a6b;
+            border: 1px solid rgba(102, 45, 145, 0.2);
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header .tsinghua-badge i {
+            font-size: 1rem;
+            padding: 0;
+            background: transparent;
+            color: #662d91;
+        }
+
+        /* API 区域 —— 清华紫点缀 */
+        .api-section {
+            background: rgba(245, 237, 255, 0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 40px;
+            padding: 18px 26px;
+            margin-bottom: 26px;
+            border: 1px solid rgba(160, 120, 200, 0.25);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px 20px;
+            box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.6);
+        }
+
+        .api-section label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 550;
+            color: #3d2357;
+            flex: 1 0 180px;
+        }
+
+        .api-section label i {
+            color: #662d91;
+            font-size: 1.2rem;
+            width: 28px;
+            text-align: center;
+        }
+
+        .api-section input {
+            flex: 2 1 280px;
+            padding: 12px 22px;
+            border: 1px solid #c9b5dd;
+            border-radius: 60px;
+            font-size: 0.95rem;
+            background: #fbf8ff;
+            transition: all 0.25s;
+            outline: none;
+            color: #1f1135;
+            font-weight: 450;
+        }
+
+        .api-section input:focus {
+            border-color: #662d91;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(102, 45, 145, 0.18);
+        }
+
+        .btn-outline-purple {
+            background: transparent;
+            border: 1.5px solid #662d91;
+            color: #662d91;
+            padding: 8px 22px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-outline-purple:hover {
+            background: #662d91;
+            color: white;
+            box-shadow: 0 6px 14px rgba(102, 45, 145, 0.25);
+        }
+
+        /* 提示词框 */
+        .prompt-box {
+            background: rgba(245, 237, 255, 0.5);
+            backdrop-filter: blur(4px);
+            border-radius: 40px;
+            padding: 20px 26px;
+            margin-bottom: 26px;
+            border: 1px solid rgba(160, 120, 200, 0.2);
+        }
+
+        .prompt-box label {
+            display: block;
+            font-weight: 550;
+            color: #3d2357;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            letter-spacing: 0.4px;
+        }
+
+        .prompt-box label i {
+            margin-right: 12px;
+            color: #662d91;
+        }
+
+        .prompt-box textarea {
+            width: 100%;
+            padding: 16px 22px;
+            border: 1px solid #d5c3e8;
+            border-radius: 32px;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 96px;
+            background: #fbf8ff;
+            transition: all 0.25s;
+            outline: none;
+            color: #1f1135;
+            line-height: 1.6;
+        }
+
+        .prompt-box textarea:focus {
+            border-color: #662d91;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(102, 45, 145, 0.12);
+        }
+
+        /* 按钮组 */
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 20px;
+            margin-bottom: 34px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 14px 34px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s;
+            background: #eee7f5;
+            color: #321b4a;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            flex: 1 0 auto;
+        }
+
+        .btn-primary {
+            background: #662d91;
+            color: white;
+            box-shadow: 0 10px 24px rgba(102, 45, 145, 0.30);
+        }
+
+        .btn-primary:hover {
+            background: #4f1f73;
+            transform: scale(1.02);
+            box-shadow: 0 14px 32px rgba(102, 45, 145, 0.40);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: #f4effa;
+            border: 1px solid #cdb9e2;
+        }
+
+        .btn-secondary:hover {
+            background: #ffffff;
+            border-color: #a685c4;
+            box-shadow: 0 4px 12px rgba(102, 45, 145, 0.08);
+        }
+
+        .btn i {
+            font-size: 1.1rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(0.2);
+        }
+
+        /* 图片结果 —— 清华紫典雅边框 */
+        .image-result {
+            background: #f4edfc;
+            border-radius: 40px;
+            padding: 16px;
+            border: 1px solid rgba(200, 170, 225, 0.3);
+            box-shadow: inset 0 2px 10px rgba(60, 20, 100, 0.04);
+            margin-top: 8px;
+        }
+
+        .image-wrapper {
+            background: #ffffff;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(60, 20, 100, 0.06);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 280px;
+            position: relative;
+            border: 1px solid #ddd0ec;
+        }
+
+        .image-wrapper img {
+            max-width: 100%;
+            max-height: 560px;
+            display: block;
+            object-fit: contain;
+            width: 100%;
+            height: auto;
+            transition: opacity 0.4s;
+        }
+
+        .placeholder-text {
+            color: #6a4b86;
+            font-size: 1.1rem;
+            padding: 40px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .placeholder-text i {
+            font-size: 3.8rem;
+            color: #b297cc;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            color: #3d2357;
+            padding: 0 6px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .status-bar .spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #d5c3e8;
+            border-top: 3px solid #662d91;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-bar .status-message {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .footer-note {
+            margin-top: 26px;
+            font-size: 0.85rem;
+            color: #5b4079;
+            text-align: center;
+            border-top: 1px solid #dcccec;
+            padding-top: 22px;
+            letter-spacing: 0.3px;
+        }
+
+        .footer-note i {
+            color: #662d91;
+            margin: 0 6px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .card { padding: 24px 16px; }
+            .header h1 { font-size: 1.7rem; }
+            .api-section { flex-direction: column; align-items: stretch; }
+            .api-section label { flex: 1; }
+            .action-row .btn { flex: 1 1 100%; }
+            .header .tsinghua-badge { margin-left: 0; width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card" role="main">
+    <!-- 头部：清华风格 -->
+    <div class="header">
+        <div class="icon-group">
+            <i class="fas fa-landmark"></i>
+            <i class="fas fa-paint-brush" style="margin-left: -6px;"></i>
+        </div>
+        <h1>清华 · AI 绘图</h1>
+        <div class="tsinghua-badge">
+            <i class="fas fa-university"></i> 二校门 · 紫荆
+        </div>
+    </div>
+
+    <!-- API 密钥 (清华紫风格) -->
+    <div class="api-section">
+        <label for="apiKeyInput">
+            <i class="fas fa-key"></i> API 密钥
+        </label>
+        <input type="password" id="apiKeyInput" placeholder="sk-... 输入 DeepSeek API Key" />
+        <button class="btn-outline-purple" id="saveKeyBtn">
+            <i class="fas fa-check-circle"></i> 保存
+        </button>
+    </div>
+
+    <!-- 提示词 -->
+    <div class="prompt-box">
+        <label for="promptInput">
+            <i class="fas fa-feather-pointed"></i> 绘画描述 · 清华灵感
+        </label>
+        <textarea id="promptInput" placeholder="例如：清华二校门雪景，朱自清荷塘月色意境，水彩风格，典雅">清华二校门雪景，朱自清荷塘月色意境，水彩风格，典雅</textarea>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="action-row">
+        <button class="btn btn-primary" id="generateBtn">
+            <i class="fas fa-wand-magic-sparkles"></i> 生成图片
+        </button>
+        <button class="btn btn-secondary" id="clearBtn">
+            <i class="fas fa-rotate-left"></i> 清空结果
+        </button>
+    </div>
+
+    <!-- 图片展示 -->
+    <div class="image-result">
+        <div class="image-wrapper" id="imageWrapper">
+            <div id="imagePlaceholder" class="placeholder-text">
+                <i class="fas fa-image"></i>
+                <span>输入描述，点击生成</span>
+                <span style="font-size:0.8rem; color:#8466a8;">清华紫 · 创意无限</span>
+            </div>
+            <img id="generatedImage" style="display: none;" alt="AI 生成的图片" />
+        </div>
+
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="status-message">
+                <span id="statusText"><i class="fas fa-circle-info"></i> 等待操作</span>
+            </div>
+            <div class="spinner" id="loadingSpinner"></div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        <i class="fas fa-shield-alt"></i> 密钥仅本地存储 · 接入 DeepSeek 图像 API · 自强不息 厚德载物
+    </div>
+</div>
+
+<script>
+    (function() {
+        "use strict";
+
+        // DOM 元素
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const saveKeyBtn = document.getElementById('saveKeyBtn');
+        const promptInput = document.getElementById('promptInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const placeholder = document.getElementById('imagePlaceholder');
+        const generatedImg = document.getElementById('generatedImage');
+        const statusText = document.getElementById('statusText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // 从 localStorage 恢复
+        const savedKey = localStorage.getItem('deepseek_api_key');
+        if (savedKey) {
+            apiKeyInput.value = savedKey;
+        }
+
+        // 保存密钥
+        saveKeyBtn.addEventListener('click', function() {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem('deepseek_api_key', key);
+                setStatus('✅ 密钥已保存 (清华紫·安全)', '#4a1a6b');
+            } else {
+                localStorage.removeItem('deepseek_api_key');
+                setStatus('⚠️ 密钥已清除', '#9d5f3a');
+            }
+        });
+
+        // 清空结果
+        clearBtn.addEventListener('click', function() {
+            resetImageDisplay();
+            setStatus('🔄 已清空', '#4a1a6b');
+        });
+
+        function resetImageDisplay() {
+            generatedImg.style.display = 'none';
+            generatedImg.src = '';
+            placeholder.style.display = 'flex';
+        }
+
+        function displayImage(imageUrl) {
+            placeholder.style.display = 'none';
+            generatedImg.style.display = 'block';
+            generatedImg.src = imageUrl;
+        }
+
+        function setStatus(msg, color = '#3d2357') {
+            statusText.innerHTML = msg;
+            statusText.style.color = color;
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                loadingSpinner.style.display = 'inline-block';
+                generateBtn.disabled = true;
+                setStatus('⏳ 紫荆花盛开 · 生成中…', '#4a1a6b');
+            } else {
+                loadingSpinner.style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        }
+
+        // ---------- DeepSeek API 图像生成 (清华风格) ----------
+        async function generateImage(prompt, apiKey) {
+            // 根据 DeepSeek 官方图像生成 API 调整
+            const API_URL = 'https://api.deepseek.com/v1/images/generations';
+
+            const requestBody = {
+                model: 'deepseek-image',   // 确认模型名称
+                prompt: prompt,
+                n: 1,
+                size: '1024x1024'
+            };
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                let errMsg = `API 请求失败 (${response.status})`;
+                try {
+                    const errData = await response.json();
+                    if (errData.error && errData.error.message) {
+                        errMsg = errData.error.message;
+                    } else if (errData.message) {
+                        errMsg = errData.message;
+                    }
+                } catch (_) { /* ignore */ }
+                throw new Error(errMsg);
+            }
+
+            const data = await response.json();
+            // 兼容 OpenAI 风格返回: data.data[0].url
+            if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                const imageUrl = data.data[0].url;
+                if (!imageUrl) throw new Error('返回数据中未包含图片 URL');
+                return imageUrl;
+            } else {
+                throw new Error('API 返回格式异常');
+            }
+        }
+
+        // 生成按钮
+        generateBtn.addEventListener('click', async function() {
+            const apiKey = apiKeyInput.value.trim();
+            const prompt = promptInput.value.trim();
+
+            if (!apiKey) {
+                setStatus('❌ 请先输入并保存 API 密钥', '#b13e3e');
+                return;
+            }
+            if (!prompt) {
+                setStatus('❌ 请输入绘画描述', '#b13e3e');
+                return;
+            }
+
+            if (apiKey) {
+                localStorage.setItem('deepseek_api_key', apiKey);
+            }
+
+            resetImageDisplay();
+            setLoading(true);
+
+            try {
+                const imageUrl = await generateImage(prompt, apiKey);
+                displayImage(imageUrl);
+                setStatus('✅ 生成成功 · 清华紫气东来', '#1e7b4c');
+            } catch (error) {
+                console.error('生成错误:', error);
+                let errorMsg = error.message || '未知错误';
+                if (errorMsg.includes('401')) {
+                    errorMsg = 'API 密钥无效，请检查密钥 (清华提醒)';
+                } else if (errorMsg.includes('404')) {
+                    errorMsg = 'API 端点未找到，请确认地址';
+                } else if (errorMsg.includes('429')) {
+                    errorMsg = '请求过多，稍后重试';
+                }
+                setStatus(`❌ 错误: ${errorMsg}`, '#b13e3e');
+                resetImageDisplay();
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // 回车保存密钥
+        apiKeyInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveKeyBtn.click();
+            }
+        });
+
+        // 初始状态
+        if (savedKey) {
+            setStatus('🔑 密钥已加载 · 清华紫 ready', '#4a1a6b');
+        } else {
+            setStatus('ℹ️ 请设置 API 密钥', '#4a1a6b');
+        }
+
+        console.log('清华紫 · AI 绘图工坊 已启动 (DeepSeek API)');
+    })();
+</script>
+</body>
+</html>

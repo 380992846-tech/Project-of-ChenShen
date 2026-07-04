@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>清华五道口房源共享站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Helvetica Neue', Roboto, 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: #0b0710;
+            color: #e5d9f0;
+            min-height: 100vh;
+            padding: 16px 20px 30px;
+        }
+
+        .glass {
+            background: rgba(30, 18, 45, 0.65);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border: 1px solid rgba(180, 138, 217, 0.25);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            border-radius: 32px;
+            transition: all 0.2s;
+        }
+
+        .navbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 28px;
+            margin-bottom: 24px;
+            background: rgba(18, 8, 30, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(180, 138, 217, 0.3);
+            border-radius: 60px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #d9b3ff, #a06cd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .logo-icon span {
+            background: #4a1a6b;
+            padding: 2px 12px;
+            border-radius: 40px;
+            color: #f0e6ff;
+            font-size: 14px;
+            -webkit-text-fill-color: #f0e6ff;
+            background: #2d0d47;
+            border: 1px solid #b48ad9;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: #cfbce6;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 6px 6px;
+            border-bottom: 2px solid transparent;
+            transition: 0.2s;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #f0e6ff;
+            border-bottom-color: #b48ad9;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .btn-glass {
+            background: rgba(74, 26, 107, 0.5);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(180, 138, 217, 0.4);
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: #f0e6ff;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-glass:hover {
+            background: #4a1a6b;
+            border-color: #d9b3ff;
+            box-shadow: 0 0 20px rgba(74, 26, 107, 0.5);
+        }
+
+        .btn-primary {
+            background: #4a1a6b;
+            border: 1px solid #b48ad9;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .search-section {
+            padding: 14px 22px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 20px;
+        }
+
+        .search-input {
+            flex: 2;
+            min-width: 180px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(180, 138, 217, 0.25);
+            border-radius: 60px;
+            padding: 12px 20px;
+            color: #f0e6ff;
+            outline: none;
+            font-size: 15px;
+            backdrop-filter: blur(4px);
+        }
+
+        .search-input::placeholder {
+            color: #9b84b3;
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 12px;
+            align-items: center;
+        }
+
+        .filter-tag {
+            background: rgba(42, 28, 60, 0.6);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(180, 138, 217, 0.2);
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.15s;
+            color: #cfbce6;
+            user-select: none;
+        }
+
+        .filter-tag:hover {
+            background: rgba(74, 26, 107, 0.5);
+            border-color: #b48ad9;
+            color: #fff;
+        }
+
+        .filter-tag.active {
+            background: #4a1a6b;
+            border-color: #d9b3ff;
+            color: #fff;
+            box-shadow: 0 0 16px rgba(74, 26, 107, 0.6);
+        }
+
+        .filter-tag.rented-filter {
+            border-color: #b48ad9;
+            background: rgba(180, 138, 217, 0.1);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 22px;
+        }
+
+        .listing-panel {
+            padding: 18px 16px;
+            max-height: 820px;
+            overflow-y: auto;
+            border-radius: 32px;
+            background: rgba(18, 8, 30, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(180, 138, 217, 0.15);
+        }
+
+        .listing-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .listing-panel::-webkit-scrollbar-track {
+            background: #1e122e;
+            border-radius: 12px;
+        }
+        .listing-panel::-webkit-scrollbar-thumb {
+            background: #b48ad9;
+            border-radius: 12px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(180, 138, 217, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .section-header h3 {
+            font-weight: 600;
+            color: #f0e6ff;
+            letter-spacing: 1px;
+        }
+        .section-header small {
+            color: #a68bc0;
+        }
+
+        .house-card {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 16px 16px;
+            border-radius: 24px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(180, 138, 217, 0.08);
+            transition: 0.15s;
+            cursor: default;
+        }
+
+        .house-card:hover {
+            background: rgba(74, 26, 107, 0.15);
+            border-color: rgba(180, 138, 217, 0.2);
+        }
+
+        .house-card.rented {
+            opacity: 0.6;
+            background: rgba(40, 20, 50, 0.3);
+            border-left: 4px solid #a06cd5;
+        }
+
+        .house-card .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .house-title {
+            font-weight: 600;
+            color: #f0e6ff;
+            font-size: 17px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            align-items: center;
+        }
+
+        .house-title .badge {
+            font-size: 10px;
+            background: #2d0d47;
+            padding: 2px 12px;
+            border-radius: 30px;
+            color: #d9b3ff;
+            border: 1px solid #b48ad9;
+        }
+
+        .rent-status {
+            font-size: 12px;
+            color: #b8a0c9;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 14px;
+            border-radius: 30px;
+        }
+
+        .house-price {
+            font-weight: 700;
+            color: #d9b3ff;
+            font-size: 20px;
+            white-space: nowrap;
+        }
+        .house-price small {
+            font-weight: 400;
+            font-size: 14px;
+            color: #a68bc0;
+        }
+
+        .house-addr {
+            font-size: 14px;
+            color: #b8a0c9;
+            margin: 2px 0 4px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 4px 16px;
+            margin: 6px 0 4px;
+            font-size: 13px;
+            color: #cfbce6;
+        }
+
+        .detail-grid span {
+            background: rgba(0, 0, 0, 0.15);
+            padding: 2px 10px;
+            border-radius: 30px;
+            border: 1px solid rgba(180, 138, 217, 0.05);
+        }
+
+        .house-desc {
+            color: #b8a0c9;
+            font-size: 14px;
+            margin: 4px 0 2px;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+
+        .house-contact {
+            font-size: 13px;
+            color: #a68bc0;
+            margin-top: 2px;
+        }
+
+        .house-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px 10px;
+            margin: 4px 0;
+        }
+
+        .house-tags span {
+            background: rgba(42, 28, 60, 0.5);
+            padding: 1px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #cfbce6;
+            border: 1px solid rgba(180, 138, 217, 0.1);
+        }
+
+        .nearby-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: #b8a0c9;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 6px 14px;
+            border-radius: 30px;
+        }
+
+        .nearby-info i {
+            font-style: normal;
+            color: #d9b3ff;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            max-width: 540px;
+            width: 92%;
+            padding: 28px 30px;
+            background: rgba(18, 8, 30, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(180, 138, 217, 0.3);
+            border-radius: 40px;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: #e5d9f0;
+        }
+
+        .modal-box h2 {
+            color: #f0e6ff;
+            margin-bottom: 16px;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(180, 138, 217, 0.2);
+            padding-bottom: 12px;
+        }
+
+        .modal-box label {
+            display: block;
+            margin: 12px 0 4px;
+            font-weight: 500;
+            color: #cfbce6;
+        }
+
+        .modal-box input,
+        .modal-box select,
+        .modal-box textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(180, 138, 217, 0.2);
+            color: #f0e6ff;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .modal-box textarea {
+            border-radius: 16px;
+            resize: vertical;
+        }
+
+        .modal-box .row-2 {
+            display: flex;
+            gap: 16px;
+        }
+        .modal-box .row-2>div {
+            flex: 1;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 14px;
+            margin-top: 22px;
+            justify-content: flex-end;
+        }
+
+        .btn-close-modal {
+            background: rgba(100, 70, 120, 0.3);
+            border: 1px solid rgba(180, 138, 217, 0.2);
+        }
+
+        .footer-note {
+            margin-top: 22px;
+            text-align: center;
+            color: #6f4f86;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                border-radius: 32px;
+                padding: 16px;
+            }
+            .logo-area {
+                justify-content: center;
+            }
+            .nav-links {
+                justify-content: center;
+            }
+            .user-actions {
+                justify-content: center;
+            }
+            .detail-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .row-2 {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 导航 -->
+    <nav class="navbar glass">
+        <div class="logo-area">
+            <div class="logo-icon">🏠 清华五道口<span>房源共享站</span></div>
+            <div style="color:#b8a0c9; font-size:12px; background:rgba(0,0,0,0.2); padding:2px 14px; border-radius:40px;">五道口 · 融科 · 新林院 · 校内</div>
+        </div>
+        <div class="nav-links">
+            <a href="#" class="active">🏡 租房</a>
+            <a href="#" id="publishTrigger">📢 发布房源</a>
+            <a href="#" id="loginTrigger">👤 登录/注册</a>
+        </div>
+        <div class="user-actions">
+            <span id="userDisplay" style="color:#b8a0c9; font-size:14px;">游客</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- 搜索 + 筛选 -->
+        <div class="search-section glass">
+            <input class="search-input" id="searchInput" placeholder="搜索 小区/地址/房源名..." value="清华">
+            <div class="filter-tags">
+                <span class="filter-tag active" data-filter="all">全部</span>
+                <span class="filter-tag" data-filter="校内">🏫 校内</span>
+                <span class="filter-tag" data-filter="五道口">五道口</span>
+                <span class="filter-tag" data-filter="融科">融科</span>
+                <span class="filter-tag" data-filter="新林院">新林院</span>
+                <span class="filter-tag rented-filter" data-filter="rented">🔴 已出租</span>
+                <span class="filter-tag rented-filter" data-filter="available">🟢 在租</span>
+                <span class="filter-tag" data-filter="一居">一居</span>
+                <span class="filter-tag" data-filter="二居">二居</span>
+                <span class="filter-tag" data-filter="三居">三居</span>
+            </div>
+        </div>
+
+        <!-- 房源列表 -->
+        <div class="content-grid">
+            <div class="listing-panel" id="listingPanel">
+                <div class="section-header">
+                    <h3>🏘️ 周边房源 <span style="font-size:13px; font-weight:400; color:#b8a0c9;">(含周边设施·户型)</span></h3>
+                    <small id="countDisplay">28 套</small>
+                </div>
+                <div id="houseList"></div>
+            </div>
+        </div>
+        <div class="footer-note">清华紫 · 玻璃面板 | 28套Mock · 点击tag筛选 · 发布房源实时展示</div>
+    </div>
+
+    <!-- 发布房源 Modal -->
+    <div class="modal-overlay" id="publishModal">
+        <div class="modal-box">
+            <h2>📢 发布新出租房源</h2>
+            <form id="publishForm">
+                <label>地点 *</label>
+                <input type="text" id="pLocation" placeholder="如: 清华校内/五道口/融科/新林院" value="清华校内">
+                <div class="row-2">
+                    <div><label>是否校内</label><select id="pCampus"><option value="是">是</option><option value="否">否</option></select></div>
+                    <div><label>房间号</label><input type="text" id="pRoom" placeholder="32-502"></div>
+                </div>
+                <label>详细位置</label>
+                <input type="text" id="pAddress" placeholder="清华家属院32号楼" value="清华家属院">
+                <label>房源简介</label>
+                <textarea id="pDesc" rows="2">南北通透 家具齐全</textarea>
+                <div class="row-2">
+                    <div><label>价格 (月)</label><input type="number" id="pPrice" value="8500"></div>
+                    <div><label>装修</label><select id="pDeco"><option>精装</option><option>简装</option><option>毛坯</option></select></div>
+                </div>
+                <div class="row-2">
+                    <div><label>电梯</label><select id="pElevator"><option>有</option><option>无</option></select></div>
+                    <div><label>租期</label><select id="pRentType"><option>长租</option><option>短租</option><option>均可</option></select></div>
+                </div>
+                <label>联系方式</label>
+                <input type="text" id="pContact" placeholder="电话/微信" value="138****1234">
+                <div style="margin-top:12px;">
+                    <label><input type="checkbox" id="pRentedNow"> 已出租 (预计空出时间)</label>
+                    <input type="text" id="pVacantDate" placeholder="2026-12-01" style="width:100%; margin-top:4px;">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-glass btn-close-modal" onclick="closeModal('publishModal')">取消</button>
+                    <button type="submit" class="btn-glass btn-primary">✅ 免费发布</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 登录/注册 Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <h2>👤 注册 / 登录</h2>
+            <form id="loginForm">
+                <label>用户名</label>
+                <input type="text" id="loginUser" placeholder="用户名" value="thu_user">
+                <label>密码</label>
+                <input type="password" id="loginPass" placeholder="密码" value="123456">
+                <div class="modal-actions">
+                    <button type="button" class="btn-glass btn-close-modal" onclick="closeModal('loginModal')">取消</button>
+                    <button type="submit" class="btn-glass btn-primary">🔑 登录/注册</button>
+                </div>
+            </form>
+            <div style="margin-top:8px; color:#a68bc0; font-size:13px;">演示: 任意账号登录即注册</div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 28套 Mock 房源 (含新林院 + 五道口8套) ----------
+            const mockHouses = [{
+                id: 1,
+                title: '清华家属院 32号楼',
+                addr: '清华校内 · 照澜院',
+                campus: '是',
+                room: '32-502',
+                desc: '南北通透 家具齐全 拎包入住 安静宜居',
+                price: 8500,
+                deco: '精装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '138****1234',
+                rented: false,
+                vacant: '',
+                type: '二居',
+                nearby: '近照澜院食堂·清华超市·校医院'
+            }, {
+                id: 2,
+                title: '华清嘉园 5号楼',
+                addr: '五道口地铁站 · 融科对面',
+                campus: '否',
+                room: '5-1802',
+                desc: '高层电梯 精装修 近地铁 购物方便',
+                price: 7200,
+                deco: '精装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '139****5678',
+                rented: false,
+                vacant: '',
+                type: '一居',
+                nearby: '五道口购物中心·各色餐厅·地铁13号线'
+            }, {
+                id: 3,
+                title: '融科橄榄城 3号楼',
+                addr: '融科资讯中心 · 清华科技园',
+                campus: '否',
+                room: '3-1201',
+                desc: '落地窗 地暖 全新家电 高端社区',
+                price: 12800,
+                deco: '豪华',
+                elevator: '有',
+                rentType: '长租',
+                contact: '136****9012',
+                rented: false,
+                vacant: '',
+                type: '三居',
+                nearby: '融科商业街·星巴克·健身房·科技园'
+            }, {
+                id: 4,
+                title: '清华西楼 12号',
+                addr: '清华校内 · 西区家属院',
+                campus: '是',
+                room: '12-304',
+                desc: '安静 书桌 校园网 适合学生',
+                price: 5500,
+                deco: '简装',
+                elevator: '无',
+                rentType: '短租',
+                contact: '137****3456',
+                rented: false,
+                vacant: '',
+                type: '单间',
+                nearby: '西区食堂·图书馆·操场'
+            }, {
+                id: 5,
+                title: '五道口王庄路 20号',
+                addr: '五道口 · 步行融科8分钟',
+                campus: '否',
+                room: '20-601',
+                desc: '独立卫浴 民水民电 生活便利',
+                price: 4900,
+                deco: '简装',
+                elevator: '无',
+                rentType: '短租',
+                contact: '135****7890',
+                rented: false,
+                vacant: '',
+                type: '一居',
+                nearby: '王庄路小吃街·超市·公交站'
+            }, {
+                id: 6,
+                title: '清华东南小区 7号',
+                addr: '清华东南门 · 校内家属院',
+                campus: '是',
+                room: '7-203',
+                desc: '带小院 安静 学区 适合家庭',
+                price: 11500,
+                deco: '精装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '136****1111',
+                rented: false,
+                vacant: '',
+                type: '三居',
+                nearby: '东南门食堂·附中·校医院'
+            }, {
+                id: 7,
+                title: '融科望京 8号楼',
+                addr: '融科 · 近清华科技园',
+                campus: '否',
+                room: '8-1503',
+                desc: '豪华装修 地暖 车位 高端配套',
+                price: 14200,
+                deco: '豪华',
+                elevator: '有',
+                rentType: '长租',
+                contact: '138****2222',
+                rented: false,
+                vacant: '',
+                type: '三居',
+                nearby: '望京小街·阿里中心·公园'
+            }, {
+                id: 8,
+                title: '清华南楼 9号',
+                addr: '清华校内 · 南区家属院',
+                campus: '是',
+                room: '9-402',
+                desc: '阳台 安静 押一付一 采光好',
+                price: 6200,
+                deco: '精装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '139****3333',
+                rented: false,
+                vacant: '',
+                type: '二居',
+                nearby: '南区食堂·浴室·南门'
+            }, {
+                id: 9,
+                title: '五道口嘉园 2单元',
+                addr: '五道口 · 华联旁',
+                campus: '否',
+                room: '2-101',
+                desc: '底商 适合办公/工作室',
+                price: 9800,
+                deco: '简装',
+                elevator: '无',
+                rentType: '长租',
+                contact: '137****4444',
+                rented: false,
+                vacant: '',
+                type: '整租',
+                nearby: '华联商厦·餐饮街·地铁'
+            }, {
+                id: 10,
+                title: '清华北院 16号',
+                addr: '清华校内 · 北区',
+                campus: '是',
+                room: '16-205',
+                desc: 'loft 复式 时尚装修',
+                price: 13500,
+                deco: '精装',
+                elevator: '有',
+                rentType: '短租',
+                contact: '136****5555',
+                rented: false,
+                vacant: '',
+                type: '整租',
+                nearby: '北区食堂·游泳馆·学堂'
+            }, {
+                id: 11,
+                title: '融科·风尚 6号',
+                addr: '融科 · 步行街',
+                campus: '否',
+                room: '6-903',
+                desc: '全景落地窗 视野开阔',
+                price: 11800,
+                deco: '精装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '138****6666',
+                rented: false,
+                vacant: '',
+                type: '二居',
+                nearby: '风尚街区·影院·咖啡'
+            }, {
+                id: 12,
+                title: '清华西区 22号',
+                addr: '清华校内 · 西区',
+                campus: '是',
+                room: '22-108',
+                desc: '一室一厅 安静宜居',
+                price: 6700,
+                deco: '简装',
+                elevator: '无',
+                rentType: '长租',
+                contact: '139****7777',
+                rented: false,
+                vacant: '',
+                type: '一居',
+                nearby: '西区超市·快递站·运动场'
+            }, {
+                id: 13,
+                title: '五道口东升园',
+                addr: '五道口 · 东升',
+                campus: '否',
+                room: '7-304',
+                desc: '合租 主卧 性价比高',
+                price: 3800,
+                deco: '简装',
+                elevator: '有',
+                rentType: '短租',
+                contact: '135****8888',
+                rented: false,
+                vacant: '',
+                type: '单间',
+                nearby: '东升美食街·超市·公交'
+            }, {
+                id: 14,
+                title: '清华校内 31号楼',
+                addr: '清华校内 · 照澜院',
+                campus: '是',
+                room: '31-601',
+                desc: '三居 家庭整租 宽敞明亮',
+                price: 14500,
+                deco: '精装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '136****9999',
+                rented: false,
+                vacant: '',
+                type: '三居',
+                nearby: '照澜院食堂·邮局·校医院'
+            }, {
+                id: 15,
+                title: '融科·智谷',
+                addr: '融科 · 科技园',
+                campus: '否',
+                room: 'A-1202',
+                desc: '商住两用 办公居住皆宜',
+                price: 16200,
+                deco: '豪华',
+                elevator: '有',
+                rentType: '长租',
+                contact: '138****0000',
+                rented: false,
+                vacant: '',
+                type: '整租',
+                nearby: '科技园餐厅·咖啡·会议中心'
+            }, {
+                id: 16,
+                title: '清华东区 2号',
+                addr: '清华校内 · 东区',
+                campus: '是',
+                room: '2-502',
+                desc: '两居 南北通透 学区房',
+                price: 9200,
+                deco: '精装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '137****1212',
+                rented: false,
+                vacant: '',
+                type: '二居',
+                nearby: '东区食堂·附属小学·幼儿园'
+            }, {
+                id: 17,
+                title: '五道口成府路',
+                addr: '五道口 · 成府路',
+                campus: '否',
+                room: '45-301',
+                desc: '老小区 安静 生活气息浓',
+                price: 5300,
+                deco: '简装',
+                elevator: '无',
+                rentType: '短租',
+                contact: '136****3434',
+                rented: false,
+                vacant: '',
+                type: '一居',
+                nearby: '成府路商业街·药店·面包店'
+            }, {
+                id: 18,
+                title: '融科·橄榄城二期',
+                addr: '融科 · 二期',
+                campus: '否',
+                room: '9-1803',
+                desc: '新盘 精装 现代风格',
+                price: 13900,
+                deco: '精装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '139****5656',
+                rented: false,
+                vacant: '',
+                type: '三居',
+                nearby: '二期会所·游泳馆·便利店'
+            }, {
+                id: 19,
+                title: '清华附中家属院',
+                addr: '清华校内 · 附中旁',
+                campus: '是',
+                room: '3-202',
+                desc: '陪读首选 安静 环境好',
+                price: 7800,
+                deco: '简装',
+                elevator: '无',
+                rentType: '长租',
+                contact: '135****7878',
+                rented: false,
+                vacant: '',
+                type: '二居',
+                nearby: '附中食堂·操场·图书馆'
+            }, {
+                id: 20,
+                title: '五道口华清商务',
+                addr: '五道口 · 商务楼',
+                campus: '否',
+                room: 'C-1501',
+                desc: '开间 办公居住 灵活',
+                price: 6600,
+                deco: '简装',
+                elevator: '有',
+                rentType: '短租',
+                contact: '138****9090',
+                rented: false,
+                vacant: '',
+                type: '整租',
+                nearby: '商务配套·餐饮·地铁站'
+            },
+            // ---- 新增 新林院 4套 ----
+            {
+                id: 21,
+                title: '新林院 6号楼',
+                addr: '新林院 · 清华西门',
+                campus: '是',
+                room: '6-301',
+                desc: '安静 环境优雅 近西门',
+                price: 6800,
+                deco: '精装',
+                elevator: '无',
+                rentType: '长租',
+                contact: '136****2222',
+                rented: false,
+                vacant: '',
+                type: '二居',
+                nearby: '新林院食堂·西区操场·校医院'
+            }, {
+                id: 22,
+                title: '新林院 12号',
+                addr: '新林院 · 清华西门外',
+                campus: '是',
+                room: '12-102',
+                desc: '一室一厅 带小院',
+                price: 5800,
+                deco: '简装',
+                elevator: '无',
+                rentType: '长租',
+                contact: '137****3333',
+                rented: false,
+                vacant: '',
+                type: '一居',
+                nearby: '新林院超市·面包房·公交站'
+            }, {
+                id: 23,
+                title: '新林院 8号楼',
+                addr: '新林院 · 清华附小旁',
+                campus: '是',
+                room: '8-503',
+                desc: '三居 宽敞 适合家庭',
+                price: 10800,
+                deco: '精装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '138****4444',
+                rented: false,
+                vacant: '',
+                type: '三居',
+                nearby: '附小·附中·新林院食堂'
+            }, {
+                id: 24,
+                title: '新林院 2号楼',
+                addr: '新林院 · 清华西门',
+                campus: '是',
+                room: '2-205',
+                desc: ' loft 复式 现代风格',
+                price: 9200,
+                deco: '精装',
+                elevator: '有',
+                rentType: '短租',
+                contact: '139****5555',
+                rented: false,
+                vacant: '',
+                type: '整租',
+                nearby: '西门外商业街·地铁站'
+            },
+            // ---- 新增 五道口 8套 (补齐到8套) ----
+            {
+                id: 25,
+                title: '五道口城铁旁 1号',
+                addr: '五道口 · 城铁旁',
+                campus: '否',
+                room: '1-304',
+                desc: '出行方便 生活便利',
+                price: 6200,
+                deco: '简装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '136****6666',
+                rented: false,
+                vacant: '',
+                type: '一居',
+                nearby: '城铁站·超市·快餐'
+            }, {
+                id: 26,
+                title: '五道口清华园 3号',
+                addr: '五道口 · 清华园',
+                campus: '否',
+                room: '3-1202',
+                desc: '高层 视野好 精装修',
+                price: 8600,
+                deco: '精装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '137****7777',
+                rented: false,
+                vacant: '',
+                type: '二居',
+                nearby: '清华园商业街·餐厅·咖啡'
+            }, {
+                id: 27,
+                title: '五道口东源大厦',
+                addr: '五道口 · 东源大厦',
+                campus: '否',
+                room: 'B-1501',
+                desc: '商住两用 交通枢纽',
+                price: 10500,
+                deco: '精装',
+                elevator: '有',
+                rentType: '长租',
+                contact: '138****8888',
+                rented: false,
+                vacant: '',
+                type: '整租',
+                nearby: '东源美食城·地铁·购物'
+            }, {
+                id: 28,
+                title: '五道口西苑 10号',
+                addr: '五道口 · 西苑',
+                campus: '否',
+                room: '10-602',
+                desc: '安静 南北通透',
+                price: 7500,
+                deco: '简装',
+                elevator: '无',
+                rentType: '短租',
+                contact: '139****9999',
+                rented: false,
+                vacant: '',
+                type: '二居',
+                nearby: '西苑菜市场·便利店·公交'
+            }];
+
+            // 标记几套已出租
+            mockHouses[2].rented = true;
+            mockHouses[2].vacant = '2026-12-01';
+            mockHouses[5].rented = true;
+            mockHouses[5].vacant = '2026-10-15';
+            mockHouses[20].rented = true;
+            mockHouses[20].vacant = '2026-11-20';
+
+            let houses = [...mockHouses];
+            let currentUser = null;
+
+            const houseListEl = document.getElementById('houseList');
+            const countDisplay = document.getElementById('countDisplay');
+            const searchInput = document.getElementById('searchInput');
+            const filterTags = document.querySelectorAll('.filter-tag');
+
+            function renderList(filter = 'all', keyword = '') {
+                let filtered = houses;
+                if (keyword.trim()) {
+                    const kw = keyword.trim().toLowerCase();
+                    filtered = filtered.filter(h =>
+                        h.title.toLowerCase().includes(kw) ||
+                        h.addr.toLowerCase().includes(kw) ||
+                        h.room.toLowerCase().includes(kw)
+                    );
+                }
+                // 区域/状态/户型
+                if (filter === '校内') {
+                    filtered = filtered.filter(h => h.campus === '是');
+                } else if (filter === '五道口') {
+                    filtered = filtered.filter(h => h.addr.includes('五道口') || h.title.includes('五道口'));
+                } else if (filter === '融科') {
+                    filtered = filtered.filter(h => h.addr.includes('融科') || h.title.includes('融科'));
+                } else if (filter === '新林院') {
+                    filtered = filtered.filter(h => h.addr.includes('新林院') || h.title.includes('新林院'));
+                } else if (filter === 'rented') {
+                    filtered = filtered.filter(h => h.rented === true);
+                } else if (filter === 'available') {
+                    filtered = filtered.filter(h => h.rented === false);
+                } else if (filter === '一居' || filter === '二居' || filter === '三居' || filter === '单间' || filter === '整租') {
+                    filtered = filtered.filter(h => h.type === filter);
+                }
+
+                filtered.sort((a, b) => a.rented - b.rented);
+                countDisplay.innerText = filtered.length + ' 套';
+
+                if (filtered.length === 0) {
+                    houseListEl.innerHTML =
+                        `<div style="padding:30px; text-align:center; color:#9b84b3;">暂无匹配房源</div>`;
+                    return;
+                }
+
+                let html = '';
+                filtered.forEach(h => {
+                    const rentedClass = h.rented ? 'rented' : '';
+                    const statusText = h.rented ? `🔴 已出租 (预计 ${h.vacant || '待定'} 空出)` : '🟢 在租';
+                    const nearby = h.nearby || '周边配套齐全';
+                    html += `
+                        <div class="house-card ${rentedClass}">
+                            <div class="top-row">
+                                <div class="house-title">
+                                    ${h.title} 
+                                    <span class="badge">${h.campus === '是' ? '🏫校内' : '📍校外'}</span>
+                                    <span class="badge">${h.type || '整租'}</span>
+                                    <span class="rent-status">${statusText}</span>
+                                </div>
+                                <div class="house-price">¥${h.price} <small>/月</small></div>
+                            </div>
+                            <div class="house-addr">📍 ${h.addr} · ${h.room}</div>
+                            <div class="detail-grid">
+                                <span>🛋 装修: ${h.deco}</span>
+                                <span>⬆ 电梯: ${h.elevator}</span>
+                                <span>📅 租期: ${h.rentType}</span>
+                                <span>📞 ${h.contact}</span>
+                            </div>
+                            <div class="house-desc">${h.desc}</div>
+                            <div class="nearby-info">🏪 周边: <i>${nearby}</i></div>
+                            <div class="house-tags">
+                                <span>${h.type || '整租'}</span>
+                                <span>${h.campus === '是' ? '校内' : '校外'}</span>
+                                <span>${h.elevator === '有' ? '电梯' : '无电梯'}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                houseListEl.innerHTML = html;
+            }
+
+            function setActiveTag(filterVal) {
+                filterTags.forEach(tag => {
+                    const val = tag.dataset.filter;
+                    if (val === filterVal) tag.classList.add('active');
+                    else tag.classList.remove('active');
+                });
+            }
+
+            let currentFilter = 'all';
+            filterTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    const val = this.dataset.filter;
+                    currentFilter = val;
+                    setActiveTag(val);
+                    renderList(val, searchInput.value);
+                });
+            });
+
+            searchInput.addEventListener('input', function() {
+                renderList(currentFilter, this.value);
+            });
+
+            // 发布房源 — 真实展示在列表中
+            document.getElementById('publishTrigger').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('publishModal').classList.add('open');
+            });
+
+            document.getElementById('publishForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const newHouse = {
+                    id: houses.length + 1,
+                    title: document.getElementById('pLocation').value + ' ' + document.getElementById('pRoom').value,
+                    addr: document.getElementById('pAddress').value,
+                    campus: document.getElementById('pCampus').value,
+                    room: document.getElementById('pRoom').value,
+                    desc: document.getElementById('pDesc').value,
+                    price: parseInt(document.getElementById('pPrice').value) || 5000,
+                    deco: document.getElementById('pDeco').value,
+                    elevator: document.getElementById('pElevator').value,
+                    rentType: document.getElementById('pRentType').value,
+                    contact: document.getElementById('pContact').value || '未提供',
+                    rented: document.getElementById('pRentedNow').checked,
+                    vacant: document.getElementById('pVacantDate').value || '',
+                    type: '整租',
+                    nearby: '周边配套完善'
+                };
+                houses.push(newHouse);
+                renderList(currentFilter, searchInput.value);
+                closeModal('publishModal');
+                alert('✅ 房源发布成功！已展示在列表中');
+            });
+
+            // 登录
+            document.getElementById('loginTrigger').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('loginModal').classList.add('open');
+            });
+
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const user = document.getElementById('loginUser').value || 'thu_user';
+                currentUser = user;
+                document.getElementById('userDisplay').innerText = '👤 ' + user;
+                closeModal('loginModal');
+                alert('登录/注册成功 (演示)');
+            });
+
+            window.closeModal = function(id) {
+                document.getElementById(id).classList.remove('open');
+            };
+            window.onclick = function(e) {
+                if (e.target.classList.contains('modal-overlay')) {
+                    e.target.classList.remove('open');
+                }
+            };
+
+            // 初始化
+            renderList('all', '清华');
+            setActiveTag('all');
+            document.getElementById('userDisplay').innerText = '👤 游客';
+        })();
+    </script>
+</body>
+</html>
