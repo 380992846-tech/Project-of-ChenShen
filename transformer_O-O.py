@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 
-# ========== 1. 模型定义（手搓小模型）==========
+# ========== 模型定义==========
 class MiniTransformer(nn.Module):
     def __init__(self, vocab_size=100, d_model=32, nhead=4, num_layers=2, max_len=50):
         super().__init__()
@@ -28,7 +28,7 @@ class MiniTransformer(nn.Module):
         logits = self.fc_out(out)
         return logits
 
-# ========== 2. 准备训练数据 ==========
+# ========== 准备训练数据 ==========
 def create_simple_dataset():
     """创建一个简单的算术序列数据集：学习 [a, b, c] -> [b, c, a+b] 模式"""
     sequences = []
@@ -45,7 +45,7 @@ def create_simple_dataset():
     y = data[:, 1:4]
     return x, y
 
-# ========== 3. 训练配置（这里是你需要调的核心）==========
+# ========== 训练配置 ==========
 vocab_size = 100  # 词汇表大小（数字0-99）
 model = MiniTransformer(vocab_size=vocab_size, d_model=64, nhead=4, num_layers=3)
 criterion = nn.CrossEntropyLoss()  # 分类损失
@@ -57,7 +57,7 @@ x, y = create_simple_dataset()
 dataset = TensorDataset(x, y)
 dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
-# ========== 4. 训练循环（核心）==========
+# ========== 训练循环 ==========
 num_epochs = 2000
 best_loss = float('inf')
 
@@ -95,7 +95,7 @@ for epoch in range(num_epochs):
         lr = optimizer.param_groups[0]['lr']
         print(f"Epoch {epoch:4d} | Loss: {avg_loss:.4f} | LR: {lr:.5f}")
 
-# ========== 5. 测试训练好的模型 ==========
+# ========== 测试训练好的模型 ==========
 model.eval()
 test_x = torch.tensor([[10, 20, 30]])  # 应该预测 20, 30, 40
 with torch.no_grad():
