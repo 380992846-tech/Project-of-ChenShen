@@ -1,9 +1,8 @@
-- 全国中学生物理竞赛省一
-- Transformer
-- 基于随机森林的量化交易策略、风控AI智能化模型部署、及语音智能助手
-- 训练垂直小模型，由一个路由器根据任务类型，将请求路由给最合适的模型
+全国中学生物理竞赛省一
+基于随机森林的量化交易策略、风控AI智能化模型部署
 
-系统架构
+模型训练：
+
 物理专家	理解物理概念、公式推导、宇宙学与量子力学问答	 训练中
 
 翻译专家	中-英、英-中专业文献/技术文档翻译	 数据准备
@@ -21,11 +20,11 @@
 文件	描述	核心
 joinquantV18.py	量化策略V18：基于随机森林的A股交易策略，集成滚动训练、动态风控	sklearn, 聚宽
 
-模型全功能部署.py	全能AI工具包：从零实现的字符级Transformer，支持训练、生成、分类、RAG、INT8量化、Streamlit监控	PyTorch, Transformer, RAG, Streamlit
+模型全功能部署.py	工具包：从零实现的字符级Transformer，支持训练、生成、分类、RAG、INT8量化、Streamlit监控	PyTorch, Transformer, RAG, Streamlit
 
 模型框架.py	优化版生成模型：实现Top-K/P、重复惩罚、温度调节	PyTorch, 改进版Transformer
 
-清华二校门智能语音助手小DeepSeek.py	带记忆的语音助手：
+清华二校门智能语音助手小DeepSeek 带记忆的语音助手：
 
 基于DeepSeek API + Edge TTS，支持上下文对话与唤醒	DS API, edge_tts
 
@@ -39,13 +38,13 @@ pip install torch numpy scikit-learn pandas
 
 pip install streamlit sentence-transformers  # 用于监控和RAG
 
-使用量化策略（聚宽平台）
+量化策略（聚宽平台）
 
 将 joinquantV18.py 代码复制到聚宽研究环境
 
 运行回测，对比基准（沪深300）
 
-当前进展
+进展
 
 字符级Transformer：从零实现，支持完整的训练、验证、生成流程
 
