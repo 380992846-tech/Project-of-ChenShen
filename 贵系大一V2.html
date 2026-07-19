@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>陈深 · 贵系大一 · 完整叙事</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: #0b0a12;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            background-image: radial-gradient(circle at 20% 30%, #1f143a, #08050f 80%);
+        }
+        .container {
+            max-width: 720px;
+            width: 100%;
+            background: rgba(18, 12, 38, 0.7);
+            backdrop-filter: blur(14px) saturate(180%);
+            -webkit-backdrop-filter: blur(14px) saturate(180%);
+            border: 1px solid rgba(180, 130, 255, 0.2);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(150, 80, 255, 0.08) inset;
+            border-radius: 2.5rem;
+            padding: 1.8rem 1.5rem 1.5rem;
+            color: #f0ecff;
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(180, 130, 255, 0.15);
+            margin-bottom: 1.2rem;
+        }
+        .header h1 {
+            font-weight: 400;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #d6c6ff, #b082f0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .step-badge {
+            background: rgba(140, 90, 200, 0.2);
+            padding: 0.15rem 1rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            border: 1px solid rgba(180, 130, 255, 0.15);
+            color: #d6c2ff;
+            white-space: nowrap;
+        }
+        .wallpaper-strip {
+            display: flex;
+            gap: 0.6rem;
+            margin-bottom: 1.2rem;
+            justify-content: center;
+        }
+        .wallpaper-strip .wp-item {
+            flex: 1;
+            height: 60px;
+            border-radius: 1.2rem;
+            background-size: cover;
+            background-position: center;
+            background-color: #1a1430;
+            border: 1px solid rgba(180, 130, 255, 0.15);
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .wallpaper-strip .wp-item:hover {
+            border-color: #b77aff;
+        }
+        .wallpaper-strip .wp-item .upload-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: 0.2s;
+            font-size: 0.6rem;
+            color: #d6c6ff;
+        }
+        .wallpaper-strip .wp-item:hover .upload-overlay {
+            opacity: 1;
+        }
+        .wallpaper-strip .wp-item input[type="file"] {
+            display: none;
+        }
+        .wp-default-1 { background-image: linear-gradient(145deg, #2a1e4a, #6b4c9a); }
+        .wp-default-2 { background-image: linear-gradient(135deg, #1f1338, #5b3f8a); }
+        .wp-default-3 { background-image: linear-gradient(225deg, #301f50, #7b56b0); }
+
+        .story-area {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 1.8rem;
+            padding: 1.2rem 1.2rem;
+            min-height: 240px;
+            margin-bottom: 1rem;
+            border-left: 3px solid rgba(140, 90, 200, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .story-text {
+            font-size: 0.95rem;
+            line-height: 1.9;
+            color: #e8e0ff;
+            white-space: pre-wrap;
+            word-break: break-word;
+            transition: opacity 0.2s;
+        }
+        .story-text .speaker {
+            color: #b78aff;
+            font-weight: 500;
+        }
+        .story-text .highlight {
+            background: #ffd96655;
+            padding: 0 4px;
+            border-radius: 6px;
+        }
+
+        .click-area {
+            background: rgba(30, 20, 55, 0.5);
+            border: 1px solid rgba(180, 130, 255, 0.15);
+            border-radius: 3rem;
+            padding: 0.8rem 1.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-top: 0.2rem;
+            user-select: none;
+            color: #b9a6e6;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        .click-area:hover {
+            background: rgba(70, 40, 120, 0.4);
+            border-color: #a97ae0;
+            transform: scale(1.01);
+        }
+        .click-area:active {
+            transform: scale(0.97);
+        }
+        .click-area i {
+            margin-right: 8px;
+            color: #b78aff;
+        }
+
+        .footer-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.8rem;
+            font-size: 0.65rem;
+            color: #6a5d88;
+            border-top: 1px solid rgba(130, 100, 180, 0.1);
+            padding-top: 0.8rem;
+        }
+        .reset-btn {
+            background: rgba(40, 25, 70, 0.5);
+            border: 1px solid rgba(180, 130, 255, 0.15);
+            color: #d6c2ff;
+            padding: 4px 16px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .reset-btn:hover {
+            background: rgba(70, 40, 120, 0.4);
+        }
+        .progress-text {
+            color: #6a5d88;
+            font-size: 0.7rem;
+        }
+
+        @media (max-width: 500px) {
+            .container { padding: 1.2rem 0.8rem; min-height: 400px; }
+            .story-text { font-size: 0.85rem; }
+            .wallpaper-strip .wp-item { height: 45px; }
+            .header h1 { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1><i class="fas fa-user-graduate" style="margin-right: 8px; color: #b78aff;"></i>陈深 · 贵系大一</h1>
+        <span class="step-badge" id="stepDisplay"><i class="far fa-clock"></i> 第 1 / 100 节</span>
+    </div>
+
+    <div class="wallpaper-strip">
+        <div class="wp-item wp-default-1" id="wp1">
+            <div class="upload-overlay" onclick="document.getElementById('fileInput1').click()">
+                <i class="fas fa-cloud-upload-alt"></i> 换
+            </div>
+            <input type="file" id="fileInput1" accept="image/*" onchange="uploadWallpaper(this, 'wp1')">
+        </div>
+        <div class="wp-item wp-default-2" id="wp2">
+            <div class="upload-overlay" onclick="document.getElementById('fileInput2').click()">
+                <i class="fas fa-cloud-upload-alt"></i> 换
+            </div>
+            <input type="file" id="fileInput2" accept="image/*" onchange="uploadWallpaper(this, 'wp2')">
+        </div>
+        <div class="wp-item wp-default-3" id="wp3">
+            <div class="upload-overlay" onclick="document.getElementById('fileInput3').click()">
+                <i class="fas fa-cloud-upload-alt"></i> 换
+            </div>
+            <input type="file" id="fileInput3" accept="image/*" onchange="uploadWallpaper(this, 'wp3')">
+        </div>
+    </div>
+
+    <div class="story-area">
+        <div class="story-text" id="storyText">
+            <span class="speaker">📖 序章</span><br>
+            点击下方按钮，翻阅陈深在清华贵系的第一年。
+        </div>
+    </div>
+
+    <div class="click-area" id="clickArea">
+        <i class="fas fa-chevron-circle-right"></i> 点击继续 · 翻阅故事
+    </div>
+
+    <div class="footer-bar">
+        <span class="progress-text" id="progressText">进度 0%</span>
+        <button class="reset-btn" id="resetBtn"><i class="fas fa-undo-alt"></i> 从头开始</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ===== 100 节完整对话 =====
+        const dialogues = [];
+
+        function addDialogue(step, text) {
+            dialogues.push({ step: step, text: text });
+        }
+
+        // ---------- 陈深的大一 · 100个瞬间 ----------
+        addDialogue("八月末 · 清华园", "阳光穿过梧桐叶，在二校门前的石板路上洒下碎金。\n陈深拖着行李箱，深吸一口气：“清华，我来了。”");
+        addDialogue("贵系迎新点", "“同学，你是计科01班的吗？”一位学姐笑着递来新生手册。\n陈深点头，手心微微出汗。");
+        addDialogue("宿舍初见", "推开紫荆公寓的门，三个室友正在打游戏。\n“嘿，新兄弟！来开黑吗？” 陈深笑着放下行李。");
+        addDialogue("第一堂课 · 微积分", "张教授在黑板上写下极限的定义，粉笔敲得哒哒响。\n陈深疯狂记笔记，但脑子已经开始打结。");
+        addDialogue("课后答疑", "陈深追到讲台前：“老师，这个ε-δ语言我有点懵……”\n教授推了推眼镜：“晚上来我办公室，我讲个例子。”");
+        addDialogue("社团招新 · 百团大战", "操场上帐篷林立，学长学姐热情得像卖安利。\n陈深被塞了一堆传单，最后在计算机协会的摊位前停下。");
+        addDialogue("加入计算机协会", "“会写Hello World吗？”学长问。\n陈深点头，学长拍了拍他肩膀：“好，你被录取了！”");
+        addDialogue("第一次协会活动", "学长分享竞赛经验，陈深听得热血沸腾。\n他暗下决心：明年我也要站上那个讲台。");
+        addDialogue("期中考试前夕", "图书馆凌晨两点，陈深眼皮打架。\n“再刷一套题就睡……”他对自己说。");
+        addDialogue("期中成绩公布", "微积分85，程设92。陈深松了口气，但也知道离大佬还差得远。");
+        addDialogue("组队大作业", "和室友组队做程设，四人分工明确。\n但陈深负责的模块总是出bug，他有点慌。");
+        addDialogue("通宵debug", "凌晨四点，陈深盯着屏幕上的红色报错。\n“原来是这里指针没初始化……” 他长舒一口气。");
+        addDialogue("大作业答辩", "面对助教的提问，陈深对答如流。\n“这个项目的创新点在于……” 他讲得越来越自信。");
+        addDialogue("寒冬 · 紫操", "北京的冬天很冷，但紫操上依然有人在跑步。\n陈深裹紧羽绒服，和室友去吃火锅。");
+        addDialogue("火锅局", "“来，为我们的友谊干杯！”\n热气腾腾中，陈深觉得大学真美好。");
+        addDialogue("寒假前 · 回望", "学期末，陈深在日记里写：“我好像变了一点，又好像没变。”");
+        addDialogue("春节 · 老家", "亲戚问：“在清华怎么样？”\n陈深笑笑：“挺好的，就是卷。”");
+        addDialogue("开学 · 春天", "二月底的清华，玉兰花开了。\n陈深骑着自行车穿过学堂路，心情像春风一样轻快。");
+        addDialogue("新学期的目标", "“这次我要拿一门满绩！”陈深在手机备忘录里打下这句话。");
+        addDialogue("挑战 · 数算课", "数据结构与算法，陈深第一次感受到智商被碾压。\n“红黑树是什么鬼……” 他挠头。");
+        addDialogue("向学长请教", "“学长，这个平衡树怎么实现啊？”\n学长画了张图，陈深恍然大悟。");
+        addDialogue("第一次独立项目", "陈深自己写了一个小游戏——贪吃蛇。\n虽然简陋，但他开心了一整天。");
+        addDialogue("社团换届", "陈深竞选计算机协会的部长，演讲时声音有点抖。\n但他说完了，台下响起掌声。");
+        addDialogue("成为部长", "“以后要带学弟学妹了，我得变得更厉害才行。”\n陈深感到责任沉甸甸的。");
+        addDialogue("校庆 · 游园会", "清华109周年校庆，校园里到处是欢声笑语。\n陈深穿着文化衫，觉得自己真正属于这里了。");
+        addDialogue("认识她", "在图书馆，陈深对面的女生在写代码。\n他偷偷看了一眼她的屏幕，是个复杂的项目。");
+        addDialogue("第一次搭话", "“你也是贵系的吗？”陈深鼓起勇气问。\n女生抬头笑了笑：“嗯，我是计科02班的。”");
+        addDialogue("一起自习", "之后他们经常约图书馆，互相讨论问题。\n陈深觉得，有人一起奋斗的感觉真好。");
+        addDialogue("期中 · 压力", "期中考试周，陈深连续熬夜，咖啡喝到反胃。\n他趴在桌上睡了一会儿，醒来继续复习。");
+        addDialogue("成绩单", "数算88，离散90，英语86。\n陈深看着成绩单，觉得努力没有白费。");
+        addDialogue("五一假期", "和室友去爬香山，站在山顶看北京城。\n“下学期我要做更酷的事情。”陈深说。");
+        addDialogue("小学期 · 科研初探", "跟着导师做科研，看paper看到头大。\n但陈深觉得，这种探索的感觉很迷人。");
+        addDialogue("第一次组会汇报", "陈深站在白板前讲自己的思路，虽然磕磕绊绊，但导师点头了。");
+        addDialogue("暑假 · 留校", "陈深没有回家，留在学校做项目、上暑课。\n晚上在紫操跑步，偶尔看见流星。");
+        addDialogue("大二前的夜晚", "暑假最后一天，陈深躺在紫操草地上看星星。\n“大一这一年，我变了很多。”");
+        addDialogue("开学典礼", "再次坐在综体，陈深已经不再是那个懵懂的新生。\n他看向身旁的新面孔，仿佛看到了一年前的自己。");
+        addDialogue("成为学长", "迎新时，一个新生问他：“学长，贵系难吗？”\n陈深笑了笑：“难，但值得。”");
+        addDialogue("传授经验", "陈深把自己整理的笔记分享给学弟学妹。\n“这些是我踩过的坑，你们别再踩了。”");
+        addDialogue("秋日 · 银杏", "十月的清华，银杏叶金黄一片。\n陈深骑着车，车轮卷起落叶，像电影里的画面。");
+        addDialogue("回顾 · 成长", "“大一的我，从懵懂到坚定，从孤独到有朋友。”\n陈深在日记本上写下这句话。");
+        addDialogue("学业进步", "数算从88到95，程设从92到98。\n陈深看着成绩单，觉得一切努力都值得。");
+        addDialogue("友情加深", "和室友从陌生人变成兄弟，一起熬夜、一起吐槽、一起成长。");
+        addDialogue("社团贡献", "陈深组织了一次编程比赛，来了80多人。\n他看到学弟学妹们热情的样子，想起去年的自己。");
+        addDialogue("爱情萌芽", "和她从图书馆到一起吃饭、一起散步。\n陈深没有说破，但心里觉得甜甜的。");
+        addDialogue("秋游 · 百望山", "和朋友们去爬山，在山顶喊出心中的话。\n“我要成为更好的自己！”");
+        addDialogue("期中再战", "这次陈深不再慌张，有条不紊地复习。\n他发现自己真的进步了。");
+        addDialogue("成绩反馈", "数算96，离散93，英语90。\n陈深笑了，这是他努力的结果。");
+        addDialogue("冬 · 初雪", "北京的初雪在11月落下，陈深和朋友们在紫操打雪仗。\n雪花落在睫毛上，凉凉的。");
+        addDialogue("感恩节", "陈深给家人、朋友、老师都发了感谢的消息。\n“谢谢你们陪我走过这一年。”");
+        addDialogue("大作业 · 终局", "这次的大作业，陈深独立完成了一个Web应用。\n虽然不大，但很有成就感。");
+        addDialogue("答辩 · 自信", "面对评委，陈深侃侃而谈，逻辑清晰。\n他知道自己已经不是那个怯场的新生了。");
+        addDialogue("年末 · 总结", "陈深整理这一年的照片和日记，做成了一本小册子。\n“这是我的大一，我的故事。”");
+        addDialogue("跨年夜", "和朋友们在紫操等待新年钟声。\n“三、二、一——” 烟花在远处绽放。");
+        addDialogue("新年愿望", "陈深默默许愿：“希望大二的我，更加勇敢，更加热爱。”");
+        addDialogue("大一 · 最后一天", "收拾行李，准备回家过年。\n陈深回头看了一眼宿舍，心里有点不舍。");
+        addDialogue("告别 · 紫荆", "“谢谢你，紫荆公寓。谢谢你，清华。”\n陈深拉着行李箱，走向校门。");
+        addDialogue("回家路上", "火车上，陈深望着窗外掠过的风景。\n“这一年的变化，比过去十年都大。”");
+        addDialogue("家人团聚", "妈妈做了他最爱吃的菜，爸爸问他学业怎么样。\n陈深说：“挺好的，我真的挺好的。”");
+        addDialogue("除夕夜", "和亲戚们一起看春晚，陈深发了一条朋友圈：\n“大一，再见。大二，你好。”");
+        addDialogue("年初 · 反思", "大年初一，陈深写下了新的目标：\n1. 发一篇paper 2. 学会一门新语言 3. 好好爱身边的人。");
+        addDialogue("返校 · 春天", "二月末，陈深再次回到清华园。\n玉兰花开得正好，像是欢迎他回来。");
+        addDialogue("大二 · 启程", "“我不是新生了，但我依然是陈深。”\n他骑着车，穿过学堂路，奔向新的未来。");
+        addDialogue("尾声 · 致自己", "“这一年，我迷茫过，崩溃过，但从未放弃过。”\n陈深合上日记本，嘴角带着微笑。");
+        addDialogue("终章 · 未完待续", "贵系大一的故事结束了，但陈深的故事还在继续。\n感谢你陪他走过这精彩的一年。");
+
+        // 补充至100节 (回忆与感悟)
+        const extraMoments = [
+            "深夜 · 自习室", "凌晨的自习室只剩下陈深一个人。\n他伸了个懒腰，决定再写一道题再走。",
+            "食堂 · 紫荆", "紫荆园的麻辣香锅是陈深的最爱。\n“老板，加辣！” 他喊得像个老顾客。",
+            "操场 · 夜跑", "陈深在紫操跑步，耳机里放着喜欢的歌。\n一圈又一圈，烦恼都跑掉了。",
+            "图书馆 · 窗边", "陈深喜欢坐在图书馆靠窗的位置。\n阳光洒在书页上，一切都刚刚好。",
+            "宿舍 · 夜谈", "熄灯后，室友们聊起未来。\n“我想去硅谷。” “我想留校读博。” 陈深听着，心里也有了答案。",
+            "课堂 · 前排", "陈深总是坐在第一排，离老师最近的地方。\n“这样才能听得更清楚。” 他说。",
+            "考试 · 焦虑", "考试前夜，陈深在床上翻来覆去。\n他深呼吸，告诉自己：“你已经准备好了。”",
+            "出分 · 紧张", "查成绩的那一刻，陈深的手在抖。\n看到分数后，他笑了。",
+            "社团 · 传承", "陈深把部长的职务交给学弟时，语重心长地说：\n“好好干，你会爱上这里的。”",
+            "朋友 · 离别", "暑假前，最好的朋友要去交换了。\n“一年后见。” 他们约定。",
+            "父母 · 电话", "“妈，我挺好的，别担心。”\n陈深每次打电话都说这句话，尽管有时他并不好。",
+            "自己 · 对话", "陈深对着镜子说：“嘿，你做得不错。”\n镜子里的人笑了，那是自信的笑容。",
+            "迷茫 · 思考", "有时候陈深会想：我到底想要什么？\n但想着想着，天就亮了，答案也慢慢清晰。",
+            "坚持 · 信念", "“再坚持一下。” 陈深对自己说。\n这一下，就是整整一年。",
+            "成长 · 蜕变", "从怯场到自信，从孤独到有伴。\n陈深觉得自己像换了一个人。",
+            "感恩 · 所有", "“谢谢所有出现在我生命里的人。”\n陈深在心底默默说。",
+            "未来 · 可期", "大二的路就在脚下，陈深迈出了第一步。\n他知道，未来还很长，但他准备好了。",
+            "清华 · 烙印", "“自强不息，厚德载物。”\n这八个字，已经刻在了陈深心里。",
+            "青春 · 无悔", "“我的大一，没有遗憾。”\n陈深对着天空说。",
+            "故事 · 继续", "故事还在继续，陈深还在前行。\n而你也一样，你的故事也正在书写。"
+        ];
+
+        for (let m of extraMoments) {
+            addDialogue(m[0], m[1]);
+        }
+
+        // 确保正好100节
+        while (dialogues.length < 100) {
+            addDialogue("沉淀 · 成长", "陈深在日记里写道：\n“大一教会我的，不是知识，而是如何成为一个更好的人。”");
+        }
+        dialogues.length = 100;
+
+        // ===== 游戏引擎 =====
+        let currentIndex = 0;
+        const storyTextEl = document.getElementById('storyText');
+        const stepDisplay = document.getElementById('stepDisplay');
+        const progressText = document.getElementById('progressText');
+        const clickArea = document.getElementById('clickArea');
+        const resetBtn = document.getElementById('resetBtn');
+
+        function renderDialogue(index) {
+            if (index >= dialogues.length) {
+                index = dialogues.length - 1;
+            }
+            const d = dialogues[index];
+            storyTextEl.innerHTML = `<span class="speaker">📖 ${d.step}</span><br>${d.text}`;
+            stepDisplay.textContent = `第 ${index+1} / ${dialogues.length} 节`;
+            progressText.textContent = `进度 ${Math.round((index+1)/dialogues.length * 100)}%`;
+            currentIndex = index;
+        }
+
+        function nextDialogue() {
+            if (currentIndex < dialogues.length - 1) {
+                renderDialogue(currentIndex + 1);
+            } else {
+                resetGame();
+            }
+        }
+
+        function resetGame() {
+            renderDialogue(0);
+        }
+
+        clickArea.addEventListener('click', nextDialogue);
+        resetBtn.addEventListener('click', resetGame);
+
+        renderDialogue(0);
+
+        // ===== 壁纸上传 =====
+        window.uploadWallpaper = function(input, elementId) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const el = document.getElementById(elementId);
+                if (el) {
+                    el.style.backgroundImage = `url(${e.target.result})`;
+                    el.style.backgroundSize = 'cover';
+                    el.style.backgroundPosition = 'center';
+                }
+            };
+            reader.readAsDataURL(file);
+        };
+    })();
+</script>
+</body>
+</html>

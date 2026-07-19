@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>陈深 · 大二叙事</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #0b0710;
+            color: #e6e0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .app-container {
+            width: 1440px;
+            max-width: 100%;
+            min-height: 920px;
+            max-height: 98vh;
+            background: rgba(22, 16, 35, 0.3);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(160, 120, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-image 0.7s ease;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            background-color: rgba(10, 6, 20, 0.3);
+        }
+        .app-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 6, 20, 0.12);
+            backdrop-filter: blur(4px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .app-container>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 16px;
+            border-bottom: 1px solid rgba(180, 140, 255, 0.08);
+            background: rgba(12, 8, 22, 0.15);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-icon {
+            background: linear-gradient(145deg, #b28aff, #7a4bff);
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #f0ecff;
+            box-shadow: 0 6px 14px rgba(90, 40, 200, 0.5);
+        }
+        .logo-text {
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #d9caff, #b28aff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo-text small {
+            font-weight: 400;
+            font-size: 9px;
+            color: #9480c0;
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            margin-left: 4px;
+        }
+
+        .tag-bar {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            padding: 2px 4px;
+            background: rgba(16, 10, 30, 0.15);
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+        }
+        .tag-btn {
+            background: transparent;
+            border: none;
+            padding: 3px 10px;
+            border-radius: 30px;
+            color: #9480c0;
+            font-size: 10px;
+            cursor: pointer;
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+        .tag-btn i {
+            font-size: 10px;
+        }
+        .tag-btn:hover {
+            color: #d4c0ff;
+            background: rgba(130, 70, 255, 0.08);
+        }
+        .tag-btn.active {
+            background: rgba(130, 70, 255, 0.15);
+            color: #f0eaff;
+            border: 1px solid rgba(160, 120, 255, 0.08);
+        }
+        .tag-btn.portal-btn {
+            background: rgba(247, 201, 72, 0.08);
+            border: 1px solid rgba(247, 201, 72, 0.1);
+            color: #f7c948;
+        }
+        .tag-btn.portal-btn:hover {
+            background: rgba(247, 201, 72, 0.15);
+        }
+        .tag-btn.portal-btn i {
+            color: #f7c948;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-clock-weather {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(30, 20, 55, 0.2);
+            padding: 2px 8px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            font-size: 10px;
+        }
+        .nav-clock .time {
+            font-weight: 600;
+            color: #f0eaff;
+            font-size: 12px;
+        }
+        .nav-clock .date {
+            font-size: 8px;
+            color: #b3a1d4;
+        }
+        .nav-weather .temp {
+            font-size: 12px;
+            font-weight: 500;
+            color: #f0eaff;
+        }
+        .nav-weather .desc {
+            font-size: 8px;
+            color: #b3a1d4;
+        }
+        .avatar {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, #6d44d0, #371b7a);
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 9px;
+            color: #e8dcff;
+            border: 1px solid #a47eff;
+        }
+
+        .main-layout {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            padding: 8px 12px 8px 12px;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .story-area {
+            flex: 1;
+            background: rgba(22, 16, 40, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 24px 28px;
+            border: 1px solid rgba(160, 120, 255, 0.06);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 280px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .story-area:hover {
+            border-color: rgba(247, 201, 72, 0.15);
+            background: rgba(30, 22, 50, 0.25);
+        }
+        .story-area:active {
+            transform: scale(0.99);
+        }
+        .story-text {
+            font-size: 1.05rem;
+            line-height: 2;
+            color: #e8e0ff;
+            white-space: pre-wrap;
+            word-break: break-word;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .story-text .speaker {
+            color: #b78aff;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .click-hint {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: rgba(30, 20, 55, 0.3);
+            border-radius: 40px;
+            border: 1px solid rgba(180, 130, 255, 0.08);
+            color: #8a7aaa;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            transition: 0.25s;
+            cursor: pointer;
+            user-select: none;
+        }
+        .click-hint:hover {
+            background: rgba(70, 40, 120, 0.3);
+            border-color: rgba(180, 130, 255, 0.2);
+            color: #d4c0ff;
+        }
+        .click-hint:active {
+            transform: scale(0.97);
+        }
+        .click-hint i {
+            color: #b78aff;
+            font-size: 0.9rem;
+        }
+
+        .footer-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.6rem;
+            font-size: 0.65rem;
+            color: #6a5d88;
+            border-top: 1px solid rgba(130, 100, 180, 0.1);
+            padding-top: 0.6rem;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .reset-btn {
+            background: rgba(40, 25, 70, 0.5);
+            border: 1px solid rgba(180, 130, 255, 0.15);
+            color: #d6c2ff;
+            padding: 4px 16px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .reset-btn:hover {
+            background: rgba(70, 40, 120, 0.4);
+        }
+        .progress-text {
+            color: #6a5d88;
+            font-size: 0.7rem;
+        }
+
+        .step-badge {
+            background: rgba(140, 90, 200, 0.2);
+            padding: 0.15rem 1rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            border: 1px solid rgba(180, 130, 255, 0.15);
+            color: #d6c2ff;
+            white-space: nowrap;
+        }
+
+        .detail-panel {
+            width: 260px;
+            flex-shrink: 0;
+            background: rgba(16, 10, 30, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 14px 16px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+        .detail-panel::-webkit-scrollbar {
+            width: 3px;
+        }
+        .detail-panel::-webkit-scrollbar-thumb {
+            background: #4e3a78;
+            border-radius: 10px;
+        }
+
+        .detail-panel .panel-title {
+            font-size: 13px;
+            color: #cbb8f0;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .wallpaper-selector {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            padding: 4px 6px;
+            background: rgba(16, 10, 30, 0.2);
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            margin-top: 4px;
+            align-items: center;
+        }
+        .wp-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid rgba(200, 180, 255, 0.1);
+            cursor: pointer;
+            transition: 0.2s;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+        .wp-dot:hover {
+            transform: scale(1.1);
+            border-color: #b28aff;
+        }
+        .wp-dot.active {
+            border-color: #f7c948;
+            box-shadow: 0 0 16px rgba(247, 201, 72, 0.25);
+        }
+        .wp-dot.upload-dot {
+            background: rgba(160, 120, 255, 0.1);
+            border-color: rgba(160, 120, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #9480c0;
+        }
+        .wp-dot.upload-dot:hover {
+            background: rgba(160, 120, 255, 0.2);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 20, 60, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 8px 24px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.12);
+            color: #e6def5;
+            font-size: 13px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+        .toast.show {
+            opacity: 1;
+        }
+
+        .cat-speak {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 20, 55, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 8px 22px;
+            border-radius: 40px;
+            border: 1px solid rgba(247, 201, 72, 0.15);
+            color: #f7c948;
+            font-size: 14px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .cat-speak.show {
+            opacity: 1;
+        }
+
+        .bgm-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #6c5890;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 30px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            transition: 0.2s;
+            background: rgba(16, 10, 30, 0.15);
+            margin-top: 4px;
+        }
+        .bgm-toggle:hover {
+            border-color: rgba(160, 120, 255, 0.2);
+            color: #b3a1d4;
+        }
+        .bgm-toggle i {
+            font-size: 12px;
+            color: #88aaff;
+        }
+
+        @media (max-width: 820px) {
+            .navbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 3px;
+                padding: 4px 10px;
+            }
+            .tag-bar {
+                justify-content: center;
+            }
+            .main-layout {
+                flex-direction: column;
+                padding: 6px 8px;
+                gap: 6px;
+            }
+            .detail-panel {
+                width: 100%;
+                max-height: 180px;
+            }
+            .app-container {
+                min-height: auto;
+                max-height: 98vh;
+                border-radius: 24px;
+            }
+            .story-area {
+                padding: 16px 18px;
+                min-height: 200px;
+            }
+            .story-text {
+                font-size: 0.9rem;
+                line-height: 1.8;
+            }
+            .click-hint {
+                font-size: 0.7rem;
+                padding: 8px 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .tag-btn {
+                font-size: 8px;
+                padding: 2px 6px;
+            }
+            .tag-btn i {
+                font-size: 8px;
+            }
+            .logo-text {
+                font-size: 12px;
+            }
+            .story-text {
+                font-size: 0.82rem;
+                line-height: 1.7;
+            }
+            .detail-panel {
+                padding: 10px 12px;
+                max-height: 160px;
+            }
+            .nav-clock .date {
+                display: none;
+            }
+            .nav-weather .desc {
+                display: none;
+            }
+            .wp-dot {
+                width: 28px;
+                height: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="appContainer">
+
+        <!-- ===== 导航 ===== -->
+        <header class="navbar">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fas fa-cube"></i></div>
+                <div class="logo-text">陈深 · 大二 <small>叙事</small></div>
+            </div>
+            <div class="tag-bar">
+                <button class="tag-btn active" data-tag="story"><i class="fas fa-book-open"></i> 故事</button>
+                <button class="tag-btn portal-btn" id="portalBtn"><i class="fas fa-arrow-right"></i> 传送门</button>
+            </div>
+            <div class="nav-right">
+                <div class="nav-clock-weather">
+                    <div class="nav-clock"><span class="time" id="navClockTime">--:--</span><span class="date" id="navClockDate">--/--</span></div>
+                    <div class="nav-weather"><span class="temp" id="navWeatherTemp">--°C</span><span class="desc" id="navWeatherDesc">--</span></div>
+                </div>
+                <div class="avatar">🎓</div>
+            </div>
+        </header>
+
+        <!-- ===== 猫猫说话 ===== -->
+        <div class="cat-speak" id="catSpeak">🐱 喵~</div>
+
+        <!-- ===== 主布局 ===== -->
+        <div class="main-layout">
+
+            <!-- ===== 故事区域 ===== -->
+            <div style="flex:1; display:flex; flex-direction:column; min-height:0;">
+                <!-- 故事面板 - 点击整块区域翻页 -->
+                <div class="story-area" id="storyArea">
+                    <div class="story-text" id="storyText">
+                        <span class="speaker">📖 序章</span><br>
+                        点击下方按钮，翻阅陈深大二这一年。
+                    </div>
+                    <!-- 点击提示条（在故事面板内部） -->
+                    <div class="click-hint" id="clickHint">
+                        <i class="fas fa-chevron-circle-right"></i> 点击继续 · 翻阅故事
+                    </div>
+                </div>
+
+                <!-- 底部信息栏 -->
+                <div class="footer-bar">
+                    <span class="progress-text" id="progressText">进度 0%</span>
+                    <span class="step-badge" id="stepDisplay">第 1 / 100 节</span>
+                    <button class="reset-btn" id="resetBtn"><i class="fas fa-undo-alt"></i> 从头开始</button>
+                </div>
+            </div>
+
+            <!-- ===== 详情面板 ===== -->
+            <div class="detail-panel" id="detailPanel">
+                <div class="panel-title"><i class="fas fa-image"></i> 壁纸</div>
+                <div class="wallpaper-selector" id="wallpaperSelector">
+                    <div class="wp-dot active" data-wallpaper="galaxy" style="background: url(https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=200&q=80);" title="银河"></div>
+                    <div class="wp-dot" data-wallpaper="nebula" style="background: url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=200&q=80);" title="星云"></div>
+                    <div class="wp-dot" data-wallpaper="tsinghua" style="background: url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=200&q=80);" title="二校门"></div>
+                    <div class="wp-dot" data-wallpaper="sakura" style="background: url(https://images.unsplash.com/photo-1522383225653-ed111181a951?w=200&q=80);" title="樱花"></div>
+                    <div class="wp-dot" data-wallpaper="ocean" style="background: url(https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?w=200&q=80);" title="海洋"></div>
+                    <div class="wp-dot" data-wallpaper="snowmountain" style="background: url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&q=80);" title="日照金山"></div>
+                    <div class="wp-dot upload-dot" id="uploadWallpaperBtn" title="上传自定义壁纸"><i class="fas fa-plus"></i></div>
+                    <input type="file" id="wallpaperUpload" accept="image/*" style="display:none;">
+                </div>
+                <div style="margin-top:6px; font-size:10px; color:#6c5890; border-top:1px solid rgba(160,120,255,0.04); padding-top:6px;">
+                    <span id="wallpaperLabel">银河</span>
+                    <span style="float:right;">🎵 BGM 已开启</span>
+                </div>
+                <!-- BGM 开关 -->
+                <div class="bgm-toggle" id="bgmToggle">
+                    <i class="fas fa-music" id="bgmIcon"></i>
+                    <span id="bgmLabel">轻柔钢琴 · 大二时光</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== BGM ===== -->
+    <audio id="bgm" loop style="display:none;">
+        <source src="https://www.bensound.com/bensound-music/bensound-pianomoment.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        (function() {
+            // ============================================================
+            //  1. 100 节对话 (前80节大二剧情，后20节大二专属回忆)
+            // ============================================================
+            const dialogues = [];
+
+            function addDialogue(step, text) {
+                dialogues.push({ step: step, text: text });
+            }
+
+            // ----- 前80节：大二完整叙事 -----
+            addDialogue("九月 · 大二开学", "陈深再次站在清华园门口，行李比去年轻了些，\n但心里装的东西多了。");
+            addDialogue("迎新 · 成为学长", "“学长，贵系难吗？”一个新生怯生生地问。\n陈深笑了笑：“难，但值得。”");
+            addDialogue("搬进新宿舍", "室友换了一位，但还是一样的热闹。\n“这次我们得把宿舍收拾得像个家。”陈深说。");
+            addDialogue("大二课表", "数算、OS、计组、概率论……课表比大一满得多。\n陈深深吸一口气：“来吧。”");
+            addDialogue("第一堂课 · OS", "操作系统老师第一句话：“这门课挂科率30%。”\n教室里一片寂静，陈深默默把笔握紧。");
+            addDialogue("图书馆 · 清晨", "七点，图书馆还没什么人。\n陈深坐在老位置，翻开《深入理解计算机系统》。");
+            addDialogue("实验室 · 初遇", "导师带他参观实验室，满屏的代码和闪烁的服务器灯。\n“以后这就是你的工位。”");
+            addDialogue("组会 · 第一次汇报", "陈深站在白板前，讲自己读的paper。\n声音有点抖，但逻辑还算清晰。");
+            addDialogue("课后 · 答疑", "OS的作业太难，陈深和同学一起讨论到深夜。\n“原来进程调度是这个意思！”他恍然大悟。");
+            addDialogue("夜宵 · 紫荆园", "凌晨的紫荆园，几个人围着一锅麻辣香锅。\n“这学期我们一定要做出点东西来。”");
+            addDialogue("技术栈 · 选择", "前端还是后端？机器学习还是系统？\n陈深在笔记本上画了张图，决定都试试。");
+            addDialogue("Git · 第一次提交", "陈深把自己的小项目push到GitHub。\n星星只有三个，但他看着绿点，很开心。");
+            addDialogue("Code Review", "学长给他提了十几条修改意见。\n陈深一条条改，改到凌晨三点。");
+            addDialogue("项目 · 第一个里程碑", "demo跑通了！陈深跳了起来，\n室友被吵醒：“你疯啦？” “我成功了！”");
+            addDialogue("秋天 · 银杏", "十月，清华的银杏又黄了。\n陈深骑着车穿过学堂路，心里想着这学期的计划。");
+            addDialogue("期中 · 战斗", "OS和计组的期中考试挤在同一个星期。\n陈深把咖啡当水喝，熬过了最难的几天。");
+            addDialogue("成绩 · 进步", "OS 89，计组 91。陈深看着成绩，\n“比大一进步了。” 他笑了。");
+            addDialogue("社团 · 传承", "陈深把计算机协会部长的职务交给学弟。\n“好好干，这里会给你很多。” 他说。");
+            addDialogue("新朋友", "在实验室认识了一个做AI的女生。\n“你的模型收敛得真快。” 她夸他。");
+            addDialogue("合作 · 项目", "他们决定一起做一个推荐系统。\n陈深负责后端，她负责模型。");
+            addDialogue("深夜 · 实验室", "凌晨两点，实验室只有他们两个人。\n“这个embedding维度是不是太大了？” 她问。");
+            addDialogue("初雪 · 一起看", "北京的第一场雪，他们站在实验室窗前。\n“下雪了。” 她轻声说。陈深点了点头。");
+            addDialogue("食堂 · 日常", "“今天的番茄牛腩不错。” 陈深说。\n“你每次都点这个。” 她笑着摇头。");
+            addDialogue("项目 · 突破", "推荐系统的准确率突然提升了8%。\n“我们做到了！” 他们击掌。");
+            addDialogue("论文 · 初稿", "导师说：“试试投一下AAAI。”\n陈深愣住了：“真的吗？”");
+            addDialogue("修改 · 论文", "连续一周，每天改到凌晨。\n陈深的黑眼圈重了，但稿子越来越像样。");
+            addDialogue("投稿 · 忐忑", "点击提交的那一刻，陈深的手在抖。\n“尽人事，听天命。” 他对自己说。");
+            addDialogue("等待 · 焦虑", "每天刷邮箱，每次看到新邮件心都悬起来。\n“别急，该来的总会来。” 室友安慰他。");
+            addDialogue("冬日 · 紫操", "寒风中，陈深在紫操跑步。\n一圈又一圈，烦恼都随着呼吸飘散了。");
+            addDialogue("图书馆 · 期末", "期末复习季，图书馆一座难求。\n陈深早上六点就去占座，一直坐到关门。");
+            addDialogue("期末 · 最后一门", "考完OS，陈深走出考场。\n阳光很好，他伸了个懒腰：“终于结束了。”");
+            addDialogue("寒假 · 回家", "火车上，陈深望着窗外。\n“大二上，比我想象的精彩。”");
+            addDialogue("春节 · 团聚", "妈妈做了满满一桌菜。\n“瘦了。” 妈妈说。陈深笑了：“没瘦，是壮了。”");
+            addDialogue("新年 · 目标", "大年初一，陈深写下：\n1. 把论文投出去 2. 去一次实习 3. 带她看一次日出。");
+            addDialogue("返校 · 春天", "二月底，清华园玉兰花开。\n陈深骑着车，感觉一切都充满希望。");
+            addDialogue("新学期 · 新计划", "课表依然很满，但陈深多了一份从容。\n“慢慢来，比较快。”");
+            addDialogue("实验室 · 新方向", "导师建议他试试分布式系统。\n“这个方向很有前途。” 导师说。");
+            addDialogue("读paper · 海量", "一周读了20篇paper，\n陈深觉得自己的脑子要炸了，但视野开阔了很多。");
+            addDialogue("实习 · 投递", "陈深投了五六家公司，\n每天刷邮箱，等待面试通知。");
+            addDialogue("面试 · 第一次", "电话面试，他手心全是汗。\n“请介绍一下你的项目……” 他深呼吸，开始讲。");
+            addDialogue("offer · 惊喜", "收到了实习offer！陈深在实验室里跳了起来。\n室友说：“请客！” 他笑着说：“必须的。”");
+            addDialogue("春天 · 踏青", "和朋友们去植物园看花。\n“陈深，帮我们拍张照！” 他按下了快门。");
+            addDialogue("论文 · 结果", "邮箱里躺着一封邮件：Accepted！\n陈深愣了五秒，然后大喊：“我们中了！”");
+            addDialogue("庆祝 · 火锅", "全组一起去吃火锅，\n导师说：“陈深，干得不错。” 他心里暖暖的。");
+            addDialogue("初夏 · 实验室", "天渐渐热了，实验室的空调开得很足。\n陈深在写自己的第一篇paper。");
+            addDialogue("毕业季 · 送别", "大四的学长要毕业了，\n“陈深，实验室就交给你了。” 学长拍了拍他的肩。");
+            addDialogue("暑假 · 实习", "陈深去了一家互联网公司，\n每天写代码、开会、加班，但很充实。");
+            addDialogue("实习 · 成长", "公司里的大佬教了他很多工程实践。\n“原来代码还能这样写。” 他感叹。");
+            addDialogue("同事 · 友谊", "和实习生们一起吃饭、吐槽、加班到深夜。\n“这大概就是打工人的快乐吧。”");
+            addDialogue("实习结束", "最后一天，同事们给他办了欢送会。\n“陈深，回来转正啊！” 他笑着点头。");
+            addDialogue("八月 · 返校", "实习结束，陈深回到清华。\n校园里又有了新面孔，他感到一种奇妙的归属感。");
+            addDialogue("大二 · 回望", "“这一年，我做了很多以前不敢想的事。”\n陈深在日记本上写下这句话。");
+            addDialogue("技术 · 深入", "陈深开始系统学习分布式系统的原理，\nraft算法、paxos、zab……他一点点啃下来。");
+            addDialogue("开源 · 贡献", "他第一次给开源项目提了PR，\n虽然只是改了一个小bug，但感觉像参加了奥运会。");
+            addDialogue("讲座 · 分享", "陈深在学校的技术沙龙上做了一次分享，\n台下有三十多人，他讲完时掌声响起。");
+            addDialogue("深夜 · 思考", "有时候陈深会想：我到底想要什么样的未来？\n他不知道答案，但知道走在正确的路上。");
+            addDialogue("友情 · 延续", "和室友从陌生到熟悉，从熟悉到像家人。\n“以后我们还会是朋友吧？” “当然。”");
+            addDialogue("爱情 · 靠近", "和那个女生一起看了很多次日落，\n谁也没有说破，但心里都明白。");
+            addDialogue("决定 · 方向", "陈深决定走系统方向，\n“我喜欢造轮子，喜欢底层的东西。” 他说。");
+            addDialogue("导师 · 谈心", "导师说：“你很有潜力，继续坚持。”\n陈深把这句话记在了心里。");
+            addDialogue("大二 · 尾声", "暑假的最后一天，陈深坐在紫操草地上。\n“大二结束了，但故事还在继续。”");
+
+            // ===== 补充至100节 (大二专属回忆) =====
+            const extraMoments = [
+                "深夜 · 实验室", "凌晨的实验室只剩下陈深一个人。\n他伸了个懒腰，决定再调一个参数再走。",
+                "食堂 · 清芬", "清芬园的烤鸭是陈深的新宠。\n“老板，来半只！” 他喊得像个老饕。",
+                "操场 · 夜跑", "陈深在紫操跑步，耳机里放着技术播客。\n一圈又一圈，思路也跑通了。",
+                "图书馆 · 顶层", "陈深喜欢坐在图书馆顶层的落地窗前。\n阳光洒在代码上，一切都刚刚好。",
+                "宿舍 · 夜谈", "熄灯后，室友们聊起实习和未来。\n“我想去大厂。” “我想做点不一样的东西。” 陈深听着，心里有了方向。",
+                "课堂 · 前排", "陈深依然坐在第一排，离老师最近的地方。\n“这样才能问最刁钻的问题。” 他说。",
+                "考试 · 从容", "考试前夜，陈深不再焦虑。\n他深呼吸，告诉自己：“你已经准备了一年。”",
+                "出分 · 淡然", "查成绩的那一刻，陈深的手不再抖。\n看到分数后，他微微一笑。",
+                "社团 · 回忆", "陈深回计算机协会看了看，\n学弟学妹们正在讨论算法题，像极了当年的自己。",
+                "朋友 · 重逢", "暑假前，去交换的朋友回来了。\n“一年不见，你变强了。” “你也是。” 他们击掌。",
+                "父母 · 电话", "“妈，我挺好的，论文中了。”\n电话那头传来惊喜的声音：“真的吗！”",
+                "自己 · 对话", "陈深对着镜子说：“嘿，你比去年更好了。”\n镜子里的人笑了，那是从容的笑容。",
+                "迷茫 · 清晰", "有时候陈深会想：我到底想要什么？\n但想着想着，答案就慢慢浮现了。",
+                "坚持 · 意义", "“再坚持一下。” 陈深对自己说。\n这一下，就是大二一整年。",
+                "成长 · 蜕变", "从写作业到写论文，从学知识到创造知识。\n陈深觉得自己像换了一个操作系统。",
+                "感恩 · 所有", "“谢谢所有陪我走过这段路的人。”\n陈深在心底默默说。",
+                "未来 · 可期", "大三的路就在脚下，陈深迈出了第一步。\n他知道，未来还很长，但他准备好了。",
+                "清华 · 烙印", "“自强不息，厚德载物。”\n这八个字，已经刻在了陈深心里。",
+                "青春 · 无悔", "“我的大二，没有遗憾。”\n陈深对着天空说。",
+                "故事 · 继续", "故事还在继续，陈深还在前行。\n而你也一样，你的故事也正在书写。"
+            ];
+
+            for (let m of extraMoments) {
+                addDialogue(m[0], m[1]);
+            }
+
+            // 确保正好100节
+            while (dialogues.length < 100) {
+                addDialogue("沉淀 · 成长", "陈深在日记里写道：\n“大二教会我的，是如何在不确定中找到自己的路。”");
+            }
+            dialogues.length = 100;
+
+            // ============================================================
+            //  2. 游戏引擎
+            // ============================================================
+            let currentIndex = 0;
+            const storyTextEl = document.getElementById('storyText');
+            const storyArea = document.getElementById('storyArea');
+            const clickHint = document.getElementById('clickHint');
+            const stepDisplay = document.getElementById('stepDisplay');
+            const progressText = document.getElementById('progressText');
+            const resetBtn = document.getElementById('resetBtn');
+            const portalBtn = document.getElementById('portalBtn');
+            const toastEl = document.getElementById('toast');
+            const catSpeak = document.getElementById('catSpeak');
+            let catSpeakTimer = null;
+            let toastTimer = null;
+
+            function showToast(msg) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
+            }
+
+            function catSpeakMsg(msg) {
+                catSpeak.textContent = '🐱 ' + msg;
+                catSpeak.classList.add('show');
+                clearTimeout(catSpeakTimer);
+                catSpeakTimer = setTimeout(() => catSpeak.classList.remove('show'), 3000);
+            }
+
+            function renderDialogue(index) {
+                if (index >= dialogues.length) {
+                    index = dialogues.length - 1;
+                }
+                const d = dialogues[index];
+                storyTextEl.innerHTML = `<span class="speaker">📖 ${d.step}</span><br>${d.text}`;
+                stepDisplay.textContent = `第 ${index+1} / ${dialogues.length} 节`;
+                progressText.textContent = `进度 ${Math.round((index+1)/dialogues.length * 100)}%`;
+                currentIndex = index;
+            }
+
+            function nextDialogue() {
+                if (currentIndex < dialogues.length - 1) {
+                    renderDialogue(currentIndex + 1);
+                    if (Math.random() < 0.10) {
+                        const msgs = ['喵~ 大二好精彩！', '陈深加油！', '🐱 我也想去清华~', '这个故事真好听！', '继续翻吧~'];
+                        catSpeakMsg(msgs[Math.floor(Math.random() * msgs.length)]);
+                    }
+                } else {
+                    resetGame();
+                    showToast('🔄 故事重新开始 · 大二的回忆');
+                }
+            }
+
+            function resetGame() {
+                renderDialogue(0);
+                showToast('📖 回到大二的第一天');
+            }
+
+            // ===== 点击事件：故事面板 + 提示条 =====
+            storyArea.addEventListener('click', function(e) {
+                // 如果点击的是内部按钮（比如重置），不触发翻页
+                if (e.target.closest('.reset-btn') || e.target.closest('.tag-btn')) return;
+                nextDialogue();
+            });
+
+            clickHint.addEventListener('click', function(e) {
+                e.stopPropagation();
+                nextDialogue();
+            });
+
+            resetBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                resetGame();
+            });
+
+            // ===== 传送门 =====
+            portalBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const randomIdx = Math.floor(Math.random() * dialogues.length);
+                renderDialogue(randomIdx);
+                showToast(`🌀 传送门开启 · 第 ${randomIdx+1} 节`);
+                catSpeakMsg('喵！你传送到这里了~');
+            });
+
+            // ============================================================
+            //  3. 壁纸
+            // ============================================================
+            const appContainer = document.getElementById('appContainer');
+            const wallpaperMap = {
+                galaxy: 'url(https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1600&q=80)',
+                nebula: 'url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80)',
+                tsinghua: 'url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1600&q=80)',
+                sakura: 'url(https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1600&q=80)',
+                ocean: 'url(https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?w=1600&q=80)',
+                snowmountain: 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80)'
+            };
+            const wallpaperNames = {
+                galaxy: '银河',
+                nebula: '星云',
+                tsinghua: '二校门',
+                sakura: '樱花',
+                ocean: '海洋',
+                snowmountain: '日照金山'
+            };
+            let currentWallpaper = 'galaxy';
+            let customWallpaper = null;
+
+            function applyWallpaper() {
+                if (customWallpaper) {
+                    appContainer.style.backgroundImage = `url(${customWallpaper})`;
+                } else if (wallpaperMap[currentWallpaper]) {
+                    appContainer.style.backgroundImage = wallpaperMap[currentWallpaper];
+                } else {
+                    appContainer.style.backgroundImage = 'none';
+                    appContainer.style.backgroundColor = 'rgba(10,6,20,0.3)';
+                }
+                appContainer.style.backgroundSize = 'cover';
+                appContainer.style.backgroundPosition = 'center';
+            }
+
+            function setWallpaper(wp) {
+                currentWallpaper = wp;
+                customWallpaper = null;
+                document.getElementById('wallpaperLabel').textContent = wallpaperNames[wp] || wp;
+                document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                    el.classList.toggle('active', el.dataset.wallpaper === wp);
+                });
+                applyWallpaper();
+                localStorage.setItem('qingyun_wallpaper', wp);
+                showToast(`🖼️ 壁纸: ${wallpaperNames[wp]}`);
+            }
+
+            document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    setWallpaper(this.dataset.wallpaper);
+                });
+            });
+
+            document.getElementById('uploadWallpaperBtn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                document.getElementById('wallpaperUpload').click();
+            });
+            document.getElementById('wallpaperUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    customWallpaper = ev.target.result;
+                    currentWallpaper = 'custom';
+                    document.getElementById('wallpaperLabel').textContent = '自定义';
+                    document.querySelectorAll('.wp-dot').forEach(el => el.classList.remove('active'));
+                    document.getElementById('uploadWallpaperBtn').classList.add('active');
+                    applyWallpaper();
+                    localStorage.setItem('qingyun_custom_wallpaper', customWallpaper);
+                    showToast('🖼️ 自定义壁纸已应用');
+                };
+                reader.readAsDataURL(file);
+                this.value = '';
+            });
+
+            // 加载保存的壁纸
+            const savedWp = localStorage.getItem('qingyun_wallpaper');
+            if (savedWp && wallpaperMap[savedWp]) {
+                currentWallpaper = savedWp;
+                document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                    el.classList.toggle('active', el.dataset.wallpaper === currentWallpaper);
+                });
+                document.getElementById('wallpaperLabel').textContent = wallpaperNames[currentWallpaper] || currentWallpaper;
+            }
+            const savedCustom = localStorage.getItem('qingyun_custom_wallpaper');
+            if (savedCustom) {
+                customWallpaper = savedCustom;
+                currentWallpaper = 'custom';
+                document.getElementById('wallpaperLabel').textContent = '自定义';
+                document.getElementById('uploadWallpaperBtn').classList.add('active');
+            }
+            applyWallpaper();
+
+            // ============================================================
+            //  4. BGM 控制
+            // ============================================================
+            const bgm = document.getElementById('bgm');
+            const bgmToggle = document.getElementById('bgmToggle');
+            const bgmIcon = document.getElementById('bgmIcon');
+            const bgmLabel = document.getElementById('bgmLabel');
+            let bgmPlaying = true;
+
+            // 尝试自动播放
+            function tryPlayBgm() {
+                bgm.volume = 0.3;
+                bgm.play().catch(function(e) {
+                    console.log('BGM 自动播放被阻止，点击页面后播放');
+                    // 用户点击任何地方时播放
+                    document.addEventListener('click', function playOnClick() {
+                        bgm.play().catch(() => {});
+                        document.removeEventListener('click', playOnClick);
+                    }, { once: true });
+                });
+            }
+
+            // 等待用户交互后再播放
+            setTimeout(tryPlayBgm, 500);
+
+            bgmToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (bgmPlaying) {
+                    bgm.pause();
+                    bgmPlaying = false;
+                    bgmIcon.className = 'fas fa-music-slash';
+                    bgmLabel.textContent = 'BGM 已暂停';
+                    showToast('🔇 BGM 已暂停');
+                } else {
+                    bgm.play().catch(() => {});
+                    bgmPlaying = true;
+                    bgmIcon.className = 'fas fa-music';
+                    bgmLabel.textContent = '轻柔钢琴 · 大二时光';
+                    showToast('🎵 BGM 已恢复');
+                }
+            });
+
+            // ============================================================
+            //  5. 时钟 & 天气
+            // ============================================================
+            const clockTime = document.getElementById('navClockTime');
+            const clockDate = document.getElementById('navClockDate');
+            const weatherTemp = document.getElementById('navWeatherTemp');
+            const weatherDesc = document.getElementById('navWeatherDesc');
+
+            function updateClock() {
+                const now = new Date();
+                clockTime.textContent = now.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' });
+                clockDate.textContent = now.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            const wList = ['晴', '多云', '阴', '小雨', '晴'];
+            let wi = 0;
+
+            function updateW() {
+                const w = wList[wi % wList.length];
+                wi++;
+                weatherDesc.textContent = w;
+                weatherTemp.textContent = (20 + Math.floor(Math.random() * 12)) + '°C';
+            }
+            updateW();
+            setInterval(updateW, 30000);
+
+            // ============================================================
+            //  6. 键盘快捷键
+            // ============================================================
+            document.addEventListener('keydown', function(e) {
+                if (e.target.tagName === 'INPUT') return;
+                if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') {
+                    e.preventDefault();
+                    nextDialogue();
+                }
+                if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                    renderDialogue(currentIndex - 1);
+                }
+                if (e.key === 'r' || e.key === 'R') {
+                    resetGame();
+                }
+                if (e.key === 'p' || e.key === 'P') {
+                    portalBtn.click();
+                }
+            });
+
+            // ============================================================
+            //  7. 启动
+            // ============================================================
+            renderDialogue(0);
+            console.log('🎓 陈深 · 大二叙事 已启动');
+            console.log('📖 共 100 节故事，点击故事面板翻阅');
+            console.log('⌨️  空格/右键 → 下一节 | 左键 → 上一节 | R → 重置 | P → 传送门');
+            console.log('🖼️ 壁纸可切换，也可上传自定义');
+
+            setTimeout(() => {
+                catSpeakMsg('🐱 欢迎来看陈深的大二故事！');
+            }, 800);
+        })();
+    </script>
+</body>
+</html>
