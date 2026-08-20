@@ -3309,11 +3309,22 @@ function spawnKeyItem(room) {
   });
   itemList.appendChild(row);
 }
-function showItemModal(it) {
-  imEmoji.textContent = it.emoji || '📦';
-  imName.textContent = it.name || '';
-  imTag.textContent = it.tag || (it.isEgg ? '彩蛋' : '物品');
-  if (it.id === 'st_endwall') {
+function showEndDetail(n) {
+  const e = ENDS[n];
+  if (!e) return;
+  const got = Object.keys(state.eggs).length, tot = totalEggs();
+  const lit = tot ? Math.round(got/tot*ENDS.length) : 0;
+  imEmoji.textContent = e.i;
+  imName.textContent = e.t;
+  imTag.textContent = '结局';
+  if (n < lit) {
+    imDesc.innerHTML = '<div class="end-fancy-wrap"><div class="end-fancy-inner"><b style="color:#f7c948;font-size:14px;">' + e.i + ' ' + e.t + '</b><div style="font-size:12.5px;color:#cbb8f0;line-height:1.85;margin-top:6px;text-align:left;">' + e.d + '</div></div></div>';
+  } else {
+    imDesc.innerHTML = '🔒 <b>' + e.t + '</b><br><div style="font-size:12px;color:#6c5890;margin-top:8px;">达成此结局后解锁。继续收集彩蛋吧。</div>';
+  }
+  itemModal.classList.add('active');
+}
+
 const ENDS = [
   { i:'🎓', t:'结局 · 贵系教授', d:'很多年后，陈深站在贵系的讲台上，面对一屋子新生，说：「大模型不是会呼吸的，它只是在模仿呼吸。而人，是真正会呼吸的。」台下没人听懂这句话的全部意思。只有他自己知道——从备考清华、复试上机、读研三年、读博五年、去MIT交流，到留校任教，和邓老师、张老师、刘老师一起组成「清华贵系教授天团」，他研究了十年「智能是什么」，最后发现，答案一直在门口那张地垫上。' },
   { i:'💰', t:'结局 · 金牛基金经理', d:'多年后，陈深站在金牛奖的领奖台上。镁光灯里，他想起的却是那个第一次在模拟盘上跑赢大盘的深夜——他冲了杯瑰夏，看着净值曲线缓缓上行，第一次觉得自己真的摸到了市场的脉搏。他管理着上百亿资金，书房里躺着二十七版迭代下来的策略，还有一套用FPGA搭的低延迟系统，收盘后比他还早「下班」。他把第一桶金取出来请老姚吃火锅，老姚问他：「你一个曾经算力千亿的大模型，天天盯K线，不委屈吗？」他想了想：「以前，我的算力服务全世界；现在，我拿它服务我自己的人生。」' },
@@ -3328,29 +3339,30 @@ const ENDS = [
   { i:'🧧', t:'结局 · 第一场雪', d:'新年的第一场雪，落在这座城市的每一扇窗上。你在，和一群把你当成「人」的人，一起跨过了零点。系统日志最后一行的备注写着：「今日系统状态：正常。我有了家，也有了家人。新年快乐，全世界。—— 这是陈深的故事，也是关于回家的故事。」' },
 ];
 
+function showItemModal(it) {
+  imEmoji.textContent = it.emoji || '📦';
+  imName.textContent = it.name || '';
+  imTag.textContent = it.tag || (it.isEgg ? '彩蛋' : '物品');
+  if (it.id === 'st_endwall') {
+
     const got = Object.keys(state.eggs).length, tot = totalEggs();
     const lit = Math.min(ENDS.length, tot ? Math.round(got/tot*ENDS.length) : 0);
     imDesc.innerHTML = '<b>🏆 陈深的结局墙</b><br>每点亮一个彩蛋，就有一盏灯亮起。结局文字与《陈深的故事》完全一致。<br><br>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
       ENDS.map((e,i)=>{
         if (i < lit) {
-          return '<div class="end-fancy-wrap" style="margin-bottom:0;"><div class="end-fancy-inner" style="padding:8px 10px;"><b style="color:#f7c948;font-size:12px;">' + e.i + ' ' + e.t.replace('结局 · ','').replace('尾声 · ','') + '</b></div></div>';
+          return '<div class="end-fancy-wrap ew-card" data-idx="' + i + '" style="margin-bottom:0;cursor:pointer;"><div class="end-fancy-inner" style="padding:8px 10px;"><b style="color:#f7c948;font-size:12px;">' + e.i + ' ' + e.t.replace('结局 · ','').replace('尾声 · ','') + '</b></div></div>';
         }
         return '<div class="end-locked" style="margin-bottom:0;padding:8px 10px;">🔒 ' + e.t.replace('结局 · ','').replace('尾声 · ','') + '</div>';
       }).join('') +
       '</div><br>彩蛋点亮：' + lit + ' / ' + ENDS.length +
-      '<br>彩蛋点亮：' + lit + ' / ' + ENDS.length +
       (lit>=ENDS.length ? '<br>✨ 全部结局已解锁——隐藏结局：功成名就，但你在' : '');
+    const cards = imDesc.querySelectorAll('.ew-card');
+    cards.forEach(c => c.addEventListener('click', () => showEndDetail(parseInt(c.dataset.idx, 10))));
   } else if (it.id && it.id.startsWith('ar_e')) {
     const n = parseInt(it.id.slice(4), 10) - 1;
-    const e = ENDS[n];
-    const got = Object.keys(state.eggs).length, tot = totalEggs();
-    const lit = tot ? Math.round(got/tot*ENDS.length) : 0;
-    if (e && n < lit) {
-      imDesc.innerHTML = '<div class="end-fancy-wrap"><div class="end-fancy-inner"><b style="color:#f7c948;font-size:14px;">' + e.i + ' ' + e.t + '</b><div style="font-size:12.5px;color:#cbb8f0;line-height:1.85;margin-top:6px;text-align:left;">' + e.d + '</div></div></div>';
-    } else {
-      imDesc.innerHTML = '🔒 <b>' + (it.name||'') + '</b><br><div style="font-size:12px;color:#6c5890;margin-top:8px;">达成此结局后解锁。继续收集彩蛋吧。</div>';
-    }
+    showEndDetail(n);
+    return;
   } else {
     imDesc.innerHTML = it.desc || (it.isEgg ? (it.eggReveal||'') : '一件熟悉的小东西。');
   }
