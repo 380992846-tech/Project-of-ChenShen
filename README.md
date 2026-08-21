@@ -4,8 +4,6 @@
 
 **从零实现的大模型推理优化 · 量化交易策略 · 交互网页与游戏**
 
-个人研究 Monorepo：把**算法正确**的模型，做成**又快、又省、又能抗并发**的服务。
-
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.x-orange)
 ![JoinQuant](https://img.shields.io/badge/量化-聚宽策略-red)
