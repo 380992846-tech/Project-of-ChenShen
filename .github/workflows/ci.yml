@@ -17,10 +17,11 @@ jobs:
       - name: Install ruff
         run: pip install ruff
       - name: Ruff check
-        # lint 仅覆盖“受维护/已测试”代码；历史 JoinQuant 脚本暂未纳入，见 docs/架构说明.md
-        run: ruff check tests 大模型/quant_features.py
+        # lint 覆盖“受维护/已测试”代码（tests、quant_features、llm 推理优化子包）；
+        # 历史 JoinQuant 脚本暂未纳入，见 docs/架构说明.md
+        run: ruff check tests 大模型/quant_features.py 大模型/llm
       - name: Ruff format check
-        run: ruff format --check tests 大模型/quant_features.py
+        run: ruff format --check tests 大模型/quant_features.py 大模型/llm
 
   test:
     name: Test (pytest)

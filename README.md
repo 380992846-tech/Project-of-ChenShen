@@ -140,6 +140,44 @@ Project1/
 
 ---
 
+##  推理优化（Inference Optimization）
+
+> 目标是形成一条完整的推理优化主线：**KV Cache → 量化对比 → 投机解码 → 并发 serving**。
+> 现阶段已完成第一步：KV Cache + prefill/decode 分离。
+
+### 现状（Step 1：KV Cache）
+
+`大模型/llm/` 子包实现了一个 **decoder-only 因果 GPT**，支持：
+
+- **KV Cache**：解码时缓存每层 K/V，避免每步重算整个上下文；
+- **prefill / decode 分离**：首步一次性处理 prompt，之后每步只处理 1 个 token；
+- **正确性保证**：单元测试断言 KV 与非 KV 生成结果**逐 token 完全一致**。
+
+实测（CPU，891K 参数，生成 300 token，3 次取平均）：
+
+| 指标 | 无 KV Cache | 有 KV Cache |
+|------|------------|-------------|
+| 平均每 token 耗时 | 10.0 ms | 2.8 ms |
+| 生成速率 | 99.6 tokens/s | 356.0 tokens/s |
+| **加速比** | 1.0× | **3.6×** |
+
+- 完整报告：[`大模型/llm/reports/kv_cache_report.md`](大模型/llm/reports/kv_cache_report.md)
+- 对比曲线：[`大模型/llm/reports/kv_cache_speedup.png`](大模型/llm/reports/kv_cache_speedup.png)
+
+**复现：**
+
+```bash
+python 大模型/llm/benchmark.py --n_layer 4 --n_embd 128 --n_head 4 --prompt_len 128 --gen_len 300
+```
+
+**Roadmap：**
+- [x] KV Cache + prefill/decode 分离（Step 1）
+- [ ] INT8/INT4/FP8 量化对比（PPL + 加速 + 显存）
+- [ ] Speculative Decoding（投机采样）
+- [ ] 连续批处理（continuous batching）与吞吐基准
+
+---
+
 ##  HTML 应用速览
 
 | 分类 | 页面（共 35 个） | 说明 |
