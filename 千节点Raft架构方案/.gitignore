@@ -1,0 +1,14 @@
+# Go
+bin/
+*.exe
+*.test
+*.out
+
+# 构建产物
+build/
+
+# Raft 数据目录
+/tmp/raft/
+
+# 依赖
+vendor/

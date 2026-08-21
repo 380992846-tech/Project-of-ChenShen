@@ -1,0 +1,23 @@
+# Dockerfile.router
+# 路由层容器镜像
+
+FROM golang:1.21-alpine AS builder
+
+WORKDIR /src
+COPY go.mod ./
+# go.sum 存在时一并复制；此处示例无 go.sum，如依赖锁定请补充
+# COPY go.sum ./
+RUN go mod download
+
+COPY . .
+RUN go build -o /bin/kvstore-router ./cmd/kvstore-router
+
+FROM alpine:3.19
+RUN apk --no-cache add ca-certificates
+COPY --from=builder /bin/kvstore-router /usr/local/bin/kvstore-router
+
+ENV METADATA_ENDPOINTS="metadata-0:2379,metadata-1:2379,metadata-2:2379,metadata-3:2379,metadata-4:2379"
+ENV LISTEN_ADDR=":8080"
+
+EXPOSE 8080
+ENTRYPOINT ["kvstore-router"]

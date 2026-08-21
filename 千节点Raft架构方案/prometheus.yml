@@ -1,0 +1,21 @@
+# prometheus.yml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 路由层指标
+  - job_name: 'kvstore-router'
+    static_configs:
+      - targets: ['router:9100']
+
+  # 数据节点指标（生产环境建议基于 etcd 服务发现动态发现节点）
+  - job_name: 'kvstore-node'
+    static_configs:
+      - targets:
+          - 'kvstore-node-0:9100'
+          - 'kvstore-node-1:9100'
