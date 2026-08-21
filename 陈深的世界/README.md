@@ -14,13 +14,20 @@
 
 ## 手机上玩（PWA）
 
-游戏已配好 **PWA**（可安装、可离线玩）：`manifest.webmanifest` + `service-worker.js` + 图标已就位。
+两个游戏都已配好 **PWA**（可安装、可离线玩）：
+
+| 游戏 | manifest | 入口 |
+|------|----------|------|
+| 《陈深的世界》 | `manifest.webmanifest` | `陈深的世界-房间清单.html` |
+| 《陈深的故事 V5》 | `manifest-story.webmanifest` | `陈深的故事V5.html` |
+
+共享 `service-worker.js`（离线缓存两个游戏 + CDN 图片）+ `icons/` 图标。
 
 **手机上用**（需要先托管）：
 1. 把 `陈深的世界/` 部署到 **GitHub Pages / Vercel / Netlify**（任选一个，免费）；
 2. 手机浏览器打开游戏地址；
 3. **添加到主屏幕**（iOS Safari：分享 → 添加到主屏幕；Android Chrome：菜单 → 安装应用）；
-4. 图标会出现在桌面，点开**全屏运行**，首次加载后**离线也能玩**。
+4. 图标出现在桌面，点开**全屏运行**，首次加载后**离线也能玩**。
 
 > 说明：`service-worker.js` 会缓存应用外壳 + 运行时缓存 CDN 图片（`/photos/`），
 > 实现离线。图标在 `icons/`（清华紫 + 金色"陈"字）。

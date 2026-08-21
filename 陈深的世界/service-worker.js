@@ -6,7 +6,9 @@
 const CACHE = 'chenshen-v1';
 const APP_SHELL = [
   './陈深的世界-房间清单.html',
+  './陈深的故事V5.html',
   './manifest.webmanifest',
+  './manifest-story.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
 ];
