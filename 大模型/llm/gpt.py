@@ -123,6 +123,55 @@ class CausalSelfAttention(nn.Module):
         y = self.c_proj(y)
         return y, (k, v)
 
+    def forward_padded(
+        self,
+        x: torch.Tensor,
+        k_pad: torch.Tensor,
+        v_pad: torch.Tensor,
+        cache_len: torch.Tensor,
+    ):
+        """
+        continuous batching 用的**变长 KV** 前向。
+
+        Args:
+            x: (B, T, n_embd)。continuous batching 的 decode 步通常 T=1。
+            k_pad, v_pad: 已按最大长度填充的缓存 (B, n_head, max_len, head_dim)。
+            cache_len: (B,) 每个请求**本轮之前**已缓存的有效 token 数。
+
+        Returns:
+            (y, (new_k_pad, new_v_pad))：输出，以及把本轮新 token 写入后的填充缓存。
+        """
+        B, T, C = x.size()
+        qkv = self.c_attn(x)
+        q, k, v = qkv.split(self.n_embd, dim=2)
+
+        head, hd = self.n_head, self.head_dim
+        q = q.view(B, T, head, hd).transpose(1, 2)
+        k = k.view(B, T, head, hd).transpose(1, 2)
+        v = v.view(B, T, head, hd).transpose(1, 2)
+
+        max_len = k_pad.size(2)
+        new_k = k_pad.clone()
+        new_v = v_pad.clone()
+        # 把本轮新 token 的 K/V 写入各请求的有效区段
+        for r in range(B):
+            start = int(cache_len[r].item())
+            new_k[r, :, start : start + T, :] = k[r]
+            new_v[r, :, start : start + T, :] = v[r]
+
+        att = (q @ new_k.transpose(-2, -1)) * (1.0 / math.sqrt(hd))  # (B,H,T,max_len)
+        # per-row 掩码：有效键下标 < cache_len[r] + T，其余 -inf
+        pos = torch.arange(max_len, device=x.device).view(1, 1, 1, max_len)
+        valid_until = cache_len.view(B, 1, 1, 1) + T
+        att = att.masked_fill(pos >= valid_until, float("-inf"))
+
+        att = F.softmax(att, dim=-1)
+        att = self.dropout(att)
+        y = att @ new_v
+        y = y.transpose(1, 2).contiguous().view(B, T, C)
+        y = self.c_proj(y)
+        return y, (new_k, new_v)
+
 
 class Block(nn.Module):
     """Transformer Block：LayerNorm → 注意力 → MLP，带残差。"""
@@ -144,6 +193,19 @@ class Block(nn.Module):
         x = x + attn_out
         x = x + self.mlp(self.ln_2(x))
         return x, present
+
+    def forward_padded(
+        self,
+        x: torch.Tensor,
+        k_pad: torch.Tensor,
+        v_pad: torch.Tensor,
+        cache_len: torch.Tensor,
+    ):
+        """continuous batching 的 Block 前向（变长 KV + per-row 掩码）。"""
+        attn_out, (nk, nv) = self.attn.forward_padded(self.ln_1(x), k_pad, v_pad, cache_len)
+        x = x + attn_out
+        x = x + self.mlp(self.ln_2(x))
+        return x, (nk, nv)
 
 
 class GPT(nn.Module):
@@ -193,6 +255,49 @@ class GPT(nn.Module):
         x = self.transformer.ln_f(x)
         logits = self.lm_head(x)
         return logits, presents
+
+    @torch.no_grad()
+    def forward_continuous(
+        self,
+        idx: torch.Tensor,
+        past_pads: list[PastKeyValue] | None,
+        cache_lens: torch.Tensor,
+        buffer_len: int | None = None,
+    ):
+        """
+        continuous batching 前向：batch 内各请求可拥有**不同长度的 KV 缓存**。
+
+        Args:
+            idx: (B, T) token。decode 步通常 T=1。
+            past_pads: 每层 (k_pad, v_pad)，shape (B, n_head, buffer_len, head_dim)。
+            cache_lens: (B,) 每请求本轮之前的有效缓存 token 数。
+            buffer_len: 首次调用时的 KV 缓冲区长度（默认 block_size）。
+        Returns:
+            (logits, past_pads)：logits (B, T, vocab) 与更新后的填充缓存。
+        """
+        B, T = idx.size()
+        tok_emb = self.transformer.wte(idx)
+        # 每请求位置 = cache_len[r] + t
+        pos = cache_lens.unsqueeze(1) + torch.arange(T, device=idx.device).view(1, T)
+        pos_emb = self.transformer.wpe(pos)
+        x = tok_emb + pos_emb
+
+        new_pads: list[PastKeyValue] = []
+        for i, block in enumerate(self.transformer.h):
+            k_pad, v_pad = past_pads[i] if past_pads is not None else (None, None)
+            if k_pad is None:
+                # 首次调用：按 buffer_len 初始化填充缓存
+                max_len = buffer_len or self.config.block_size
+                n_head = block.attn.n_head
+                head_dim = block.attn.head_dim
+                k_pad = torch.zeros(B, n_head, max_len, head_dim, device=idx.device)
+                v_pad = torch.zeros_like(k_pad)
+            x, (nk, nv) = block.forward_padded(x, k_pad, v_pad, cache_lens)
+            new_pads.append((nk, nv))
+
+        x = self.transformer.ln_f(x)
+        logits = self.lm_head(x)
+        return logits, new_pads
 
     @torch.no_grad()
     def generate(
