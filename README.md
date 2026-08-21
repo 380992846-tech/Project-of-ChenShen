@@ -37,18 +37,19 @@ Project1/
 │   ├── 陈深的故事V5.html           # 互动剧情：大模型变成人的16章故事（V5）
 │   ├── 陈深的故事V2.html           # 剧情游戏早期版本
 │   └── 我们在一起V4.html           # 初代卡片版小世界
-├──  大模型/（12 个）
-│   ├── complete_ai_toolkit.py             # 全功能 AI 工具包（见下方详解）
-│   ├── transformer_O-O.py                 # 从零实现 MiniTransformer
-│   ├── TSINGHUA-小DS.py                   # 清华二校门智能语音助手
-│   ├── chat_with_jiujiu.py                # CAMEL × DeepSeek 对话助手
-│   ├── Poem.py                            # PoeticFlow 古典诗词生成 API
-│   ├── elastic_collision_sim.py           # 一维弹性碰撞物理模拟
-│   ├── joinquantV18.py                    # 聚宽 A股策略（随机森林版）
-│   ├── V14.py                             # 多资产风险平价量化系统
-│   ├── V21quant Model.py                  # 聚宽 ETF 交易策略（V21）
-│   ├── SHAP+值增量学习+LSTM+XGBoost.py     # 可解释 AI 选股策略
-│   ├── training_data.txt / vocab.json     # LLM 训练语料与词表
+├──  大模型/（13 个）
+│   ├── complete_ai_toolkit.py           # 全功能 AI 工具包（见下方详解）
+│   ├── mini_transformer.py              # 从零实现 MiniTransformer
+│   ├── voice_assistant.py               # 清华二校门智能语音助手
+│   ├── camel_chat.py                    # CAMEL × DeepSeek 对话助手
+│   ├── poem_api.py                      # PoeticFlow 古典诗词生成 API
+│   ├── elastic_collision_sim.py         # 一维弹性碰撞物理模拟
+│   ├── joinquant_v18.py                 # 聚宽 A股策略（随机森林版）
+│   ├── quant_v14.py                     # 多资产风险平价量化系统
+│   ├── quant_v21.py                     # 聚宽 ETF 交易策略（V21）
+│   ├── quant_xgboost_shap.py            # 可解释 AI 选股策略
+│   ├── quant_features.py                # 纯函数特征工程模块（供单元测试）
+│   ├── training_data.txt / vocab.json   # LLM 训练语料与词表
 ├──  网页作品/（35 个）
 │   ├── 校园课表/选课/叙事（6） 清华大学课程表、选课系统V2、贵系大一/大二…
 │   ├── 学习笔记/工坊（5）     紫清云笔记（V1/V2/V4pro）、贵系全能学长、deepseek_算法工坊
@@ -56,14 +57,16 @@ Project1/
 │   ├── 效率工具（5）         Markdown清理器、PDF合并、风控审合同、写诗
 │   ├── 科技可视化（4）       模拟太阳系、银河系+太阳系、量子研究、旋转特效
 │   └── 科普/量化/站点/生活（11） 大模型科普、量化舱、清华极客、ACM/MEM、柏悦酒店、英国旅游、五道口租房…
-│       （另含 `金融数学` —— 基于 NumPy/Pandas/ARCH 的金融计量分析脚本）
+│       （另含 `金融数学.py` —— 基于 NumPy/Pandas/ARCH 的金融计量分析脚本）
 ├──  笔记/（10 本）
 │   ├── 大模型科学与工程.md（172 KB）/ 计算机科学与技术.md（117 KB）
 │   ├── LLM技术栈.md（43 KB）/ 大模型全栈工程手册07201版.md（53 KB）
 │   └── 参考资料（PDF/DOCX）：LLM.pdf / 算力中心资产管理.pdf / 贵系培养方案.pdf / 量化.docx / 贵系.docx / 宇宙与物理规律.docx
 ├──  photos/（86 张）
 │   └── 小世界游戏素材（经 jsDelivr CDN 加载）
-└──  README.md
+├──  tests/                              # pytest 单元测试
+├──  docs/                               # 架构与工程说明
+└──  工程设施：README.md · pyproject.toml · requirements.txt · LICENSE · .github/ · .editorconfig
 ```
 
 ---
@@ -84,22 +87,22 @@ Project1/
 | 量化加速 | `--mode quantize` | INT8 量化，2–3 倍推理加速 |
 | 监控面板 | `--mode dashboard` | Streamlit 实时监控训练曲线与推理 |
 
-### 2. `transformer_O-O.py` — 从零实现 MiniTransformer
+### 2. `mini_transformer.py` — 从零实现 MiniTransformer
 
 - 完整 `MiniTransformer`：Embedding + 可学习位置编码 + `TransformerEncoder` + 线性输出头；
 - 用**算术序列**（`[a, b, c] → [b, c, a+b]`）演示 next-token 预测；
 - 工程细节：`AdamW` 优化器、`StepLR` 学习率衰减、CrossEntropyLoss。
 
-### 3. `TSINGHUA-小DS.py` — 清华二校门智能语音助手
+### 3. `voice_assistant.py` — 清华二校门智能语音助手
 
 - 基于 **DeepSeek API + Edge TTS** 的语音对话助手；
 - 特色：按时间智能问候、**对话记忆持久化**（JSON）、语音播放、角色化人设（"小DeepSeek"）。
 
-### 4. `chat_with_jiujiu.py` — CAMEL 多智能体对话
+### 4. `camel_chat.py` — CAMEL 多智能体对话
 
 - 基于 **CAMEL 框架** 的对话助手，接入 DeepSeek 模型平台，循环命令行交互。
 
-### 5. `Poem.py` — PoeticFlow 古典诗词生成 API
+### 5. `poem_api.py` — PoeticFlow 古典诗词生成 API
 
 - Flask RESTful 服务：词库（名词/动词/意象/情感）+ 格律校验 + 风格调制；
 - 启动后访问 `http://localhost:5000`。
@@ -109,29 +112,29 @@ Project1/
 - **事件驱动引擎**：碰撞时刻预测、完全弹性碰撞解析、球-球/球-墙碰撞、重叠修复；
 - 备选 **RK4 积分器** 路线，支持轨迹绘图、动画帧导出与质量比扫描实验。
 
-### 7. `joinquantV18.py` — 聚宽 A股策略 v18
+### 7. `joinquant_v18.py` — 聚宽 A股策略 v18
 
 - 特征工程（RSI 等技术指标）→ **随机森林** 分类 → 滚动训练；
 - 集成动态风控与回测对比模块（`backtest_compare`）。
 
-### 8. `V14.py` — 多资产风险平价量化系统
+### 8. `quant_v14.py` — 多资产风险平价量化系统
 
 - 多资产数据抓取（带本地缓存 `data_cache`）→ 特征标准化 → 随机森林信号；
 - **风险平价** 权重分配 + RSI 择时，含完整回测与日志体系。
 
-### 9. `V21quant Model.py` — 聚宽 ETF 交易策略 V21
+### 9. `quant_v21.py` — 聚宽 ETF 交易策略 V21
 
 - 交易标的：沪深300 ETF（510300）；
 - 核心机制：**ATR 动态止损止盈**、RSI 背离、布林带因子、**分批止盈**、大盘环境过滤、波动率过滤、无进展止损。
 
-### 10. `SHAP+值增量学习+LSTM+XGBoost.py` — 可解释 AI 选股策略
+### 10. `quant_xgboost_shap.py` — 可解释 AI 选股策略
 
 - 情绪因子：新闻 / 社交舆情情感打分；
 - 模型融合：**LSTM + XGBoost** 双模型信号；
 - 可解释性：**SHAP** 特征重要性报告；**值增量学习**：收益分歧检测 + 增量训练；
 - 动态阈值：ATR + 市场状态（牛/熊/震荡）自适应。
 
-### 11. `金融数学`（位于 `网页作品/`）— 金融计量分析脚本
+### 11. `金融数学.py`（位于 `网页作品/`）— 金融计量分析脚本
 
 - NumPy / Pandas / SciPy / ARCH 技术栈，含 GARCH 类波动率建模等计量分析。
 
@@ -170,7 +173,7 @@ Project1/
 
 ### 环境要求
 - Python 3.9+
-- 量化策略（`joinquantV18.py`、`V21quant Model.py`、`SHAP+值增量学习+LSTM+XGBoost.py`）需在**聚宽（JoinQuant）**平台运行
+- 量化策略（`joinquant_v18.py`、`quant_v21.py`、`quant_xgboost_shap.py`）需在**聚宽（JoinQuant）**平台运行
 
 ### AI 工具包
 ```bash
@@ -186,7 +189,7 @@ python complete_ai_toolkit.py --mode dashboard    # Streamlit 监控面板
 ### 诗词生成 API
 ```bash
 pip install flask flask-cors numpy scikit-learn
-python Poem.py
+python poem_api.py
 # 访问 http://localhost:5000
 ```
 
@@ -234,7 +237,7 @@ pip install edge-tts openai camel-ai
 
 ##  注意事项
 
-1. **API Key**：`chat_with_jiujiu.py` 与 `TSINGHUA-小DS.py` 会从环境变量 `DEEPSEEK_API_KEY` 读取密钥（代码不再内置密钥）。运行前请先设置：
+1. **API Key**：`camel_chat.py` 与 `voice_assistant.py` 会从环境变量 `DEEPSEEK_API_KEY` 读取密钥（代码不再内置密钥）。运行前请先设置：
    ```bash
    # Windows (PowerShell)
    $env:DEEPSEEK_API_KEY = "your-deepseek-api-key"

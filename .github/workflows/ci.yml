@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ruff
+        run: pip install ruff
+      - name: Ruff check
+        # lint 仅覆盖“受维护/已测试”代码；历史 JoinQuant 脚本暂未纳入，见 docs/架构说明.md
+        run: ruff check tests 大模型/quant_features.py
+      - name: Ruff format check
+        run: ruff format --check tests 大模型/quant_features.py
+
+  test:
+    name: Test (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: pip install -e .[dev]
+      - name: Run tests
+        run: pytest
+
+  smoke:
+    name: Smoke compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile all Python sources
+        run: |
+          find . -name '*.py' -not -path './.git/*' -print0 | xargs -0 -n1 python -m py_compile

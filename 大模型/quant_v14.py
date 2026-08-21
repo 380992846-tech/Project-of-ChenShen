@@ -12,6 +12,7 @@ import pickle
 import os
 import time
 from itertools import product
+from typing import Dict
 warnings.filterwarnings('ignore')
 
 # 配置日志
@@ -89,7 +90,8 @@ def fetch_data_with_cache(symbol: str, asset_type: str, start_date: str, end_dat
         df = yf.download(symbol, start=start_date, end=end_date, progress=False)
         if len(df) > 0:
             price_series = df['Close'].rename(symbol)
-    except: pass
+    except Exception as e:
+        logger.debug("yfinance 拉取失败（%s），尝试 akshare…", e)
     
     if price_series is None:
         try:
@@ -106,7 +108,8 @@ def fetch_data_with_cache(symbol: str, asset_type: str, start_date: str, end_dat
                 df = df.set_index('date').sort_index()
                 df = df[df.index >= start_date]
                 price_series = df['close'].rename(symbol)
-        except: pass
+        except Exception as e:
+            logger.debug("akshare 拉取失败（%s），回退到模拟数据…", e)
     
     if price_series is None:
         dates = pd.date_range(start=start_date, end=end_date, freq='D')

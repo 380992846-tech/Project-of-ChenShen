@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "project1"
+version = "0.1.0"
+description = "Personal research sandbox: LLM implementation, quantitative trading, interactive web games and knowledge notes."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "380992846-tech" }]
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "matplotlib",
+    "tqdm",
+    "torch>=2.0",
+    "python-docx",
+    "streamlit",
+    "sentence-transformers",
+]
+
+[project.optional-dependencies]
+# 量化策略 / 助手 / 诗词 API 所需的可选依赖
+quant = ["xgboost", "shap", "yfinance", "akshare"]
+assistant = ["openai", "edge-tts", "camel-ai"]
+poem = ["flask", "flask-cors"]
+dev = ["ruff", "pytest", "mypy", "pre-commit"]
+
+[tool.setuptools]
+# 仓库内脚本以 大模型/ 等目录组织，暂不作为可分发的 Python 包
+packages = []
+
+[tool.pytest.ini_options]
+# 让测试可以直接 `import quant_features`
+pythonpath = ["大模型"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+exclude = ["build", "dist"]
+
+[tool.ruff.lint]
+# 说明：仓库内大量历史研究脚本（JoinQuant 策略等）依赖平台魔法全局变量、
+# 且存在历史编码问题，暂未纳入 lint。ruff 只对“受维护/已测试”的代码生效，
+# 存量脚本将逐步迁移到统一规范。见 docs/架构说明.md。
+select = ["E", "F", "W", "I"]
+ignore = ["E501", "E741"]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+check_untyped_defs = true

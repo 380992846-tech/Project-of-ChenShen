@@ -43,3 +43,8 @@ conversation_history.json
 # --- OS noise ---
 Thumbs.db
 desktop.ini
+
+# --- Test / lint caches ---
+.pytest_cache/
+.ruff_cache/
+pytest-cache-files-*/
