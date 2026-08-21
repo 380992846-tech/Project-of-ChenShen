@@ -140,25 +140,42 @@ public:
     }
     
     void connect(std::function<void(bool)> callback = nullptr) {
+        // 防止并发发起多次 async_connect（同一 socket 并发 connect 是未定义行为，
+        // 会一直连不上——这正是节点间无法通信的元凶之一）
+        if (connecting_.exchange(true)) {
+            // 已经在连接中，暂存最新回调，等当前连接完成时再回调
+            pending_connect_cb_ = callback;
+            return;
+        }
+        
         auto self = shared_from_this();
         resolver_.async_resolve(host_, std::to_string(port_),
             [this, self, callback](asio::error_code ec, tcp::resolver::results_type endpoints) {
                 if (ec) {
-                    if (callback) callback(false);
+                    connecting_ = false;
+                    auto cb = callback; if (!cb) cb = pending_connect_cb_;
+                    pending_connect_cb_ = nullptr;
+                    if (cb) cb(false);
                     schedule_reconnect();
                     return;
                 }
                 
                 asio::async_connect(socket_, endpoints,
                     [this, self, callback](asio::error_code ec, tcp::endpoint) {
+                        connecting_ = false;
+                        auto cb = callback; if (!cb) cb = pending_connect_cb_;
+                        pending_connect_cb_ = nullptr;
                         if (!ec) {
                             connected_ = true;
                             reconnect_attempts_ = 0;
                             reconnect_timer_.stop();
+                            std::cout << "[Client] connected to " << host_ << ":" << port_ << std::endl;
                             do_read_header();
-                            if (callback) callback(true);
+                            if (cb) cb(true);
                         } else {
-                            if (callback) callback(false);
+                            std::cout << "[Client] connect " << host_ << ":" << port_
+                                      << " FAILED: " << ec.message() << std::endl;
+                            if (cb) cb(false);
                             schedule_reconnect();
                         }
                     });
@@ -223,14 +240,13 @@ public:
     
 private:
     void schedule_reconnect() {
-        if (reconnect_attempts_ < 10) {
-            reconnect_attempts_++;
-            reconnect_timer_.start([this]() {
-                if (!connected_) {
-                    connect([](bool) {});
-                }
-            });
-        }
+        if (reconnect_attempts_ >= 1000) return;
+        reconnect_attempts_++;
+        reconnect_timer_.start([this]() {
+            if (!connected_ && !connecting_) {
+                connect([](bool) {});
+            }
+        });
     }
     
     void do_read_header() {
@@ -292,6 +308,8 @@ private:
     std::string host_;
     int port_;
     std::atomic<bool> connected_;
+    std::atomic<bool> connecting_{false};
+    std::function<void(bool)> pending_connect_cb_;
     std::array<char, 4> header_buffer_;
     std::string body_buffer_;
     uint64_t next_req_id_ = 1;
@@ -424,6 +442,7 @@ private:
                     std::lock_guard<std::mutex> lock(sessions_mutex_);
                     sessions_.push_back(session);
                 }
+                std::cout << "[Server] accepted connection" << std::endl;
                 session->start();
             }
             do_accept();
@@ -468,19 +487,14 @@ class RaftNodeWithRPC : public RaftNode {
 public:
     RaftNodeWithRPC(int nodeId, const std::vector<std::string>& peerAddrs)
         : RaftNode(nodeId, peerAddrs),
-          rpc_server_(io_context_, get_port_from_addr(peerAddrs[nodeId])),
-          rpc_work_guard_(asio::make_work_guard(io_context_)),
+          rpc_server_(io_context_, get_own_port(peerAddrs, nodeId)),
           votes_(0),
           voted_peers_(),
-          running_(true),
           election_in_progress_(false) {
         
-        // 启动IO上下文线程
-        io_thread_ = std::thread([this]() {
-            io_context_.run();
-        });
-        
         // 设置服务端请求处理器
+        // 说明：RPC 与选举定时器共用基类的 io_context_，由基类 start() 启动的 io 线程驱动，
+        // 派生类这里不再另起线程，避免多 io_context / 重复线程带来的混乱与死锁
         rpc_server_.start([this](const RpcMessage& req) -> RpcMessage {
             return handle_rpc_request(req);
         });
@@ -498,14 +512,14 @@ public:
             
             client->connect([this, peerId = static_cast<int>(i)](bool success) {
                 if (success) {
-                    std::cout << "[Node " << node_id_ << "] 连接到 Peer " << peerId << std::endl;
+                    std::cout << "[N" << node_id_ << "] connected to Peer " << peerId << std::endl;
                     std::lock_guard<std::mutex> lock(state_mutex_);
                     if (role_ == LEADER) {
                         replicate_logs(peerId);
                     }
                 } else {
-                    std::cerr << "[Node " << node_id_ << "] 连接 Peer " << peerId 
-                              << " 失败，将在后台重试" << std::endl;
+                    std::cerr << "[N" << node_id_ << "] connect Peer " << peerId 
+                              << " FAILED, will retry in background" << std::endl;
                 }
             });
         }
@@ -513,15 +527,11 @@ public:
     
     ~RaftNodeWithRPC() override {
         stop();
-        if (io_thread_.joinable()) {
-            io_thread_.join();
-        }
     }
     
     void stop() {
-        running_ = false;
         rpc_server_.stop();
-        rpc_work_guard_.reset();
+        // 先停 IO，再清客户端，避免客户端回调访问已销毁的 client
         io_context_.stop();
         cv_.notify_all();
         
@@ -555,7 +565,8 @@ protected:
     }
     
     void become_follower(int term) override {
-        std::lock_guard<std::mutex> lock(state_mutex_);
+        // 注意：不要在入口 lock(state_mutex_)——它可能被 handle_request_vote /
+        // 回复回调（已持锁）调用，重复加非递归锁会死锁（io 线程卡死，不回票，选不出 Leader）
         RaftNode::become_follower(term);
         votes_ = 0;
         voted_peers_.clear();
@@ -563,7 +574,7 @@ protected:
     }
     
     void become_leader() override {
-        std::lock_guard<std::mutex> lock(state_mutex_);
+        // 同 become_follower：可能被已持锁的回复回调调用，不能在入口重复加锁
         RaftNode::become_leader();
         votes_ = 0;
         voted_peers_.clear();
@@ -571,12 +582,12 @@ protected:
     }
     
     RequestVoteReply handle_request_vote(const RequestVoteArgs& args, int srcId) override {
-        std::lock_guard<std::mutex> lock(state_mutex_);
+        // 不能在入口 lock(state_mutex_)：基类可能调 become_follower（派生版会再锁）→ 死锁
         return RaftNode::handle_request_vote(args, srcId);
     }
     
     AppendEntriesReply handle_append_entries(const AppendEntriesArgs& args, int srcId) override {
-        std::lock_guard<std::mutex> lock(state_mutex_);
+        // 同上，避免重复加锁死锁
         return RaftNode::handle_append_entries(args, srcId);
     }
     
@@ -587,17 +598,12 @@ protected:
         args.lastLogIndex = persistent_state_.logs.size();
         args.lastLogTerm = persistent_state_.logs.empty() ? 0 : persistent_state_.logs.back().term;
         
-        std::cout << "[Node " << node_id_ << "] 发送RequestVote到 " << peerId
-                  << ", Term=" << args.term << std::endl;
-        
         // 记录发送时的任期，用于回调中校验
-        uint64_t send_term = args.term;
-        
-        send_rpc(peerId, RpcType::REQUEST_VOTE_REQ, args.toJson(),
+        uint64_t send_term = args.term;send_rpc(peerId, RpcType::REQUEST_VOTE_REQ, args.toJson(),
             [this, peerId, send_term](const json& resp_json) {
                 if (resp_json.contains("error")) {
-                    std::cerr << "[Node " << node_id_ << "] RequestVote到 " << peerId
-                              << " 失败: " << resp_json["error"] << std::endl;
+                    std::cerr << "[N" << node_id_ << "] RequestVote to " << peerId
+                              << " failed: " << resp_json["error"] << std::endl;
                     return;
                 }
                 
@@ -621,6 +627,8 @@ protected:
                         if (voted_peers_.find(peerId) == voted_peers_.end()) {
                             voted_peers_.insert(peerId);
                             votes_++;
+                            std::cout << "[N" << node_id_ << "] got vote from Peer " << peerId
+                                      << " (votes=" << votes_ << ")" << std::endl;
                             
                             if (votes_ > static_cast<int>(peer_addrs_.size() / 2)) {
                                 become_leader();
@@ -628,7 +636,7 @@ protected:
                         }
                     }
                 } catch (const std::exception& e) {
-                    std::cerr << "解析RequestVote回复失败: " << e.what() << std::endl;
+                    std::cerr << "[N" << node_id_ << "] parse RequestVote reply failed: " << e.what() << std::endl;
                 }
             });
     }
@@ -712,7 +720,7 @@ protected:
                         }
                     }
                 } catch (const std::exception& e) {
-                    std::cerr << "解析AppendEntries回复失败: " << e.what() << std::endl;
+                    std::cerr << "[N" << node_id_ << "] parse AppendEntries reply failed: " << e.what() << std::endl;
                 }
             });
     }
@@ -737,9 +745,13 @@ private:
             switch (req.type) {
                 case RpcType::REQUEST_VOTE_REQ: {
                     RequestVoteArgs args = RequestVoteArgs::fromJson(req.payload);
+                    std::cout << "[N" << node_id_ << "] RPC: RequestVote from src=" << req.srcId
+                              << " term=" << args.term << std::endl;
                     RequestVoteReply reply = handle_request_vote(args, req.srcId);
                     resp.type = RpcType::REQUEST_VOTE_RESP;
                     resp.payload = reply.toJson();
+                    std::cout << "[N" << node_id_ << "] RPC: RequestVote reply voteGranted="
+                              << reply.voteGranted << " term=" << reply.term << std::endl;
                     break;
                 }
                 case RpcType::APPEND_ENTRIES_REQ: {
@@ -798,13 +810,24 @@ private:
         return parse_addr(addr).second;
     }
     
+    // 取得本节点的监听端口，并做越界检查：
+    // --peers 必须传入【全部】节点地址（含自己），按节点ID排列，即 addrs[nodeId] 就是本节点自己的地址
+    static int get_own_port(const std::vector<std::string>& addrs, int nodeId) {
+        if (nodeId < 0 || static_cast<size_t>(nodeId) >= addrs.size()) {
+            throw std::runtime_error(
+                "nodeId=" + std::to_string(nodeId) + " out of range (addr list size=" +
+                std::to_string(addrs.size()) + "). --peers must contain ALL node addresses "
+                "(including self), indexed by node id; e.g. each of 3 nodes: "
+                "--peers=127.0.0.1:9000,127.0.0.1:9001,127.0.0.1:9002");
+        }
+        return get_port_from_addr(addrs[nodeId]);
+    }
+    
     // ==================== 成员变量 ====================
-    // 注意：io_context_ 必须先声明，因为 rpc_server_ / rpc_work_guard_ 都要用它，
-    // 成员按声明顺序初始化，声明在后面会在构造时用到未初始化的 io_context_（崩溃）
-    asio::io_context io_context_;
+    // 注意：这里不要重复声明 io_context_ / io_thread_ / running_ / state_mutex_ / cv_，
+    // 它们会遮蔽基类成员，导致“两把互斥锁保护同一份状态”和“两个 io 上下文”的混乱，
+    // 全部复用基类的（raft.h 已保证 io_context_ 先于定时器构造）。
     RpcServer rpc_server_;
-    asio::executor_work_guard<asio::io_context::executor_type> rpc_work_guard_;
-    std::thread io_thread_;
     std::unordered_map<int, std::shared_ptr<RpcClient>> clients_;
     
     // 选举相关
@@ -812,11 +835,6 @@ private:
     std::unordered_set<int> voted_peers_;
     std::atomic<bool> election_in_progress_;
     uint64_t current_election_term_ = 0;
-    
-    // 运行控制
-    std::atomic<bool> running_;
-    std::condition_variable cv_;
-    std::mutex state_mutex_;
 };
 
 // ==================== main函数 ====================
@@ -848,14 +866,14 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     
-    std::cout << "启动Raft节点 " << nodeId << ", 集群大小=" << peerAddrs.size() << std::endl;
+    std::cout << "Raft node " << nodeId << " starting, cluster size=" << peerAddrs.size() << std::endl;
 
     try {
         auto node = std::make_shared<RaftNodeWithRPC>(nodeId, peerAddrs);
         node->start();
         node->start_loop();
     } catch (const std::exception& e) {
-        std::cerr << "[main] 异常: " << e.what() << std::endl;
+        std::cerr << "[main] exception: " << e.what() << std::endl;
         return 1;
     }
     

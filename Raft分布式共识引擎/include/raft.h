@@ -201,9 +201,11 @@ protected:
     std::map<int, int> match_index_;
     
     // 定时器
+    // 注意：io_context_ 必须声明在 election_timer_ / heartbeat_timer_ / work_guard_ 之前，
+    // 因为成员按“声明顺序”初始化，它们都在构造函数里用 io_context_ 构造，声明靠后会用到未构造的 io_context_（段错误）
+    asio::io_context io_context_;
     asio::steady_timer election_timer_;
     asio::steady_timer heartbeat_timer_;
-    asio::io_context io_context_;
     std::unique_ptr<std::thread> io_thread_;
     asio::executor_work_guard<asio::io_context::executor_type> work_guard_;
     

@@ -42,10 +42,13 @@ RaftNode::~RaftNode() {
 void RaftNode::start() {
     if (running_) return;
     running_ = true;
+    std::cout << "[N" << node_id_ << "] start() called" << std::endl;
     
     // 启动IO线程
     io_thread_ = std::make_unique<std::thread>([this]() {
+        std::cout << "[N" << node_id_ << "] io_context.run() begin" << std::endl;
         io_context_.run();
+        std::cout << "[N" << node_id_ << "] io_context.run() exited" << std::endl;
     });
     
     // 启动选举定时器
@@ -94,8 +97,10 @@ void RaftNode::submitCommand(const json& cmd, std::function<void(bool, const jso
 void RaftNode::reset_election_timer() {
     if (!running_) return;
     
-    // 随机超时：150-300ms
-    std::uniform_int_distribution<int> dist(150, 300);
+    // 随机超时：500-1000ms
+    // （足够容纳一轮 RequestVote 的往返；之前 150-300ms 太短，
+    //   导致票还没回来就重新选举，term 狂涨、永远攒不够多数票）
+    std::uniform_int_distribution<int> dist(500, 1000);
     int timeout_ms = dist(rng_);
     
     election_timer_.expires_after(std::chrono::milliseconds(timeout_ms));
@@ -156,7 +161,7 @@ void RaftNode::become_follower(int newTerm) {
     }
     
     role_ = FOLLOWER;
-    std::cout << "[Node " << node_id_ << "] 成为Follower, Term=" 
+    std::cout << "[N" << node_id_ << "] became FOLLOWER, Term=" 
               << persistent_state_.currentTerm << std::endl;
     
     // 重置定时器
@@ -169,7 +174,7 @@ void RaftNode::become_candidate() {
     persistent_state_.votedFor = node_id_;
     persist();
     
-    std::cout << "[Node " << node_id_ << "] 成为Candidate, Term=" 
+    std::cout << "[N" << node_id_ << "] became CANDIDATE, Term=" 
               << persistent_state_.currentTerm << std::endl;
     
     // 发起选举
@@ -188,7 +193,7 @@ void RaftNode::become_leader() {
         }
     }
     
-    std::cout << "[Node " << node_id_ << "] 成为Leader, Term=" 
+    std::cout << "[N" << node_id_ << "] became LEADER, Term=" 
               << persistent_state_.currentTerm << std::endl;
     
     // 启动心跳
@@ -341,7 +346,7 @@ void RaftNode::apply_committed_logs() {
         last_applied_++;
         const auto& entry = persistent_state_.logs[last_applied_ - 1];
         // 应用到状态机（由子类实现）
-        std::cout << "[Node " << node_id_ << "] 应用日志: " << entry.command.dump() << std::endl;
+        std::cout << "[N" << node_id_ << "] apply log: " << entry.command.dump() << std::endl;
     }
 }
 

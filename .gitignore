@@ -1,4 +1,4 @@
-﻿# --- Python ---
+# --- Python ---
 __pycache__/
 *.py[cod]
 *$py.class
@@ -39,6 +39,9 @@ conversation_history.json
 
 # --- Logs ---
 *.log
+
+# --- Raft 运行时持久化状态（每个节点的任期/投票/日志） ---
+raft_*.json
 
 # --- OS noise ---
 Thumbs.db
