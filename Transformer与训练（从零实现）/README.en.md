@@ -52,6 +52,7 @@ Transformer与训练（从零实现）/
 ├── dashboard.py         # Streamlit monitoring panel
 ├── models/
 │   ├── gpt.py           # decoder-only GPT from scratch (KV cache, weight tying)
+│   ├── paged_attention.py  # Paged KV cache (block-wise allocation, saves memory)
 │   └── config.py        # dataclass config + YAML loader (type coercion)
 ├── data/
 │   ├── build_corpus.py  # extract corpus from .docx notes
@@ -75,9 +76,11 @@ Transformer与训练（从零实现）/
 | **Standalone generate.py** | train once, generate anytime; `--interactive` chat mode |
 | **BPE tokenizer** | `data/bpe.py` merges frequent subwords (compression + efficiency) |
 | **TensorBoard** | optional `--log-dir` for live loss curves |
+| **PagedAttention** | `models/paged_attention.py` block-wise KV cache, saves memory |
 | **Modular** | `models/`, `data/`, `rag.py`, `quantize.py`, `dashboard.py` |
-| **Unit tests** | model shapes / causal mask / dataset / config |
+| **Unit tests** | model shapes / causal mask / dataset / config / paged KV |
 | **Docker** | `Dockerfile` + `docker-compose.yml` one-click deploy |
+| **English docs** | `README.en.md` for international users |
 
 ---
 
@@ -95,7 +98,7 @@ Transformer与训练（从零实现）/
 **PPL = 122.2** (random baseline ≈ vocab size 1899). Loss keeps decreasing —
 the from-scratch model learns Chinese character co-occurrence statistics.
 
-> 💡 On GPU with a larger model, PPL can drop below 50 (see Roadmap).
+> Tip: On GPU with a larger model, PPL can drop below 50 (see Roadmap).
 
 ---
 
@@ -116,6 +119,29 @@ python generate.py --prompt "清华" --length 300 --temperature 0.8
 
 ---
 
+## PagedAttention
+
+`models/paged_attention.py` implements the core idea of vLLM — **paged KV cache**:
+
+- **On-demand blocks**: allocate a new physical block only when `block_size` tokens are reached,
+  instead of reserving one contiguous `max_length` buffer (saves memory, reduces fragmentation);
+- **Block table**: maps logical block index -> physical block index;
+- **Paged attention**: gathers the relevant physical K/V blocks and computes attention,
+  numerically identical to a contiguous KV cache.
+
+This is a teaching-grade, single-request decode implementation that keeps the three core
+semantics (paging, on-demand allocation, block-table addressing). Correctness is enforced by
+`tests/test_paged_attention.py` (matches the contiguous KV cache exactly).
+
+```python
+from models.paged_attention import PagedKV
+
+cache = PagedKV(n_layer=4, n_head=4, head_dim=32, block_size=16)
+bt: list[int] = []  # block table
+```
+
+---
+
 ## Model Comparison
 
 | Model | Params | Tokenization | Relation to GPT-2 |
@@ -133,7 +159,21 @@ pytest tests/ -v
 ```
 
 Covers: attention output shape, causal masking, weight tying, param count,
-dataset round-trip / next-token semantics, config loading (default + YAML).
+dataset round-trip / next-token semantics, config loading (default + YAML),
+and Paged KV cache correctness (matches contiguous KV cache exactly).
+
+---
+
+## Docker
+
+```bash
+docker build -t char-gpt .
+docker run --rm -v "$(pwd)/checkpoints:/app/checkpoints" char-gpt python train.py --config config.yaml
+# or
+docker compose build
+docker compose run --rm train
+docker compose up dashboard   # http://localhost:8501
+```
 
 ---
 
@@ -148,9 +188,10 @@ dataset round-trip / next-token semantics, config loading (default + YAML).
 - [x] BPE tokenizer
 - [x] TensorBoard logging
 - [x] Docker image + docker-compose
-- [ ] PagedAttention (block-wise KV allocation, saves memory)
+- [x] PagedAttention (block-wise KV allocation, saves memory) — `models/paged_attention.py`
 - [ ] Larger model + larger corpus, target PPL < 50
 - [ ] byte-level BPE / SentencePiece for robustness
+- [ ] wire PagedAttention into actual generation (currently a standalone module)
 
 ---
 

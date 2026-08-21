@@ -45,11 +45,13 @@ Project1/
 │   ├── README.md / REPORT.md  # 说明文档 + 综合报告
 │   └── reports/           # 全部 benchmark 报告 + 图表
 ├── Transformer与训练（从零实现）/
-│   ├── train.py              # 训练（GPU/CPU/DDP）+ config.yaml
-│   ├── generate.py           # 独立文本生成
-│   ├── models/               # 从零实现的 GPT + 配置
-│   ├── data/                 # 语料构建 + CharDataset
+│   ├── train.py              # 训练（GPU/CPU/DDP）+ config.yaml + TensorBoard
+│   ├── generate.py           # 独立文本生成（单次 + --interactive 交互）
+│   ├── models/               # GPT + 配置 + PagedAttention 分页 KV
+│   ├── data/                 # 语料构建 + CharDataset + BPE 分词
 │   ├── rag.py / quantize.py / dashboard.py
+│   ├── Dockerfile / docker-compose.yml
+│   ├── README.en.md          # 英文文档
 │   ├── mini_transformer.py   # 从零实现 MiniTransformer
 │   └── training_data.txt / vocab.json  # 训练语料与词表
 ├── 量化策略（聚宽·回测）/
@@ -151,11 +153,12 @@ ruff check tests "量化策略（聚宽·回测）/quant_features.py" LLM推理�
 # 依赖
 pip install -r requirements.txt
 
-# 训练字符级 Transformer（GPU/CPU/DDP）
+# 训练字符级 Transformer（GPU/CPU/DDP + config.yaml + TensorBoard）
 python Transformer与训练（从零实现）/train.py --config Transformer与训练（从零实现）/config.yaml
 
-# 用训练好的模型生成中文
+# 用训练好的模型生成中文（单次或 --interactive 交互）
 python Transformer与训练（从零实现）/generate.py --prompt "清华" --length 300
+python Transformer与训练（从零实现）/generate.py --interactive
 
 # 本地跑一个量化回测
 python 量化策略（聚宽·回测）/quant_v14.py   # （聚宽策略脚本在聚宽平台运行）

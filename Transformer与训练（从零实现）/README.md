@@ -1,8 +1,8 @@
 # Transformer 与训练（从零实现）
 
 > 手把手从零实现 Transformer，并在**真实中文语料**上训练出一个会生成中文的模型。
-> 支持 **GPU / CPU / 分布式（DDP）** 训练，`config.yaml` 实验管理，独立 `generate.py` 推理，
-> 以及单元测试与监控面板 —— 一套从"研究原型"到"可用工具"的完整工程化。
+> 支持 **GPU / CPU / 分布式（DDP）** 训练，`config.yaml` 实验管理，独立 `generate.py` 推理（含交互模式），
+> **BPE 分词**、**TensorBoard** 实时曲线、**分页 KV 缓存（PagedAttention）**、单元测试，以及 Docker 一键部署。
 
 ---
 
@@ -14,10 +14,13 @@
 4. [升级亮点](#升级亮点)
 5. [训练与结果](#训练与结果)
 6. [文本生成](#文本生成)
-7. [模型对比](#模型对比)
-8. [单元测试](#单元测试)
-9. [理解链路](#理解链路)
-10. [Roadmap](#roadmap)
+7. [BPE 分词](#bpe-分词)
+8. [PagedAttention](#pagedattention)
+9. [模型对比](#模型对比)
+10. [单元测试](#单元测试)
+11. [Docker 部署](#docker-部署)
+12. [理解链路](#理解链路)
+13. [Roadmap](#roadmap)
 
 ---
 
@@ -43,11 +46,24 @@ python train.py --config config.yaml
 # 3. 用训练好的模型生成中文
 python generate.py --checkpoint checkpoints/best_char_gpt.pth --prompt "清华" --length 300
 
-# 4. 单 GPU（自动使用 CUDA）
+# 4. 交互式生成（像 ChatGPT 一样连续对话，q/exit 退出）
+python generate.py --checkpoint checkpoints/best_char_gpt.pth --interactive
+
+# 5. 单 GPU（自动使用 CUDA）
 python train.py --config config.yaml
 
-# 5. 多 GPU 分布式（torchrun）
+# 6. 多 GPU 分布式（torchrun）
 torchrun --nproc_per_node=2 train.py --config config.yaml
+
+# 7. BPE 子词分词（替代字符级）
+python train.py --config config.yaml --tokenizer bpe
+
+# 8. TensorBoard 实时曲线
+python train.py --config config.yaml --log-dir runs/exp1
+tensorboard --logdir runs/exp1
+
+# 9. 运行测试
+pytest tests/ -v
 ```
 
 ---
@@ -56,22 +72,27 @@ torchrun --nproc_per_node=2 train.py --config config.yaml
 
 ```
 Transformer与训练（从零实现）/
-├── config.yaml          # ★ 实验管理：超参数集中配置
-├── train.py             # ★ 训练：GPU / CPU / DDP，读 config.yaml
-├── generate.py          # ★ 独立文本生成（加载 checkpoint 即用）
+├── config.yaml          # 实验管理：超参数集中配置
+├── train.py             # 训练：GPU / CPU / DDP，读 config.yaml
+├── generate.py          # 独立文本生成（单次 / --interactive 交互）
 ├── rag.py               # RAG 问答（检索增强生成）
 ├── quantize.py          # INT8 动态量化
 ├── dashboard.py         # Streamlit 监控面板
 ├── build_corpus.py      # 转发到 data/build_corpus.py
 ├── mini_transformer.py  # 极简 Transformer（算术序列入门 demo）
-├── models/              # ★ 模型包
+├── models/              # 模型包
 │   ├── gpt.py           #   decoder-only GPT（从零实现）
+│   ├── paged_attention.py  # 分页 KV 缓存（PagedAttention，教学级）
 │   └── config.py        #   dataclass 配置 + YAML 加载
-├── data/                # ★ 数据包
+├── data/                # 数据包
 │   ├── build_corpus.py  #   从 docx 抽取语料
-│   └── dataset.py       #   CharDataset 字符级数据集
-├── tests/               # ★ 单元测试（模型/数据集/配置）
+│   ├── dataset.py       #   CharDataset 字符级数据集
+│   └── bpe.py           #   极简 BPE 分词器
+├── tests/               # 单元测试（模型 / 数据集 / 配置 / 分页 KV）
 ├── checkpoints/         # 训练产物（*.pth 已 gitignore）
+├── Dockerfile           # 训练 / 推理镜像
+├── docker-compose.yml   # 一键 train / generate / dashboard
+├── README.en.md         # 英文版文档
 ├── training_data.txt    # 中文训练语料
 ├── training_curve.png   # 损失曲线
 └── 训练报告.md            # 训练损失 / PPL / 生成样例
@@ -85,10 +106,14 @@ Transformer与训练（从零实现）/
 |------|------|
 | **GPU + DDP** | `device = cuda if available else cpu`；`torchrun` 多卡分布式训练 |
 | **config.yaml** | 超参数集中管理，命令行 `--key value` 可覆盖，利于实验管理 |
-| **独立 generate.py** | 训练一次、随时生成，无需重新训练（从研究到产品） |
+| **独立 generate.py** | 训练一次、随时生成；`--interactive` 交互模式 |
+| **BPE 分词** | `data/bpe.py` 合并高频子词，压缩序列、提升效率 |
+| **TensorBoard** | 可选 `--log-dir` 实时记录 train/val loss + PPL |
+| **PagedAttention** | `models/paged_attention.py` 分页 KV 缓存，按需分配省显存 |
 | **模块化** | 原 `complete_ai_toolkit.py` 拆分为 `models/` `data/` `rag.py` `quantize.py` `dashboard.py` |
-| **单元测试** | `tests/` 覆盖注意力形状、因果掩码、数据集、配置加载 |
-| **监控面板** | Streamlit 展示训练曲线、模型信息 |
+| **单元测试** | `tests/` 覆盖模型、数据集、配置、分页 KV 正确性 |
+| **Docker** | `Dockerfile` + `docker-compose.yml` 一键部署 |
+| **英文文档** | `README.en.md` 面向国际用户 |
 
 ---
 
@@ -99,7 +124,7 @@ python train.py --config config.yaml
 ```
 
 **做了什么**
-1. 读 `training_data.txt` → 建字符词表 → 按 `val_ratio` 切 train/val；
+1. 读 `training_data.txt` → 建词表（字符级或 BPE）→ 按 `val_ratio` 切 train/val；
 2. 训练（AdamW + 梯度裁剪），记录 train/val 损失；
 3. 自动使用 GPU（若可用），支持 DDP 多卡；
 4. 每 `eval_every` 步保存最佳 checkpoint、生成中文样例；
@@ -122,21 +147,19 @@ python train.py --config config.yaml
 
 **困惑度 PPL：122.2**（随机基线 ≈ 词表大小 1899）。损失持续下降，说明模型学到了汉字共现与语料分布规律。
 
-> 💡 **GPU 加速预期**：按大帝点评，GPU + 更大模型可把 PPL 从 122 降到 **50 以内**。
+> 提示：GPU + 更大模型 + 更多步数，PPL 可降到 50 以内（见 Roadmap）。
 
 ---
 
 ## 文本生成
 
 ```bash
+# 单次生成
 python generate.py --checkpoint checkpoints/best_char_gpt.pth --prompt "清华" --length 300
+
+# 交互模式（连续对话）
+python generate.py --checkpoint checkpoints/best_char_gpt.pth --interactive
 ```
-
-**生成样例**（训练后）：
-
-- 提示「清华」→ 生成中文片段（详见 `训练报告.md`）
-- 提示「他」→ …
-- 提示「如果」→ …
 
 参数说明：
 
@@ -146,8 +169,51 @@ python generate.py --checkpoint checkpoints/best_char_gpt.pth --prompt "清华" 
 | `--length` | `300` | 生成 token 数 |
 | `--temperature` | `0.8` | 采样温度（越高越随机） |
 | `--top-k` | `None` | top-k 采样截断 |
-| `--no-kv` | `False` | 关闭 KV Cache（更慢，可对照） |
 | `--seed` | `None` | 固定随机种子复现 |
+| `--interactive` | off | 交互模式，输入 q/exit 退出 |
+
+---
+
+## BPE 分词
+
+字符级 GPT 的升级：BPE 把常见子词合并成 token，能显著压缩序列长度、提高建模效率。
+
+```bash
+# 训练 BPE 词表
+python -m data.bpe train --corpus training_data.txt --vocab-size 2000 --out checkpoints/bpe_vocab.json
+
+# 查看分词效果
+python -m data.bpe encode --vocab checkpoints/bpe_vocab.json --text "清华大学"
+
+# 用 BPE 训练
+python train.py --config config.yaml --tokenizer bpe
+```
+
+关键点：
+- 空白统一替换为占位符 `▁`，保证 decode 时空格可还原；
+- 按需分块、增量更新统计（加速版 BPE），训练词表很快；
+- 配置项：`data.tokenizer`（char / bpe）、`data.bpe_vocab_size`。
+
+---
+
+## PagedAttention
+
+`models/paged_attention.py` 实现了 vLLM 核心思想——**分页 KV 缓存**：
+
+- **按需分块**：token 达到 `block_size` 才申请下一个物理块，不再预留整段连续内存（省显存、减碎片）；
+- **block table**：逻辑块索引 -> 物理块索引的映射表；
+- **分页 attention**：通过 gather 把相关物理块 K/V 取出计算，与连续缓存数值一致。
+
+这是教学级简化版（单请求逐 token 解码），保留了"分页 + 按需分配 + block table 寻址"三个核心语义，
+是理解 vLLM 的起点。正确性由 `tests/test_paged_attention.py` 保证（与连续 KV Cache 完全一致）。
+
+```python
+from models.paged_attention import PagedKV, paged_attention
+
+cache = PagedKV(n_layer=4, n_head=4, head_dim=32, block_size=16)
+bt: list[int] = []  # block table
+# 逐 token 写入并做 attention（见模块 docstring）
+```
 
 ---
 
@@ -173,7 +239,28 @@ pytest tests/ -v
 覆盖：
 - `test_attention.py`：前向输出形状、因果掩码正确性、权重绑定、参数量；
 - `test_dataset.py`：分词 roundtrip、序列形状、next-token 语义、词表大小；
-- `test_config.py`：默认配置与 `config.yaml` 加载。
+- `test_config.py`：默认配置与 `config.yaml` 加载；
+- `test_paged_attention.py`：分页 KV 与连续缓存数值一致、按需分块、空缓存。
+
+---
+
+## Docker 部署
+
+```bash
+# 构建镜像
+docker build -t char-gpt .
+
+# 训练（挂载 checkpoints 持久化）
+docker run --rm -v "$(pwd)/checkpoints:/app/checkpoints" char-gpt python train.py --config config.yaml
+
+# 生成
+docker run --rm -it -v "$(pwd)/checkpoints:/app/checkpoints" char-gpt python generate.py --prompt "清华" --length 300
+
+# 或用 docker-compose 一键起 train / generate / dashboard
+docker compose build
+docker compose run --rm train
+docker compose up dashboard   # http://localhost:8501
+```
 
 ---
 
@@ -181,8 +268,10 @@ pytest tests/ -v
 
 1. **`mini_transformer.py`** — 先用算术序列看懂"Transformer 怎么学一个规律"；
 2. **`models/gpt.py`** — 从零实现的 decoder-only GPT（Embedding / 注意力 / KV Cache）；
-3. **`train.py`** — 在真实中文上训练，GPU/DDP，看到损失与 PPL；
-4. **`generate.py`** — 训练一次、随时生成的推理工具。
+3. **`models/paged_attention.py`** — 分页 KV 缓存，理解 vLLM 的省显存思想；
+4. **`data/bpe.py`** — BPE 子词分词，理解 tokenizer 如何压缩序列；
+5. **`train.py`** — 在真实中文上训练，GPU/DDP，看到损失与 PPL；
+6. **`generate.py`** — 训练一次、随时生成（含交互模式）。
 
 ---
 
@@ -192,13 +281,18 @@ pytest tests/ -v
 - [x] 真实中文语料训练 + 损失曲线 + PPL
 - [x] GPU 支持 + DDP 分布式
 - [x] config.yaml 实验管理
-- [x] 独立 generate.py / RAG / 量化 / 监控面板
+- [x] 独立 generate.py / RAG / 量化 / 监控面板 / 交互模式
 - [x] 单元测试
-- [ ] PagedAttention（按块 KV 分配，省显存）
+- [x] BPE 子词分词（替代字符级）
+- [x] TensorBoard 实时曲线
+- [x] PagedAttention（分页 KV 缓存，省显存）
+- [x] Docker 镜像 + docker-compose 一键部署
+- [x] 英文版 README
 - [ ] 更大模型 + 更大语料，目标 PPL < 50
-- [ ] BPE 子词分词（替代字符级）
+- [ ] byte-level BPE / SentencePiece（更健壮的 BPE）
+- [ ] 把 PagedAttention 接入实际生成（当前为独立模块）
 
 ---
 
-> ⚠️ 训练产物（`checkpoints/*.pth`）已被 `.gitignore` 排除，不进版本库，随时可重新训练。
+> 注意：训练产物（`checkpoints/*.pth`）已被 `.gitignore` 排除，不进版本库，随时可重新训练。
 > 小模型 + CPU + 有限步数下生成的是短句级通顺片段；更大模型 / GPU / 更多语料可显著提升。
