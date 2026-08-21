@@ -173,7 +173,7 @@ python 大模型/llm/benchmark.py --n_layer 4 --n_embd 128 --n_head 4 --prompt_l
 **Roadmap：**
 - [x] KV Cache + prefill/decode 分离（Step 1）
 - [x] INT8/INT4/FP8 量化对比（Step 2）
-- [ ] Speculative Decoding（投机采样）
+- [x] Speculative Decoding（投机采样）（Step 3）
 - [ ] 连续批处理（continuous batching）与吞吐基准
 
 ---
@@ -203,6 +203,34 @@ python 大模型/llm/quant_compare.py --train_steps 300 --train_kb 50 --eval_kb 
 
 - 完整报告：[`大模型/llm/reports/quant_compare_report.md`](大模型/llm/reports/quant_compare_report.md)
 - 对比图：[`大模型/llm/reports/quant_compare.png`](大模型/llm/reports/quant_compare.png)
+
+---
+
+### 现状（Step 3：投机解码 Speculative Decoding）
+
+`大模型/llm/speculative.py` + `spec_bench.py`：用小而快的 **draft 模型**猜 `γ` 个候选，
+**target 模型**一次并行验证，通过**精确拒绝采样**决定接受哪些——从而**严格保持 target
+的分布**，同时用更少的 target 前向产出更多 token。
+
+实测（CPU，target 984K / draft 60K 参数，γ=4）：
+
+| 方式 | 吞吐 (tokens/s) | 每 token 的 target 前向次数 |
+|------|-----------------|------------------------------|
+| target (KV cache) | 255.8 | 1.00 |
+| speculative | 243.0 | **0.20** |
+
+- **算法层收益**：投机把 target 前向从每 token 1 次降到 **0.2 次（约 5×）**，直接对应真实大模型上 target 计算量下降；
+- **墙钟**：CPU 小模型上 draft 不够快，墙钟收益有限（噪声大）；真实加速需 draft/target 速度差足够大（GPU 大模型场景）。
+- **正确性**：精确拒绝采样保证分布等价——测试验证 `draft==target` 时输出与 target 完全一致。
+
+**复现：**
+
+```bash
+python 大模型/llm/spec_bench.py --train_steps 300 --train_kb 50 --gen_len 96 --gamma 4
+```
+
+- 完整报告：[`大模型/llm/reports/spec_report.md`](大模型/llm/reports/spec_report.md)
+- 吞吐对比图：[`大模型/llm/reports/spec_speedup.png`](大模型/llm/reports/spec_speedup.png)
 
 ---
 

@@ -103,11 +103,18 @@ class CausalSelfAttention(nn.Module):
 
         att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(hd))
 
-        # 因果掩码：只在 prefill / 全序列前向时应用下三角掩码。
-        # decode 阶段（cache_len>0）当前 query 能看到全部缓存键，无需掩码，
-        # 避免每步重建掩码的固定开销（这在小模型 / CPU 上至关重要）。
+        # 因果掩码：
+        # - prefill / 全序列前向（cache_len==0）：下三角掩码；
+        # - decode 且 T==1：当前唯一 query 能看到全部缓存键，无需掩码（省开销）；
+        # - decode 且 T>1（如投机解码一次性验证多个草稿 token）：新 token 之间
+        #   需因果掩码——query i 可见缓存键 0..cache_len-1 与新增键 0..i。
         if cache_len == 0:
             att = att.masked_fill(self.bias[:, :, :T, :T] == 0, float("-inf"))
+        elif T > 1:
+            rows = torch.arange(T, device=x.device).view(T, 1)
+            cols = torch.arange(T_total, device=x.device).view(1, T_total)
+            causal = (cols <= (cache_len + rows)).view(1, 1, T, T_total)
+            att = att.masked_fill(~causal, float("-inf"))
 
         att = F.softmax(att, dim=-1)
         att = self.dropout(att)
