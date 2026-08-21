@@ -1,6 +1,6 @@
 #include "raft.h"
-#include <boost/asio/read.hpp>
-#include <boost/asio/write.hpp>
+#include <asio/read.hpp>
+#include <asio/write.hpp>
 #include <algorithm>
 #include <iostream>
 
@@ -109,7 +109,7 @@ void RaftNode::sendHeartbeat() {
     
     // 定时发送心跳 (50ms)
     heartbeatTimer_.expires_after(50ms);
-    heartbeatTimer_.async_wait([this](boost::system::error_code ec) {
+    heartbeatTimer_.async_wait([this](asio::error_code ec) {
         if (!ec && role_ == LEADER) {
             sendHeartbeat();
         }
@@ -252,7 +252,7 @@ void RaftNode::resetElectionTimer() {
     int timeoutMs = dist(rng_);
     
     electionTimer_.expires_after(std::chrono::milliseconds(timeoutMs));
-    electionTimer_.async_wait([this](boost::system::error_code ec) {
+    electionTimer_.async_wait([this](asio::error_code ec) {
         if (!ec) {
             // 先判读（短暂持锁），然后释放再调用 becomeCandidate——
             // 否则 becomeCandidate 内部再加锁同一个 stateMutex_ 会死锁

@@ -1,5 +1,5 @@
 #pragma once
-#include <boost/asio.hpp>
+#include <asio.hpp>
 #include <vector>
 #include <map>
 #include <mutex>
@@ -7,10 +7,7 @@
 #include <chrono>
 #include <functional>
 #include <fstream>
-#include <nlohmann/json.hpp>  // 需要安装
-
-// 代码里用的是 `asio::`，这里把它别名到 Boost.Asio
-namespace asio = boost::asio;
+#include <nlohmann/json.hpp>  // 由 CMake FetchContent 自动拉取
 
 using json = nlohmann::json;
 

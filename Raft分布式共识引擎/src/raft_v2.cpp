@@ -1,8 +1,8 @@
 #include "raft.h"
-#include <boost/asio/read.hpp>
-#include <boost/asio/write.hpp>
-#include <boost/asio/connect.hpp>
-#include <boost/asio/ip/tcp.hpp>
+#include <asio/read.hpp>
+#include <asio/write.hpp>
+#include <asio/connect.hpp>
+#include <asio/ip/tcp.hpp>
 #include <thread>
 #include <queue>
 #include <unordered_map>
@@ -85,14 +85,14 @@ public:
     void connect(std::function<void(bool)> callback = nullptr) {
         auto self = shared_from_this();
         resolver_.async_resolve(host_, std::to_string(port_),
-            [this, self, callback](boost::system::error_code ec, tcp::resolver::results_type endpoints) {
+            [this, self, callback](asio::error_code ec, tcp::resolver::results_type endpoints) {
                 if (ec) {
                     if (callback) callback(false);
                     return;
                 }
                 
                 asio::async_connect(socket_, endpoints,
-                    [this, self, callback](boost::system::error_code ec, tcp::endpoint) {
+                    [this, self, callback](asio::error_code ec, tcp::endpoint) {
                         if (!ec) {
                             connected_ = true;
                             do_read_header();
@@ -124,7 +124,7 @@ public:
         std::string data = msg.serialize();
         auto self = shared_from_this();
         asio::async_write(socket_, asio::buffer(data),
-            [this, self, reqId](boost::system::error_code ec, size_t) {
+            [this, self, reqId](asio::error_code ec, size_t) {
                 if (ec) {
                     auto it = pending_callbacks_.find(reqId);
                     if (it != pending_callbacks_.end()) {
@@ -153,7 +153,7 @@ private:
         auto self = shared_from_this();
         read_buffer_.resize(4);
         asio::async_read(socket_, asio::buffer(read_buffer_.data(), 4),
-            [this, self](boost::system::error_code ec, size_t) {
+            [this, self](asio::error_code ec, size_t) {
                 if (!ec) {
                     uint32_t body_len;
                     memcpy(&body_len, read_buffer_.data(), 4);
@@ -172,7 +172,7 @@ private:
     void do_read_body(uint32_t body_len) {
         auto self = shared_from_this();
         asio::async_read(socket_, asio::buffer(read_buffer_.data() + 4, body_len),
-            [this, self](boost::system::error_code ec, size_t) {
+            [this, self](asio::error_code ec, size_t) {
                 if (!ec) {
                     try {
                         RpcMessage msg = RpcMessage::deserialize(read_buffer_);
@@ -258,7 +258,7 @@ private:
             auto self = shared_from_this();
             read_buffer_.resize(4);
             asio::async_read(socket_, asio::buffer(read_buffer_.data(), 4),
-                [this, self](boost::system::error_code ec, size_t) {
+                [this, self](asio::error_code ec, size_t) {
                     if (!ec) {
                         uint32_t body_len;
                         memcpy(&body_len, read_buffer_.data(), 4);
@@ -274,14 +274,14 @@ private:
         void do_read_body(uint32_t body_len) {
             auto self = shared_from_this();
             asio::async_read(socket_, asio::buffer(read_buffer_.data() + 4, body_len),
-                [this, self](boost::system::error_code ec, size_t) {
+                [this, self](asio::error_code ec, size_t) {
                     if (!ec) {
                         try {
                             RpcMessage req = RpcMessage::deserialize(read_buffer_);
                             RpcMessage resp = handler_(req);  // 业务处理
                             std::string data = resp.serialize();
                             asio::async_write(socket_, asio::buffer(data),
-                                [this, self](boost::system::error_code ec, size_t) {
+                                [this, self](asio::error_code ec, size_t) {
                                     if (ec) close();
                                 });
                         } catch (...) {
@@ -292,7 +292,7 @@ private:
                             error_msg.payload = error_payload;
                             std::string data = error_msg.serialize();
                             asio::async_write(socket_, asio::buffer(data),
-                                [this, self](boost::system::error_code, std::size_t) {});
+                                [this, self](asio::error_code, std::size_t) {});
                         }
                         read_buffer_.resize(4);
                         do_read_header();
@@ -309,7 +309,7 @@ private:
     
     void do_accept() {
         auto self = this;
-        acceptor_.async_accept([this, self](boost::system::error_code ec, tcp::socket socket) {
+        acceptor_.async_accept([this, self](asio::error_code ec, tcp::socket socket) {
             if (!ec) {
                 auto session = std::make_shared<Session>(std::move(socket), handler_);
                 sessions_.push_back(session);
