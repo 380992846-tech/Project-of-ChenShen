@@ -23,7 +23,7 @@
 
 四大板块：
 
--  **推理优化**（`大模型/llm/`）：手搓 decoder-only GPT，从 KV Cache 一路做到量化、投机解码、连续批处理——每条都有可复现 benchmark + 单测。
+-  **推理优化**（`LLM推理优化/`）：手搓 decoder-only GPT，从 KV Cache 一路做到量化、投机解码、连续批处理——每条都有可复现 benchmark + 单测。
 -  **大模型应用**：从零实现的字符级 Transformer、语音/对话助手、古典诗词生成。
 -  **量化交易**：聚宽（JoinQuant）平台的随机森林 / XGBoost+SHAP / 动态风控策略家族。
 -  **创意工坊**：30+ 个清华紫黑风格的交互网页、以及《陈深的世界》互动游戏。
@@ -36,33 +36,34 @@
 
 ```
 Project1/
-├── 大模型/                    # 代码、训练数据、推理优化
-│   ├── llm/                   # ★ 推理优化主线（见下）
-│   │   ├── gpt.py             # decoder-only GPT（KV Cache / continuous batching）
-│   │   ├── benchmark.py       # KV Cache 加速对比
-│   │   ├── quantize.py        # INT8/INT4/FP8 权重量化
-│   │   ├── quant_compare.py   # 量化对比（PPL/存储/误差）
-│   │   ├── speculative.py     # 投机解码（draft + 并行验证）
-│   │   ├── serving.py         # 批量解码
-│   │   ├── continuous.py      # ★ 真·continuous batching（动态 slot 复用）
-│   │   └── reports/           # 全部 benchmark 报告 + 图表
-│   ├── Transformer与训练（从零实现）/
-│   │   ├── complete_ai_toolkit.py # 字符级 Transformer 全家桶
-│   │   ├── mini_transformer.py    # 从零实现 MiniTransformer
-│   │   └── training_data.txt / vocab.json  # 训练语料与词表
-│   ├── 量化策略（聚宽·回测）/
-│   │   ├── joinquant_v18.py       # 聚宽随机森林策略
-│   │   ├── quant_v14.py           # 多资产风险平价回测（可本地跑）
-│   │   ├── quant_v21.py           # 动态止损止盈策略
-│   │   ├── quant_xgboost_shap.py  # XGBoost + SHAP 可解释策略
-│   │   ├── quant_features.py      # 纯函数特征工程（供单测）
-│   │   └── 金融数学.py             # 金融计量分析脚本
-│   ├── 助手与智能体（DeepSeek·CAMEL）/
-│   │   ├── voice_assistant.py     # DeepSeek + Edge TTS 语音助手
-│   │   └── camel_chat.py          # CAMEL 对话智能体
-│   └── 其他工具（诗词·物理）/
-│       ├── poem_api.py            # 古典诗词生成 API
-│       └── elastic_collision_sim.py  # 一维弹性碰撞模拟
+├── LLM推理优化/                # ★ 推理优化主线（原 大模型/llm，见下）
+│   ├── gpt.py             # decoder-only GPT（KV Cache / continuous batching）
+│   ├── benchmark.py       # KV Cache 加速对比
+│   ├── quantize.py        # INT8/INT4/FP8 权重量化
+│   ├── quant_compare.py   # 量化对比（PPL/存储/误差）
+│   ├── speculative.py     # 投机解码（draft + 并行验证）
+│   ├── serving.py         # 批量解码
+│   ├── continuous.py      # ★ 真·continuous batching（动态 slot 复用）
+│   ├── README.md / REPORT.md  # 说明文档 + 综合报告
+│   └── reports/           # 全部 benchmark 报告 + 图表
+├── Transformer与训练（从零实现）/
+│   ├── complete_ai_toolkit.py # 字符级 Transformer 全家桶
+│   ├── mini_transformer.py    # 从零实现 MiniTransformer
+│   └── training_data.txt / vocab.json  # 训练语料与词表
+├── 量化策略（聚宽·回测）/
+│   ├── joinquant_v18.py       # 聚宽随机森林策略
+│   ├── quant_v14.py           # 多资产风险平价回测（可本地跑）
+│   ├── quant_v21.py           # 动态止损止盈策略
+│   ├── quant_xgboost_shap.py  # XGBoost + SHAP 可解释策略
+│   ├── quant_features.py      # 纯函数特征工程（供单测）
+│   └── 金融数学.py             # 金融计量分析脚本
+├── 助手与智能体（DeepSeek·CAMEL）/
+│   ├── voice_assistant.py     # DeepSeek + Edge TTS 语音助手
+│   └── camel_chat.py          # CAMEL 对话智能体
+├── 其他工具（诗词·物理）/
+│   ├── poem_api.py            # 古典诗词生成 API
+│   └── elastic_collision_sim.py  # 一维弹性碰撞模拟
+├── 千节点Raft架构方案/         # ★ 千节点分布式 KV（Multi-Raft + etcd，Go）
 ├── 陈深的世界/                 # 《陈深的世界》互动游戏
 ├── web（工具·科普·校园·量化·生活）/   # 交互网页（25 个精选 + archive/ 旧版）
 │   └── archive/               # 重复/旧版本归档（不删除）
@@ -75,7 +76,7 @@ Project1/
 └── 工程设施：pyproject.toml · requirements.txt · LICENSE · .github/ · .editorconfig
 ```
 
-> 📂 子目录文档：[`大模型/量化策略（聚宽·回测）/README.md`](大模型/量化策略（聚宽·回测）/README.md) · [`大模型/助手与智能体（DeepSeek·CAMEL）/README.md`](大模型/助手与智能体（DeepSeek·CAMEL）/README.md)
+> 📂 子目录文档：[`量化策略（聚宽·回测）/README.md`](量化策略（聚宽·回测）/README.md) · [`助手与智能体（DeepSeek·CAMEL）/README.md`](助手与智能体（DeepSeek·CAMEL）/README.md) · [`LLM推理优化/README.md`](LLM推理优化/README.md)
 
 ---
 
@@ -88,16 +89,16 @@ Project1/
 | 采样算法 | **投机解码** | target 前向降到 0.2 次/token，分布精确保持 |
 | 服务吞吐 | **批量解码 + continuous batching** | 吞吐随 batch 近线性增长；动态 slot 复用 |
 
-所有 benchmark 报告与曲线在 `大模型/llm/reports/`，正确性由 `tests/` 下的单测保证
+所有 benchmark 报告与曲线在 `LLM推理优化/reports/`，综合报告见 [`LLM推理优化/REPORT.md`](LLM推理优化/REPORT.md)，正确性由 `tests/` 下的单测保证
 （KV 与非 KV 逐 token 一致、量化还原误差、投机"draft==target 时输出完全一致"、
 continuous batching 输出与逐条解码一致）。
 
 ```bash
-python 大模型/llm/benchmark.py        # KV Cache 加速
-python 大模型/llm/quant_compare.py    # 量化对比
-python 大模型/llm/spec_bench.py       # 投机解码吞吐
-python 大模型/llm/serve_bench.py      # 批量 serving
-python 大模型/llm/cont_bench.py       # continuous batching
+python LLM推理优化/benchmark.py        # KV Cache 加速
+python LLM推理优化/quant_compare.py    # 量化对比
+python LLM推理优化/spec_bench.py       # 投机解码吞吐
+python LLM推理优化/serve_bench.py      # 批量 serving
+python LLM推理优化/cont_bench.py       # continuous batching
 ```
 
 ---
@@ -140,7 +141,7 @@ python 大模型/llm/cont_bench.py       # continuous batching
 ```bash
 pip install -e .[dev]
 pytest
-ruff check tests "大模型/量化策略（聚宽·回测）/quant_features.py" 大模型/llm
+ruff check tests "量化策略（聚宽·回测）/quant_features.py" LLM推理优化
 ```
 
 ---
@@ -152,14 +153,14 @@ ruff check tests "大模型/量化策略（聚宽·回测）/quant_features.py" 
 pip install -r requirements.txt
 
 # 训练字符级 Transformer
-python 大模型/Transformer与训练（从零实现）/complete_ai_toolkit.py --mode train
+python Transformer与训练（从零实现）/complete_ai_toolkit.py --mode train
 
 # 本地跑一个量化回测
-python 大模型/量化策略（聚宽·回测）/quant_v14.py   # （聚宽策略脚本在聚宽平台运行）
+python 量化策略（聚宽·回测）/quant_v14.py   # （聚宽策略脚本在聚宽平台运行）
 
 # API Key 从环境变量读取
 export DEEPSEEK_API_KEY="your-key"
-python 大模型/助手与智能体（DeepSeek·CAMEL）/voice_assistant.py
+python 助手与智能体（DeepSeek·CAMEL）/voice_assistant.py
 ```
 
 ---
