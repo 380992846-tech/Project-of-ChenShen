@@ -58,7 +58,7 @@ Project1/
 │   ├── quant_features.py      # 纯函数特征工程（供单测）
 │   └── 金融数学.py             # 金融计量分析脚本
 ├── 陈深的世界/                 # 《陈深的世界》互动游戏
-├── 网页作品/                   # 交互网页（26 个精选 + archive/ 旧版）
+├── web/                       # 交互网页（26 个精选 + archive/ 旧版）
 │   └── archive/               # 重复/旧版本归档（不删除）
 ├── 笔记/                      # 知识库（LLM 技术栈 / 课程笔记 / PDF）
 ├── tests/                     # pytest 单元测试
@@ -93,9 +93,9 @@ python 大模型/llm/cont_bench.py       # continuous batching
 
 ---
 
-## 网页作品（26 个精选）
+## web（网页作品 · 26 个精选）
 
-> 大量重复/旧版本已归档到 `网页作品/archive/`（不删除）。以下为精选主目录：
+> 大量重复/旧版本已归档到 `web/archive/`（不删除）。以下为精选主目录：
 
 **效率工具**：`Markdown.html`（清理）、`PDF合并.html`、`写诗.html`、`风控审合同.html`、`供应商2.html`
 
