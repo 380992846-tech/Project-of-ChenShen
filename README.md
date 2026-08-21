@@ -172,9 +172,37 @@ python 大模型/llm/benchmark.py --n_layer 4 --n_embd 128 --n_head 4 --prompt_l
 
 **Roadmap：**
 - [x] KV Cache + prefill/decode 分离（Step 1）
-- [ ] INT8/INT4/FP8 量化对比（PPL + 加速 + 显存）
+- [x] INT8/INT4/FP8 量化对比（Step 2）
 - [ ] Speculative Decoding（投机采样）
 - [ ] 连续批处理（continuous batching）与吞吐基准
+
+---
+
+### 现状（Step 2：量化对比）
+
+`大模型/llm/quantize.py` + `quant_compare.py`：训练一个小型字符级 GPT，
+对 FP32 / INT8 / INT4 / FP8 做权重量化对比，产出 PPL、存储、误差与延迟报告。
+
+实测（CPU，237K 参数，训练 300 步）：
+
+| 精度 | 权重存储 (MB) | 权重还原误差 | logit 偏差 | PPL |
+|------|---------------|--------------|------------|-----|
+| FP32 | 0.905 | 0 | 0 | 414.4 |
+| INT8 | 0.234 | 1.7e-02 | 6.8e-03 | 414.4 |
+| INT4 | 0.178 | 2.1e-01 | 4.6e-02 | 415.9 |
+| FP8  | 0.234 | 1.8e-01 | 1.9e-02 | 414.7 |
+
+**结论**：INT8/FP8 压缩约 **4×**、INT4 约 **5×** 存储；各精度 PPL 几乎不变
+（≈414），量化基本无损质量。
+
+**复现：**
+
+```bash
+python 大模型/llm/quant_compare.py --train_steps 300 --train_kb 50 --eval_kb 12
+```
+
+- 完整报告：[`大模型/llm/reports/quant_compare_report.md`](大模型/llm/reports/quant_compare_report.md)
+- 对比图：[`大模型/llm/reports/quant_compare.png`](大模型/llm/reports/quant_compare.png)
 
 ---
 
