@@ -58,7 +58,7 @@ Project1/
 │   ├── quant_features.py      # 纯函数特征工程（供单测）
 │   └── 金融数学.py             # 金融计量分析脚本
 ├── 陈深的世界/                 # 《陈深的世界》互动游戏
-├── web/                       # 交互网页（26 个精选 + archive/ 旧版）
+├── web（工具·科普·校园·量化·生活）/   # 交互网页（25 个精选 + archive/ 旧版）
 │   └── archive/               # 重复/旧版本归档（不删除）
 ├── 笔记/                      # 知识库（LLM 技术栈 / 课程笔记 / PDF）
 ├── tests/                     # pytest 单元测试
@@ -95,15 +95,15 @@ python 大模型/llm/cont_bench.py       # continuous batching
 
 ## web（网页作品）
 
-**效率工具**：`Markdown.html`（清理）、`PDF合并.html`、`写诗.html`、`风控审合同.html`
+**效率工具**：`Markdown清理器.html`、`PDF合并工具.html`、`写诗生成工具.html`、`合同风控审查工具.html`
 
-**科普/可视化**：`大模型.html`（万字科普）、`模拟太阳系.html`、`银河系加太阳系.html`、`量子研究.html`、`旋转特效.html`
+**科普/可视化**：`大模型科普页.html`、`太阳系三维可视化.html`、`银河系与太阳系可视化.html`、`量子科学科普页.html`、`清华计算机系旋转特效展示.html`
 
-**清华校园**：`清华计算机系课表V2.html`、`清华计算机系选课系统V2.html`、`贵系大一V2.html`、`贵系大二.html`、`贵系全能学长.html`、`deepseek_算法工坊.html`
+**清华校园**：`清华计算机系课程表.html`、`清华计算机系选课系统.html`、`贵系大一课程与叙事.html`、`贵系大二课程与叙事.html`、`贵系全能学长工具站.html`、`DeepSeek算法工坊.html`
 
-**量化/站点**：`量化.html`、`清华极客量化.html`、`清华极客.html`、`清华ACM.html`、`清华MEM.html`、`大厂120.html`
+**量化/站点**：`量化投资舱.html`、`清华极客量化站.html`、`清华极客创意站.html`、`清华ACM培训站.html`、`清华MEM复习站.html`、`大厂面试120题.html`
 
-**生活/展示**：`五道口租房.html`、`柏悦酒店.html`、`英国旅游.html`、`紫清云笔记V4 pro.html`
+**生活/展示**：`五道口租房信息站.html`、`柏悦酒店展示页.html`、`英国旅游攻略页.html`、`紫清云笔记工具V4.html`
 
 > 所有页面均为**单文件应用**，双击即开，无需构建。
 
@@ -113,7 +113,7 @@ python 大模型/llm/cont_bench.py       # continuous batching
 
 《陈深的世界》互动游戏系列，单文件应用、双击即开：
 
-- `我们在一起V6-房间清单.html` —— 36 房间 / 电影画廊 / 塔罗 / 结局墙
+- `陈深的世界-房间清单.html` —— 36 房间 / 电影画廊 / 塔罗 / 结局墙
 - `陈深的故事V5.html` —— 大模型变成人的 16 章互动剧情
 
 旧版本归档于 `陈深的世界/archive/`。图片素材经 jsDelivr CDN 加载。
