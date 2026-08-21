@@ -37,10 +37,12 @@ FetchContent_MakeAvailable(json)
 find_package(Threads REQUIRED)
 
 # 源文件：raft.cpp(V4.0: RPC + RaftNodeWithRPC + main) + raft_node.cpp(基类实现)
-add_executable(raft_node
+set(RAFT_SOURCES
     src/raft.cpp
     src/raft_node.cpp
 )
+
+add_executable(raft_node ${RAFT_SOURCES})
 
 target_include_directories(raft_node PRIVATE
     include

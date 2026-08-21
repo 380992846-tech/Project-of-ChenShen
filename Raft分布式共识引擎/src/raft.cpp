@@ -530,8 +530,8 @@ public:
     }
     
     void stop() {
+        // 先停 RPC 服务与 IO，避免新回调进入
         rpc_server_.stop();
-        // 先停 IO，再清客户端，避免客户端回调访问已销毁的 client
         io_context_.stop();
         cv_.notify_all();
         
@@ -539,6 +539,12 @@ public:
             client->close();
         }
         clients_.clear();
+        
+        // 关键修复：必须调用基类 stop() 来 join io_thread_。
+        // 派生 stop() 若不 join，析构时基类 ~RaftNode 里的 stop() 会因 running_ 已 false 直接
+        // return，留下可 join 的 std::thread 未被 join -> 析构 std::thread -> std::terminate。
+        // 基类 stop() 会置 running_=false、reset work_guard、并 join io_thread_。
+        RaftNode::stop();
     }
     
     void start_loop() {
@@ -559,6 +565,13 @@ public:
     
     // 返回节点当前状态（角色/任期/Leader/日志长度/已应用位置）
     json status() {
+        // 分别加锁：kv_store_ 由 kv_mutex_ 保护，其余由 state_mutex_ 保护。
+        // 分开加锁（而非持 state_mutex_ 时读 kv_store_）避免不同互斥锁保护的并发读（数据竞争）。
+        int kv_size = 0;
+        {
+            std::lock_guard<std::mutex> lk(kv_mutex_);
+            kv_size = static_cast<int>(kv_store_.size());
+        }
         std::lock_guard<std::mutex> lock(state_mutex_);
         const char* roleStr = (role_ == LEADER) ? "LEADER" : (role_ == CANDIDATE) ? "CANDIDATE" : "FOLLOWER";
         return {
@@ -569,7 +582,7 @@ public:
             {"logLen", static_cast<int>(persistent_state_.logs.size())},
             {"commitIndex", commit_index_},
             {"lastApplied", last_applied_},
-            {"kvSize", static_cast<int>(kv_store_.size())}
+            {"kvSize", kv_size}
         };
     }
     
@@ -636,14 +649,17 @@ protected:
                     RequestVoteReply reply = RequestVoteReply::fromJson(resp_json);
                     
                     std::lock_guard<std::mutex> lock(state_mutex_);
-                    
-                    // 校验：如果任期已经变化，或者选举已结束，忽略此回复
-                    if (reply.term != send_term || !election_in_progress_) {
-                        return;
-                    }
-                    
+
+                    // 若对端任期更高：无论本节点是 Candidate/Leader，都必须立刻降级为 Follower
+                    // 并更新 term（Raft Figure 2: "If RPC response contains term T > currentTerm: set currentTerm=T, convert to follower"）。
+                    // 此检查必须先于下面的任期判等，否则更高 term 的响应会被 return 拦掉，旧节点永不退位（分区中旧 Leader 持续 ack 的根因）。
                     if (reply.term > persistent_state_.currentTerm) {
                         become_follower(reply.term);
+                        return;
+                    }
+
+                    // 校验：选举已结束，或任期不匹配（对端回复了过期/不同的 term），忽略此回复
+                    if (!election_in_progress_ || reply.term != send_term) {
                         return;
                     }
                     
@@ -705,14 +721,15 @@ protected:
                     AppendEntriesReply reply = AppendEntriesReply::fromJson(resp_json);
                     
                     std::lock_guard<std::mutex> lock(state_mutex_);
-                    
-                    // 校验任期是否匹配
-                    if (reply.term != send_term) {
-                        return;
-                    }
-                    
+
+                    // 对端任期更高 -> 立即降级为 Follower（先于任期判等，见 RequestVote 回调同款修复）
                     if (reply.term > persistent_state_.currentTerm) {
                         become_follower(reply.term);
+                        return;
+                    }
+
+                    // 校验任期是否匹配（对端回复了过期/不同的 term，忽略）
+                    if (reply.term != send_term) {
                         return;
                     }
                     
@@ -956,9 +973,13 @@ int main(int argc, char* argv[]) {
                     else std::cout << k << " = (not found)" << std::endl;
                 } else if (op == "status") {
                     json s = node->status();
-                    std::cout << "node=" << s["node"] << " role=" << s["role"]
-                              << " term=" << s["term"] << " leader=" << s["leader"]
-                              << " logLen=" << s["logLen"] << " kvSize=" << s["kvSize"] << std::endl;
+                    // 用 get<std::string>() 取出纯字符串，避免输出带 JSON 引号（role="LEADER"）
+                    std::cout << "node=" << s["node"].get<int>()
+                              << " role=" << s["role"].get<std::string>()
+                              << " term=" << s["term"].get<int>()
+                              << " leader=" << s["leader"].get<int>()
+                              << " logLen=" << s["logLen"].get<int>()
+                              << " kvSize=" << s["kvSize"].get<int>() << std::endl;
                 } else {
                     std::cout << "Commands: set <k> <v> | del <k> | get <k> | status | quit" << std::endl;
                 }

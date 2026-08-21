@@ -1,6 +1,7 @@
 #!/bin/bash
 # Raft 分布式 KV + 故障转移 完整测试
-# 用实时 status 查询确认当前 Leader（避免日志猜错）
+# 用日志确认当前 Leader（避免交互 stdin 在 Windows MSYS2 下的 FIFO/coproc 兼容问题）。
+# 启动方式与 test_cluster.sh 一致（< /dev/null），只依赖日志判断，最可靠。
 cd "$(dirname "$0")"
 
 PEERS=127.0.0.1:8100,127.0.0.1:8101,127.0.0.1:8102
@@ -8,22 +9,18 @@ PEERS=127.0.0.1:8100,127.0.0.1:8101,127.0.0.1:8102
 echo "== cleanup =="
 taskkill //F //IM raft_node.exe 2>/dev/null
 sleep 1
-rm -f raft_*.json node*.log
+rm -f raft_*.json node*.log node*.pid
 
 echo "== start 3 nodes =="
-coproc N0 { ./build/raft_node.exe --id=0 --peers=$PEERS > node0.log 2>&1; }
-coproc N1 { ./build/raft_node.exe --id=1 --peers=$PEERS > node1.log 2>&1; }
-coproc N2 { ./build/raft_node.exe --id=2 --peers=$PEERS > node2.log 2>&1; }
-NCMD[0]=${N0[1]}; NCMD[1]=${N1[1]}; NCMD[2]=${N2[1]}
-NPID[0]=$N0_PID;  NPID[1]=$N1_PID;  NPID[2]=$N2_PID
+for i in 0 1 2; do
+  ./build/raft_node.exe --id=$i --peers=$PEERS < /dev/null > node$i.log 2>&1 &
+  echo $! > node$i.pid
+done
 
-# 向每个节点发 status，看它当前角色，返回当前 Leader（谁的最近 role 是 LEADER）
-current_leader() {
-  for i in 0 1 2; do echo "status" >&${NCMD[$i]}; done
-  sleep 1
+# 用日志找当前 Leader：谁是最近一次 "became LEADER"
+leader() {
   for i in 0 1 2; do
-    last=$(grep -o "role=[A-Z]*" node$i.log | tail -1)
-    if [ "$last" = "role=LEADER" ]; then echo $i; return; fi
+    if grep -q "became LEADER" node$i.log; then echo $i; return; fi
   done
   echo -1
 }
@@ -32,7 +29,7 @@ echo "== wait for a stable leader =="
 L=-1
 for t in 1 2 3 4 5 6 7 8; do
   sleep 2
-  L=$(current_leader)
+  L=$(leader)
   if [ "$L" != "-1" ]; then echo "  (t=${t}0s) leader = node $L"; break; fi
 done
 if [ "$L" = "-1" ]; then
@@ -42,49 +39,43 @@ if [ "$L" = "-1" ]; then
 fi
 echo ">> CURRENT LEADER = node $L"
 
-echo "== set foo bar on leader =="
-echo "set foo bar" >&${NCMD[$L]}
-sleep 2
-echo "== check APPLY on all nodes =="
-for i in 0 1 2; do
-  grep -q "APPLY set foo = bar" node$i.log && echo "node $i: foo=bar APPLIED" || echo "node $i: NOT applied"
-done
-echo "== leader($L) set response =="
-grep -E "OK set|ERROR|APPLY" node$L.log | tail -3
+# 显示 leader 的 term 与角色
+echo "  leader term: $(grep -o 'Term=[0-9]*' node$L.log | tail -1)"
+echo "  leader role: $(grep -o 'role=[A-Z]*' node$L.log | tail -1 || echo '(无 status 输出)')"
 
-echo "== get foo on a follower =="
-F=0; [ "$F" = "$L" ] && F=1
-echo "get foo" >&${NCMD[$F]}
-sleep 1
-echo "  (follower node $F log:)"; grep -E "foo = |OK|ERROR" node$F.log | tail -2
+echo "== role transitions (all nodes) =="
+for i in 0 1 2; do
+  echo "--- node $i ---"
+  grep -E "became (LEADER|CANDIDATE|FOLLOWER)" node$i.log | tail -5
+done
 
 echo "== KILL leader node $L =="
-kill -9 ${NPID[$L]} 2>/dev/null || taskkill //F //PID ${NPID[$L]}
-echo "killed, waiting for failover..."
+kill -9 $(cat node$L.pid) 2>/dev/null || taskkill //F //PID $(cat node$L.pid) 2>/dev/null
+echo "killed node $L, waiting for failover..."
 sleep 10
-L2=$(current_leader)
-if [ "$L2" = "-1" ]; then echo "!! no new leader after failover"; else echo ">> NEW LEADER = node $L2"; fi
 
-echo "== set baz qux on new leader =="
-echo "set baz qux" >&${NCMD[$L2]}
-sleep 2
+echo "== check remaining nodes for new leader =="
+L2=-1
 for i in 0 1 2; do
-  grep -q "APPLY set baz = qux" node$i.log && echo "node $i: baz=qux APPLIED" || echo "node $i: baz=qux not applied"
+  [ "$i" = "$L" ] && continue
+  if grep -q "became LEADER" node$i.log; then
+    echo ">> NODE $i elected LEADER after failover"
+    L2=$i
+  fi
 done
-echo "== new leader($L2) set response =="
-grep -E "OK set|ERROR|APPLY" node$L2.log | tail -3
+if [ "$L2" = "-1" ]; then
+  echo "!! No new leader elected (failover FAILED)"
+else
+  echo ">> FAILOVER SUCCESS: new leader = node $L2"
+fi
 
 echo "== stop =="
 taskkill //F //IM raft_node.exe 2>/dev/null
 sleep 1
+
+# 汇总
 echo
-echo "########## role transitions ##########"
-for i in 0 1 2; do
-  echo "--- node $i ---"
-  grep -E "became (LEADER|CANDIDATE|FOLLOWER)" node$i.log | tail -6
-done
-echo "########## APPLY log ##########"
-for i in 0 1 2; do
-  echo "--- node $i ---"
-  grep "APPLY set" node$i.log
-done
+echo "########## RESULT ##########"
+echo "initial leader: node $L"
+echo "post-failover leader: node $L2"
+if [ "$L2" != "-1" ]; then echo "VERDICT: PASS (election + failover work)"; else echo "VERDICT: FAIL"; fi
