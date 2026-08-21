@@ -56,7 +56,10 @@ class CausalSelfAttention(nn.Module):
         self.c_proj = nn.Linear(config.n_embd, config.n_embd)
         self.dropout = nn.Dropout(config.dropout)
 
-        # 因果下三角掩码（prefill / 全序列前向时使用）
+        # 因果下三角掩码（prefill / 全序列前向时使用）。
+        # persistent=False：该 buffer 由固定规则(tril)决定，不进 state_dict，
+        # 模型每次构造时都会重新注册——因此加载 checkpoint 后它依然存在，安全。
+        # 同时 .to(device) 会自动迁移它，无需手动管理。
         self.register_buffer(
             "bias",
             torch.tril(torch.ones(config.block_size, config.block_size)).view(
@@ -151,11 +154,12 @@ class GPT(nn.Module):
         # 权重绑定：embedding 与输出头共享
         self.transformer.wte.weight = self.lm_head.weight
 
-    def forward(self, idx: torch.Tensor, past_key_values: list | None = None):
+    def forward(self, idx: torch.Tensor, past_key_values: tuple | None = None):
         """
         Args:
             idx: token ids (B, T)。decode 阶段 T=1。
-            past_key_values: 各层缓存的 (K, V) 列表，长度 = n_layer。
+            past_key_values: 各层缓存的 (K, V) 元组，长度 = n_layer。
+                用不可变 ``tuple`` 而非 ``list``，避免调用方误改缓存，更安全。
         """
         B, T = idx.size()
         assert T <= self.config.block_size, "input exceeds block_size"
@@ -178,7 +182,8 @@ class GPT(nn.Module):
 
         x = self.transformer.ln_f(x)
         logits = self.lm_head(x)
-        return logits, presents
+        # 返回 tuple，避免外部误改缓存
+        return logits, tuple(presents)
 
     @torch.no_grad()
     def generate(
@@ -201,7 +206,7 @@ class GPT(nn.Module):
         """
         self.eval()
         idx = idx.clone()
-        past: list | None = None
+        past: tuple | None = None
         generated: list[torch.Tensor] = []
 
         for _ in range(max_new_tokens):

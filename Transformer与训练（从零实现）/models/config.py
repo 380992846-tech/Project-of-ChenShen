@@ -44,6 +44,8 @@ class DataConfig:
     seq_len: int = 128
     corpus: str = "training_data.txt"   # 训练语料文件
     val_ratio: float = 0.1              # 验证集比例
+    tokenizer: str = "char"             # "char" 字符级 | "bpe" BPE 子词
+    bpe_vocab_size: int = 2000          # BPE 词表大小
 
 
 @dataclass

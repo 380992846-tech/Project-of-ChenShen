@@ -87,6 +87,42 @@ def load_model(checkpoint: str | Path, vocab_size: int, device: torch.device) ->
     return model
 
 
+def generate_once(model, char_to_idx, idx_to_char, prompt, length,
+                  temperature, top_k, use_kv, device):
+    """对单个 prompt 生成并返回完整文本（prompt + 生成内容）。"""
+    start = [char_to_idx.get(c, 0) for c in prompt]
+    x = torch.tensor([start], dtype=torch.long, device=device)
+    with torch.no_grad():
+        out = model.generate(
+            x, max_new_tokens=length, use_kv_cache=use_kv,
+            sample=True, temperature=temperature, top_k=top_k,
+        )
+    return prompt + decode(out[0], idx_to_char)
+
+
+def _interactive(model, char_to_idx, idx_to_char, length, temperature, top_k, use_kv, device):
+    """交互模式：像 ChatGPT 一样连续对话，输入 q/exit 退出。"""
+    print("\n" + "=" * 60)
+    print("交互模式（输入提示词生成，q/exit 退出）")
+    print("=" * 60)
+    while True:
+        try:
+            prompt = input(">> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\n再见！")
+            break
+        if not prompt:
+            continue
+        if prompt.lower() in ("q", "exit", "quit", "退出"):
+            print("再见！")
+            break
+        text = generate_once(model, char_to_idx, idx_to_char, prompt, length,
+                             temperature, top_k, use_kv, device)
+        print("-" * 60)
+        print(text)
+        print("-" * 60)
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="用训练好的字符级 GPT 生成中文")
     p.add_argument("--checkpoint", type=str, default=str(DEFAULT_CHECKPOINT))
@@ -97,6 +133,7 @@ def main() -> None:
     p.add_argument("--top-k", type=int, default=None)
     p.add_argument("--seed", type=int, default=None)
     p.add_argument("--no-kv", action="store_true", help="关闭 KV Cache（更慢但可对照）")
+    p.add_argument("--interactive", action="store_true", help="交互模式（连续对话）")
     args = p.parse_args()
 
     if args.seed is not None:
@@ -109,23 +146,17 @@ def main() -> None:
     model = load_model(args.checkpoint, len(char_to_idx), device)
     print(f"模型参数量: {model.num_params() / 1e6:.2f}M")
 
-    start = [char_to_idx.get(c, 0) for c in args.prompt]
-    x = torch.tensor([start], dtype=torch.long, device=device)
-    with torch.no_grad():
-        out = model.generate(
-            x,
-            max_new_tokens=args.length,
-            use_kv_cache=not args.no_kv,
-            sample=True,
-            temperature=args.temperature,
-            top_k=args.top_k,
-        )
+    if args.interactive:
+        _interactive(model, char_to_idx, idx_to_char, args.length, args.temperature,
+                     args.top_k, not args.no_kv, device)
+        return
 
-    result = args.prompt + decode(out[0], idx_to_char)
+    text = generate_once(model, char_to_idx, idx_to_char, args.prompt, args.length,
+                         args.temperature, args.top_k, not args.no_kv, device)
     print("\n" + "=" * 60)
     print("生成结果:")
     print("=" * 60)
-    print(result)
+    print(text)
     print("=" * 60)
 
 

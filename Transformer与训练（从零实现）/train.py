@@ -128,7 +128,7 @@ def train(args) -> dict:
     _MODEL_OVERRIDES = {
         "n_embd": "n_embd", "n_layer": "n_layer", "n_head": "n_head",
     }
-    _DATA_OVERRIDES = {"seq_len": "seq_len"}
+    _DATA_OVERRIDES = {"seq_len": "seq_len", "tokenizer": "tokenizer"}
 
     for cli_key, cfg_key in _TRAIN_OVERRIDES.items():
         val = getattr(args, cli_key, None)
@@ -145,10 +145,25 @@ def train(args) -> dict:
 
     # ---- 数据 ----
     text = DATA_FILE.read_text(encoding="utf-8", errors="ignore")
-    char_to_idx, idx_to_char = build_vocab(text)
-    vocab = len(char_to_idx)
-    cfg.model.vocab_size = vocab  # 词表大小由语料决定
-    data = encode(text, char_to_idx)
+    tokenizer = getattr(cfg.data, "tokenizer", "char")
+    if tokenizer == "bpe":
+        # BPE 分词：先从语料训练临时词表（教学级），词表大小由 config 指定
+        from data.bpe import BPETokenizer
+        bpe = BPETokenizer.train(text, vocab_size=getattr(cfg.data, "bpe_vocab_size", 2000))
+        char_to_idx, idx_to_char = bpe.vocab, bpe.id_to_token
+        vocab = len(char_to_idx)
+        cfg.model.vocab_size = vocab
+        data = torch.tensor(bpe.encode(text), dtype=torch.long)
+
+        def decode_fn(ids):
+            # 用 BPE 解码，并把空格占位符 ▁ 还原为空格
+            return bpe.decode(ids)
+    else:
+        char_to_idx, idx_to_char = build_vocab(text)
+        vocab = len(char_to_idx)
+        cfg.model.vocab_size = vocab  # 词表大小由语料决定
+        data = encode(text, char_to_idx)
+        decode_fn = lambda ids: decode(ids, idx_to_char)  # noqa: E731
 
     n_val = int(len(data) * cfg.data.val_ratio)
     train_data, val_data = data[:-n_val], data[-n_val:]
@@ -169,6 +184,16 @@ def train(args) -> dict:
 
     opt = torch.optim.AdamW(raw_model.parameters(), lr=cfg.train.lr)
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
+    # ---- TensorBoard（可选）：--log-dir 填写则实时记录损失曲线 ----
+    writer = None
+    if getattr(args, "log_dir", None) and is_main_process():
+        try:
+            from torch.utils.tensorboard import SummaryWriter
+            writer = SummaryWriter(log_dir=args.log_dir)
+            print(f"[tb] TensorBoard 日志目录: {args.log_dir}（tensorboard --logdir {args.log_dir}）")
+        except Exception as e:
+            print(f"[tb] 跳过 TensorBoard（{type(e).__name__}: {e}）")
 
     def eval_split(split: str) -> float:
         raw_model.eval()
@@ -194,7 +219,7 @@ def train(args) -> dict:
             sample=True, temperature=0.8,
         )
         raw_model.train()
-        return seed_str, decode(out[0], idx_to_char)
+        return seed_str, decode_fn(out[0])
 
     # ---- 训练循环 ----
     history = {"train": [], "val": []}
@@ -213,6 +238,9 @@ def train(args) -> dict:
             m = {"train": eval_split("train"), "val": eval_split("val")}
             history["train"].append((step, m["train"]))
             history["val"].append((step, m["val"]))
+            if writer is not None:
+                writer.add_scalars("loss", {"train": m["train"], "val": m["val"]}, step)
+                writer.add_scalar("ppl", math.exp(m["val"]), step)
             ppl = math.exp(m["val"])
             if m["val"] < best_val:
                 best_val = m["val"]
@@ -246,6 +274,8 @@ def train(args) -> dict:
         plt.tight_layout(); plt.savefig(HERE / "training_curve.png", dpi=120); plt.close()
 
         samples = [generate_sample(s) for s in cfg.train.sample_prompts]
+        if writer is not None:
+            writer.close()
         cleanup_distributed()
         return {
             "cfg": gpt_cfg, "vocab": vocab, "steps": cfg.train.steps,
@@ -302,6 +332,10 @@ def main() -> None:
     p.add_argument("--lr", type=float, default=None)
     p.add_argument("--eval_every", type=int, default=None)
     p.add_argument("--gen_len", type=int, default=None)
+    p.add_argument("--tokenizer", type=str, default=None, choices=["char", "bpe"],
+                   help="分词方式：char 字符级 | bpe BPE 子词")
+    p.add_argument("--log-dir", type=str, default=None,
+                   help="TensorBoard 日志目录（可选，填了则实时记录损失曲线）")
     p.add_argument("--seed", type=int, default=None)
     args = p.parse_args()
 

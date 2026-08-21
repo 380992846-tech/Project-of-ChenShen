@@ -1,0 +1,43 @@
+# docker-compose.yml — 一键起训练/推理/监控
+# 用法：
+#   docker compose build
+#   docker compose run --rm train            # 训练（默认 steps 取 config.yaml）
+#   docker compose run --rm generate          # 生成中文
+#   docker compose up dashboard               # Streamlit 监控面板
+services:
+  app:
+    build: .
+    image: char-gpt:latest
+    volumes:
+      - ./checkpoints:/app/checkpoints
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # 训练：可覆盖 steps 等参数
+  train:
+    image: char-gpt:latest
+    depends_on:
+      - app
+    volumes:
+      - ./checkpoints:/app/checkpoints
+    entrypoint: ["python", "train.py", "--config", "config.yaml"]
+
+  # 生成
+  generate:
+    image: char-gpt:latest
+    depends_on:
+      - app
+    volumes:
+      - ./checkpoints:/app/checkpoints
+    entrypoint: ["python", "generate.py", "--prompt", "清华", "--length", "300"]
+
+  # Streamlit 监控面板
+  dashboard:
+    image: char-gpt:latest
+    depends_on:
+      - app
+    volumes:
+      - ./checkpoints:/app/checkpoints
+    command: streamlit run dashboard.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"

@@ -1,0 +1,12 @@
+# 从零实现 Transformer 项目依赖
+# CPU 版 torch（默认）。GPU 版请按 CUDA 版本安装对应 wheel。
+torch>=2.0
+numpy>=1.24
+PyYAML>=6.0
+matplotlib>=3.7
+pytest>=7.0
+
+# 可选：
+# streamlit        # 监控面板 dashboard.py
+# tensorboard      # train.py --log-dir 实时曲线
+# python-docx      # data/build_corpus.py 解析 docx

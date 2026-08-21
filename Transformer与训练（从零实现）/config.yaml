@@ -26,3 +26,5 @@ data:
   seq_len: 128         # 序列长度
   corpus: "training_data.txt"
   val_ratio: 0.1       # 验证集比例
+  tokenizer: "char"    # char 字符级 | bpe BPE 子词（bpe 需更大词表/更长训练）
+  bpe_vocab_size: 2000 # BPE 词表大小（tokenizer=bpe 时生效）
