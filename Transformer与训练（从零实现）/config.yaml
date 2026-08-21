@@ -1,0 +1,28 @@
+# ==================== config.yaml ====================
+# 字符级 GPT 训练超参数。train.py 通过 --config 加载本文件；
+# 命令行可用 --key value 覆盖（如 python train.py --steps 3000）。
+
+model:
+  n_embd: 128          # 嵌入维度
+  n_layer: 4           # Transformer 层数
+  n_head: 4            # 注意力头数
+  block_size: 128      # 最大上下文长度
+  dropout: 0.0
+
+train:
+  steps: 2000          # 训练步数
+  batch: 32            # 批大小
+  lr: 3e-3             # 学习率
+  eval_every: 250      # 每隔多少步评估一次
+  gen_len: 60          # 生成样例长度
+  grad_clip: 1.0       # 梯度裁剪范数
+  seed: 0              # 随机种子
+  sample_prompts:      # 训练后展示的生成提示词
+    - "清华"
+    - "他"
+    - "如果"
+
+data:
+  seq_len: 128         # 序列长度
+  corpus: "training_data.txt"
+  val_ratio: 0.1       # 验证集比例

@@ -47,8 +47,12 @@ Project1/
 │   ├── README.md / REPORT.md  # 说明文档 + 综合报告
 │   └── reports/           # 全部 benchmark 报告 + 图表
 ├── Transformer与训练（从零实现）/
-│   ├── complete_ai_toolkit.py # 字符级 Transformer 全家桶
-│   ├── mini_transformer.py    # 从零实现 MiniTransformer
+│   ├── train.py              # 训练（GPU/CPU/DDP）+ config.yaml
+│   ├── generate.py           # 独立文本生成
+│   ├── models/               # 从零实现的 GPT + 配置
+│   ├── data/                 # 语料构建 + CharDataset
+│   ├── rag.py / quantize.py / dashboard.py
+│   ├── mini_transformer.py   # 从零实现 MiniTransformer
 │   └── training_data.txt / vocab.json  # 训练语料与词表
 ├── 量化策略（聚宽·回测）/
 │   ├── joinquant_v18.py       # 聚宽随机森林策略
@@ -152,8 +156,11 @@ ruff check tests "量化策略（聚宽·回测）/quant_features.py" LLM推理�
 # 依赖
 pip install -r requirements.txt
 
-# 训练字符级 Transformer
-python Transformer与训练（从零实现）/complete_ai_toolkit.py --mode train
+# 训练字符级 Transformer（GPU/CPU/DDP）
+python Transformer与训练（从零实现）/train.py --config Transformer与训练（从零实现）/config.yaml
+
+# 用训练好的模型生成中文
+python Transformer与训练（从零实现）/generate.py --prompt "清华" --length 300
 
 # 本地跑一个量化回测
 python 量化策略（聚宽·回测）/quant_v14.py   # （聚宽策略脚本在聚宽平台运行）

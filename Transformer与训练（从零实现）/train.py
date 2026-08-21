@@ -1,27 +1,28 @@
 """
-train.py — 在真实中文语料上训练字符级 GPT
-=========================================
+train.py — 在真实中文语料上训练字符级 GPT（GPU / CPU / 分布式）
 
-让"从零实现的 Transformer"变得有实际意义：
-- 读取 `training_data.txt`（由 `build_corpus.py` 从 `笔记/贵系.docx` 与
-  `笔记/量化.docx` 两个文档抽取合并），构建字符级词表；
-- 训练一个 **decoder-only GPT**（复用 `大模型/llm/gpt.py`，仓库内从零实现）；
-- 记录 train/val 损失、困惑度，保存最佳 checkpoint；
-- 训练中/结束后**生成中文文本样例**，直观看到模型学到了什么。
+相比旧版（CPU 单机），本版本升级：
+- **GPU 支持**：``device = cuda if available else cpu``，数据与模型自动迁移；
+- **DistributedDataParallel (DDP)**：多卡/多机并行训练；
+- **config.yaml 实验管理**：超参数从 YAML 加载，命令行 ``--key value`` 可覆盖；
+- 训练中记录 train/val 损失、困惑度，保存最佳 checkpoint；
+- 训练中/结束后生成中文样例，输出损失曲线与 `训练报告.md`。
 
 用法
 ----
 .. code-block:: bash
 
-    python 大模型/Transformer与训练（从零实现）/build_corpus.py   # 重建语料
-    python 大模型/Transformer与训练（从零实现）/train.py \
-        --steps 2000 --n_embd 128 --n_layer 4
+    # CPU 训练
+    python train.py --config config.yaml
 
-产物
-----
-- `models/`：最佳 checkpoint（已 gitignore）
-- `training_curve.png`：损失曲线
-- `训练报告.md`：损失、困惑度、生成样例、结论
+    # 单 GPU
+    python train.py --config config.yaml
+
+    # 多 GPU 分布式（torchrun）
+    torchrun --nproc_per_node=2 train.py --config config.yaml
+
+    # 命令行覆盖超参数
+    python train.py --steps 3000 --n_embd 192 --n_layer 6
 """
 
 from __future__ import annotations
@@ -29,8 +30,10 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 import time
+from dataclasses import asdict
 from pathlib import Path
 
 import matplotlib
@@ -39,146 +42,200 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 import torch
+import torch.distributed as dist
 import torch.nn.functional as F
+from torch.nn.parallel import DistributedDataParallel as DDP
 
-# 让脚本能 import 仓库内的 llm 子包（decoder-only GPT）
-_SRC = Path(__file__).resolve().parent
-sys.path.insert(0, str(_SRC.parent))  # 大模型/
+# 保证能 import 项目内的 models / data 包
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
 
-from llm.gpt import GPT, GPTConfig
+from data.dataset import CharDataset, build_vocab, decode, encode  # noqa: E402
+from models.config import Config, load_config  # noqa: E402
+from models.gpt import GPT, GPTConfig  # noqa: E402
 
 plt.switch_backend("Agg")
 
-HERE = Path(__file__).resolve().parent
+MODELS_DIR = HERE / "checkpoints"
 DATA_FILE = HERE / "training_data.txt"
-MODELS_DIR = HERE / "models"
 
 
 # --------------------------------------------------------------------------
-# 字符级分词
+# 分布式工具
 # --------------------------------------------------------------------------
-def build_vocab(text: str):
-    chars = sorted(set(text))
-    char_to_idx = {c: i for i, c in enumerate(chars)}
-    idx_to_char = {i: c for c, i in char_to_idx.items()}
-    return char_to_idx, idx_to_char
+def is_distributed() -> bool:
+    return dist.is_available() and dist.is_initialized()
 
 
-def encode(text: str, char_to_idx) -> torch.Tensor:
-    return torch.tensor([char_to_idx[c] for c in text if c in char_to_idx], dtype=torch.long)
+def is_main_process() -> bool:
+    return not is_distributed() or dist.get_rank() == 0
 
 
-def decode(ids, idx_to_char) -> str:
-    return "".join(idx_to_char[i] for i in ids.tolist())
+def get_device() -> torch.device:
+    """GPU 优先，否则 CPU。"""
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def setup_distributed() -> None:
+    """当通过 torchrun 启动时初始化进程组。"""
+    local_rank = int(os.environ.get("LOCAL_RANK", "-1"))
+    if local_rank >= 0 and dist.is_available():
+        dist.init_process_group(backend="nccl" if torch.cuda.is_available() else "gloo")
+        torch.cuda.set_device(local_rank)
+
+
+def cleanup_distributed() -> None:
+    if is_distributed():
+        dist.destroy_process_group()
 
 
 # --------------------------------------------------------------------------
 # 训练
 # --------------------------------------------------------------------------
-def train(args):
+def save_checkpoint(model: GPT, cfg: GPTConfig, path: Path) -> None:
+    """保存 state_dict + 模型配置，便于 generate.py 精确恢复结构。"""
+    torch.save({"model": model.state_dict(), "config": asdict(cfg)}, path)
+
+
+def get_batch(data: torch.Tensor, batch: int, seq_len: int, device: torch.device):
+    """随机采样一批 (x, y) 序列。"""
+    ix = torch.randint(0, len(data) - seq_len - 1, (batch,))
+    xb = torch.stack([data[i : i + seq_len] for i in ix])
+    yb = torch.stack([data[i + 1 : i + seq_len + 1] for i in ix])
+    return xb.to(device), yb.to(device)
+
+
+def train(args) -> dict:
+    setup_distributed()
+    device = get_device()
     torch.manual_seed(args.seed)
 
+    cfg = load_config(args.config)
+    # 命令行覆盖
+    for key in ("steps", "n_embd", "n_layer", "n_head", "seq_len", "batch", "lr"):
+        val = getattr(args, key, None)
+        if val is not None:
+            if key in ("steps", "batch"):
+                setattr(cfg.train, key, val)
+            elif key == "seq_len":
+                setattr(cfg.data, key, val)
+            else:
+                setattr(cfg.model, key, val)
+
+    # ---- 数据 ----
     text = DATA_FILE.read_text(encoding="utf-8", errors="ignore")
     char_to_idx, idx_to_char = build_vocab(text)
     vocab = len(char_to_idx)
+    cfg.model.vocab_size = vocab  # 词表大小由语料决定
     data = encode(text, char_to_idx)
 
-    # train/val 按 9:1 切
-    n_val = int(len(data) * 0.1)
+    n_val = int(len(data) * cfg.data.val_ratio)
     train_data, val_data = data[:-n_val], data[-n_val:]
-    print(f"语料 {len(data)} 字符 | 词表 {vocab} | train {len(train_data)} / val {len(val_data)}")
+    if is_main_process():
+        print(
+            f"语料 {len(data)} 字符 | 词表 {vocab} | "
+            f"train {len(train_data)} / val {len(val_data)} | device {device}"
+        )
 
-    cfg = GPTConfig(
-        vocab_size=vocab,
-        n_layer=args.n_layer,
-        n_head=args.n_head,
-        n_embd=args.n_embd,
-        block_size=args.seq_len,
-    )
-    model = GPT(cfg)
-    opt = torch.optim.AdamW(model.parameters(), lr=args.lr)
+    # ---- 模型 ----
+    gpt_cfg = GPTConfig(**asdict(cfg.model))
+    model = GPT(gpt_cfg)
+    model.to(device)
+
+    if is_distributed():
+        model = DDP(model, device_ids=[device.index] if device.index is not None else None)
+    raw_model = model.module if isinstance(model, DDP) else model
+
+    opt = torch.optim.AdamW(raw_model.parameters(), lr=cfg.train.lr)
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
-    def get_batch(split):
+    def eval_split(split: str) -> float:
+        raw_model.eval()
         d = train_data if split == "train" else val_data
-        ix = torch.randint(0, len(d) - args.seq_len - 1, (args.batch,))
-        xb = torch.stack([d[i : i + args.seq_len] for i in ix])
-        yb = torch.stack([d[i + 1 : i + args.seq_len + 1] for i in ix])
-        return xb, yb
-
-    @torch.no_grad()
-    def evaluate():
-        model.eval()
-        losses = {"train": [], "val": []}
-        for split in ("train", "val"):
+        losses = []
+        with torch.no_grad():
             for _ in range(20):
-                xb, yb = get_batch(split)
+                xb, yb = get_batch(d, cfg.train.batch, cfg.data.seq_len, device)
                 logits, _ = model(xb)
                 loss = F.cross_entropy(logits.reshape(-1, vocab), yb.reshape(-1))
-                losses[split].append(loss.item())
-        model.train()
-        return {k: sum(v) / len(v) for k, v in losses.items()}
+                losses.append(loss.item())
+        raw_model.train()
+        return sum(losses) / len(losses)
 
     @torch.no_grad()
-    def generate_sample(seed_str="清华"):
-        model.eval()
+    def generate_sample(seed_str: str = "清华") -> str:
+        raw_model.eval()
         start = [char_to_idx.get(c, 0) for c in seed_str]
-        x = torch.tensor([start], dtype=torch.long)
-        # 复用 GPT.generate（greedy + KV cache）
-        out = model.generate(x, max_new_tokens=args.gen_len, use_kv_cache=True, sample=True, temperature=0.8)
-        model.train()
+        x = torch.tensor([start], dtype=torch.long, device=device)
+        out = raw_model.generate(
+            x, max_new_tokens=cfg.train.gen_len, use_kv_cache=True,
+            sample=True, temperature=0.8,
+        )
+        raw_model.train()
         return seed_str + decode(out[0], idx_to_char)
 
+    # ---- 训练循环 ----
     history = {"train": [], "val": []}
     best_val = float("inf")
     t0 = time.time()
-    for step in range(1, args.steps + 1):
-        xb, yb = get_batch("train")
+    for step in range(1, cfg.train.steps + 1):
+        xb, yb = get_batch(train_data, cfg.train.batch, cfg.data.seq_len, device)
         opt.zero_grad()
         logits, _ = model(xb)
         loss = F.cross_entropy(logits.reshape(-1, vocab), yb.reshape(-1))
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        torch.nn.utils.clip_grad_norm_(raw_model.parameters(), cfg.train.grad_clip)
         opt.step()
 
-        if step % args.eval_every == 0 or step == args.steps:
-            m = evaluate()
+        if step % cfg.train.eval_every == 0 or step == cfg.train.steps:
+            m = {"train": eval_split("train"), "val": eval_split("val")}
             history["train"].append((step, m["train"]))
             history["val"].append((step, m["val"]))
             ppl = math.exp(m["val"])
             if m["val"] < best_val:
                 best_val = m["val"]
-                torch.save(model.state_dict(), MODELS_DIR / "best_char_gpt.pth")
+                save_checkpoint(raw_model, gpt_cfg, MODELS_DIR / "best_char_gpt.pth")
             sample = generate_sample()
             el = time.time() - t0
-            print(f"[{step}/{args.steps}] train {m['train']:.3f} | val {m['val']:.3f} | PPL {ppl:.1f} | {el:.0f}s")
-            print(f"    生成: {sample[:80]}")
+            if is_main_process():
+                print(
+                    f"[{step}/{cfg.train.steps}] train {m['train']:.3f} | "
+                    f"val {m['val']:.3f} | PPL {ppl:.1f} | {el:.0f}s"
+                )
+                print(f"    生成: {sample[:80]}")
 
-    # 最终
-    final = evaluate()
-    torch.save(model.state_dict(), MODELS_DIR / "final_char_gpt.pth")
-    print(f"\n最终 train {final['train']:.3f} / val {final['val']:.3f} / PPL {math.exp(final['val']):.1f}")
+    # ---- 最终 ----
+    final = {"train": eval_split("train"), "val": eval_split("val")}
+    if is_main_process():
+        save_checkpoint(raw_model, gpt_cfg, MODELS_DIR / "final_char_gpt.pth")
+        with open(MODELS_DIR / "vocab_char.json", "w", encoding="utf-8") as f:
+            json.dump(char_to_idx, f, ensure_ascii=False)
+        print(
+            f"\n最终 train {final['train']:.3f} / val {final['val']:.3f} / "
+            f"PPL {math.exp(final['val']):.1f}"
+        )
 
-    # 保存词表（供推理复用）
-    with open(MODELS_DIR / "vocab_char.json", "w", encoding="utf-8") as f:
-        json.dump(char_to_idx, f, ensure_ascii=False)
+        # 损失曲线
+        plt.figure(figsize=(8, 5))
+        plt.plot([s for s, _ in history["train"]], [v for _, v in history["train"]], label="train")
+        plt.plot([s for s, _ in history["val"]], [v for _, v in history["val"]], label="val")
+        plt.xlabel("step"); plt.ylabel("loss"); plt.title("Char-level GPT training loss")
+        plt.legend(); plt.grid(alpha=.3)
+        plt.tight_layout(); plt.savefig(HERE / "training_curve.png", dpi=120); plt.close()
 
-    # 损失曲线
-    plt.figure(figsize=(8, 5))
-    plt.plot([s for s, _ in history["train"]], [v for _, v in history["train"]], label="train")
-    plt.plot([s for s, _ in history["val"]], [v for _, v in history["val"]], label="val")
-    plt.xlabel("step"); plt.ylabel("loss"); plt.title("Char-level GPT training loss")
-    plt.legend(); plt.grid(alpha=.3)
-    plt.tight_layout(); plt.savefig(HERE / "training_curve.png", dpi=120); plt.close()
-
-    return {
-        "cfg": cfg, "vocab": vocab, "steps": args.steps, "final": final,
-        "ppl": math.exp(final["val"]), "history": history,
-        "samples": [generate_sample(s) for s in args.sample_prompts],
-    }
+        samples = [generate_sample(s) for s in cfg.train.sample_prompts]
+        cleanup_distributed()
+        return {
+            "cfg": gpt_cfg, "vocab": vocab, "steps": cfg.train.steps,
+            "final": final, "ppl": math.exp(final["val"]),
+            "history": history, "samples": samples,
+        }
+    return {}
 
 
-def write_report(result):
+def write_report(result: dict) -> None:
+    if not result:
+        return
     cfg = result["cfg"]
     lines = [
         "# 字符级 GPT 训练报告（从零实现）",
@@ -203,32 +260,30 @@ def write_report(result):
         "",
         "## 结论",
         "",
-        "- 从零实现的 decoder-only Transformer 能在真实中文语料上训练，损失持续下降、困惑度远低于随机基线，",
-        "  说明它学到了汉字共现与语料的分布规律；",
-        "- 小模型 + CPU + 有限步数下，生成的是**短句级的通顺片段**而非完整长文——这是资源限制，",
-        "  增大模型/语料/步数（或 GPU）可显著提升；",
-        "- checkpoint 与词表已存到 `models/`，可用 `generate.py`（可选）加载做推理。",
+        "- 从零实现的 decoder-only Transformer 能在真实中文语料上训练，损失持续下降、困惑度远低于随机基线；",
+        "- 小模型 + CPU + 有限步数下，生成的是**短句级的通顺片段**；增大模型/语料/步数（或 GPU）可显著提升；",
+        "- checkpoint 与词表存到 `checkpoints/`，可用 `generate.py` 加载做推理。",
     ]
     (HERE / "训练报告.md").write_text("\n".join(lines), encoding="utf-8")
     print(f"\n报告已写入: {HERE / '训练报告.md'}")
 
 
-def main():
-    p = argparse.ArgumentParser(description="训练字符级 GPT")
-    p.add_argument("--steps", type=int, default=2000)
-    p.add_argument("--n_embd", type=int, default=128)
-    p.add_argument("--n_layer", type=int, default=4)
-    p.add_argument("--n_head", type=int, default=4)
-    p.add_argument("--seq_len", type=int, default=128)
-    p.add_argument("--batch", type=int, default=32)
-    p.add_argument("--lr", type=float, default=3e-3)
-    p.add_argument("--eval_every", type=int, default=250)
-    p.add_argument("--gen_len", type=int, default=60)
+def main() -> None:
+    p = argparse.ArgumentParser(description="训练字符级 GPT（GPU / CPU / DDP）")
+    p.add_argument("--config", type=str, default="config.yaml", help="YAML 配置文件")
+    p.add_argument("--steps", type=int, default=None)
+    p.add_argument("--n_embd", type=int, default=None)
+    p.add_argument("--n_layer", type=int, default=None)
+    p.add_argument("--n_head", type=int, default=None)
+    p.add_argument("--seq_len", type=int, default=None)
+    p.add_argument("--batch", type=int, default=None)
+    p.add_argument("--lr", type=float, default=None)
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--sample_prompts", nargs="+", default=["清华", "他", "如果"])
     args = p.parse_args()
+
     result = train(args)
-    write_report(result)
+    if is_main_process():
+        write_report(result)
 
 
 if __name__ == "__main__":
