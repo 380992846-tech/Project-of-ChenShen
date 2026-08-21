@@ -1,4 +1,4 @@
-"""首轮单元测试：覆盖 ``大模型/quant_features.py`` 的纯函数逻辑。"""
+"""首轮单元测试：覆盖 `大模型/量化策略（聚宽·回测）/quant_features.py` 的纯函数逻辑。"""
 
 import numpy as np
 import pandas as pd

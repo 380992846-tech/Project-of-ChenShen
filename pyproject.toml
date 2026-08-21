@@ -34,8 +34,8 @@ dev = ["ruff", "pytest", "mypy", "pre-commit"]
 packages = []
 
 [tool.pytest.ini_options]
-# 让测试可以直接 `import quant_features`
-pythonpath = ["大模型"]
+# 让测试可以直接 `import llm.*` / `import quant_features`
+pythonpath = ["大模型", "大模型/量化策略（聚宽·回测）"]
 testpaths = ["tests"]
 addopts = "-q"
 

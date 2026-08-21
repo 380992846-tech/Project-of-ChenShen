@@ -46,17 +46,23 @@ Project1/
 │   │   ├── serving.py         # 批量解码
 │   │   ├── continuous.py      # ★ 真·continuous batching（动态 slot 复用）
 │   │   └── reports/           # 全部 benchmark 报告 + 图表
-│   ├── complete_ai_toolkit.py # 字符级 Transformer 全家桶
-│   ├── mini_transformer.py    # 从零实现 MiniTransformer
-│   ├── voice_assistant.py     # DeepSeek + Edge TTS 语音助手
-│   ├── camel_chat.py          # CAMEL 对话助手
-│   ├── poem_api.py            # 古典诗词生成 API
-│   ├── joinquant_v18.py       # 聚宽随机森林策略
-│   ├── quant_v14.py           # 多资产风险平价回测
-│   ├── quant_v21.py           # 动态止损止盈策略
-│   ├── quant_xgboost_shap.py  # XGBoost + SHAP 可解释策略
-│   ├── quant_features.py      # 纯函数特征工程（供单测）
-│   └── 金融数学.py             # 金融计量分析脚本
+│   ├── Transformer与训练（从零实现）/
+│   │   ├── complete_ai_toolkit.py # 字符级 Transformer 全家桶
+│   │   ├── mini_transformer.py    # 从零实现 MiniTransformer
+│   │   └── training_data.txt / vocab.json  # 训练语料与词表
+│   ├── 量化策略（聚宽·回测）/
+│   │   ├── joinquant_v18.py       # 聚宽随机森林策略
+│   │   ├── quant_v14.py           # 多资产风险平价回测（可本地跑）
+│   │   ├── quant_v21.py           # 动态止损止盈策略
+│   │   ├── quant_xgboost_shap.py  # XGBoost + SHAP 可解释策略
+│   │   ├── quant_features.py      # 纯函数特征工程（供单测）
+│   │   └── 金融数学.py             # 金融计量分析脚本
+│   ├── 助手与智能体（DeepSeek·CAMEL）/
+│   │   ├── voice_assistant.py     # DeepSeek + Edge TTS 语音助手
+│   │   └── camel_chat.py          # CAMEL 对话智能体
+│   └── 其他工具（诗词·物理）/
+│       ├── poem_api.py            # 古典诗词生成 API
+│       └── elastic_collision_sim.py  # 一维弹性碰撞模拟
 ├── 陈深的世界/                 # 《陈深的世界》互动游戏
 ├── web（工具·科普·校园·量化·生活）/   # 交互网页（25 个精选 + archive/ 旧版）
 │   └── archive/               # 重复/旧版本归档（不删除）
@@ -65,6 +71,8 @@ Project1/
 ├── docs/                      # 架构说明
 └── 工程设施：pyproject.toml · requirements.txt · LICENSE · .github/ · .editorconfig
 ```
+
+> 📂 子目录文档：[`大模型/量化策略（聚宽·回测）/README.md`](大模型/量化策略（聚宽·回测）/README.md) · [`大模型/助手与智能体（DeepSeek·CAMEL）/README.md`](大模型/助手与智能体（DeepSeek·CAMEL）/README.md)
 
 ---
 
@@ -129,7 +137,7 @@ python 大模型/llm/cont_bench.py       # continuous batching
 ```bash
 pip install -e .[dev]
 pytest
-ruff check tests 大模型/quant_features.py 大模型/llm
+ruff check tests "大模型/量化策略（聚宽·回测）/quant_features.py" 大模型/llm
 ```
 
 ---
@@ -141,14 +149,14 @@ ruff check tests 大模型/quant_features.py 大模型/llm
 pip install -r requirements.txt
 
 # 训练字符级 Transformer
-python 大模型/complete_ai_toolkit.py --mode train
+python 大模型/Transformer与训练（从零实现）/complete_ai_toolkit.py --mode train
 
 # 本地跑一个量化回测
-python 大模型/quant_v14.py   # （聚宽策略脚本在聚宽平台运行）
+python 大模型/量化策略（聚宽·回测）/quant_v14.py   # （聚宽策略脚本在聚宽平台运行）
 
 # API Key 从环境变量读取
 export DEEPSEEK_API_KEY="your-key"
-python 大模型/voice_assistant.py
+python 大模型/助手与智能体（DeepSeek·CAMEL）/voice_assistant.py
 ```
 
 ---
