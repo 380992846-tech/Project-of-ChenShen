@@ -113,8 +113,13 @@ python 大模型/llm/cont_bench.py       # continuous batching
 
 ## 小世界（游戏）
 
-《陈深的世界》互动游戏系列：36 房间、塔罗占卜、结局墙；以及 16 章剧情《陈深的故事》。
-图片素材经 jsDelivr CDN 加载（详见 `docs/架构说明.md`）。
+《陈深的世界》互动游戏系列，单文件应用、双击即开：
+
+- `我们在一起V6-房间清单.html` —— 36 房间 / 电影画廊 / 塔罗 / 结局墙
+- `陈深的故事V5.html` —— 大模型变成人的 16 章互动剧情
+
+旧版本归档于 `小世界/archive/`。图片素材经 jsDelivr CDN 加载。
+详见 [`小世界/README.md`](小世界/README.md) 与 `docs/架构说明.md`。
 
 ---
 
