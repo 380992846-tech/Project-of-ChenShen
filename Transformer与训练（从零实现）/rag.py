@@ -22,6 +22,14 @@ from pathlib import Path
 
 import numpy as np
 
+# Windows 控制台默认 GBK，强制 UTF-8 输出避免 print 中文时崩溃
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 

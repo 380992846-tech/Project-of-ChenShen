@@ -25,6 +25,14 @@ from pathlib import Path
 
 import torch
 
+# Windows 控制台默认 GBK，强制 UTF-8 输出避免 print 中文时崩溃
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
@@ -54,8 +62,6 @@ def load_model(checkpoint: str | Path, vocab_size: int, device: torch.device) ->
     if isinstance(raw, dict) and "config" in raw and "model" in raw:
         cfg = GPTConfig(**raw["config"])
         state = raw["model"]
-        # 以训练时词表为准
-        cfg.vocab_size = cfg.vocab_size
         model = GPT(cfg)
         model.load_state_dict(state)
     else:

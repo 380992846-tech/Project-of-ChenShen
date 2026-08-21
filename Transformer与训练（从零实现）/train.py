@@ -36,6 +36,15 @@ import time
 from dataclasses import asdict
 from pathlib import Path
 
+# Windows 控制台默认 GBK，遇非 GBK 字符（如生成文本中的 \xa0）print 会抛 UnicodeEncodeError。
+# 强制 stdout/stderr 使用 UTF-8 并容错替换，保证训练打印中文不中断。
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -111,16 +120,28 @@ def train(args) -> dict:
     torch.manual_seed(args.seed)
 
     cfg = load_config(args.config)
-    # 命令行覆盖
-    for key in ("steps", "n_embd", "n_layer", "n_head", "seq_len", "batch", "lr"):
-        val = getattr(args, key, None)
+    # 命令行覆盖：显式映射到对应配置节
+    _TRAIN_OVERRIDES = {
+        "steps": "steps", "batch": "batch", "lr": "lr",
+        "eval_every": "eval_every", "gen_len": "gen_len", "seed": "seed",
+    }
+    _MODEL_OVERRIDES = {
+        "n_embd": "n_embd", "n_layer": "n_layer", "n_head": "n_head",
+    }
+    _DATA_OVERRIDES = {"seq_len": "seq_len"}
+
+    for cli_key, cfg_key in _TRAIN_OVERRIDES.items():
+        val = getattr(args, cli_key, None)
         if val is not None:
-            if key in ("steps", "batch"):
-                setattr(cfg.train, key, val)
-            elif key == "seq_len":
-                setattr(cfg.data, key, val)
-            else:
-                setattr(cfg.model, key, val)
+            setattr(cfg.train, cfg_key, val)
+    for cli_key, cfg_key in _MODEL_OVERRIDES.items():
+        val = getattr(args, cli_key, None)
+        if val is not None:
+            setattr(cfg.model, cfg_key, val)
+    for cli_key, cfg_key in _DATA_OVERRIDES.items():
+        val = getattr(args, cli_key, None)
+        if val is not None:
+            setattr(cfg.data, cfg_key, val)
 
     # ---- 数据 ----
     text = DATA_FILE.read_text(encoding="utf-8", errors="ignore")
@@ -163,7 +184,8 @@ def train(args) -> dict:
         return sum(losses) / len(losses)
 
     @torch.no_grad()
-    def generate_sample(seed_str: str = "清华") -> str:
+    def generate_sample(seed_str: str = "清华") -> tuple[str, str]:
+        """返回 (提示词, 生成纯文本)，便于报告准确展示。"""
         raw_model.eval()
         start = [char_to_idx.get(c, 0) for c in seed_str]
         x = torch.tensor([start], dtype=torch.long, device=device)
@@ -172,7 +194,7 @@ def train(args) -> dict:
             sample=True, temperature=0.8,
         )
         raw_model.train()
-        return seed_str + decode(out[0], idx_to_char)
+        return seed_str, decode(out[0], idx_to_char)
 
     # ---- 训练循环 ----
     history = {"train": [], "val": []}
@@ -202,7 +224,7 @@ def train(args) -> dict:
                     f"[{step}/{cfg.train.steps}] train {m['train']:.3f} | "
                     f"val {m['val']:.3f} | PPL {ppl:.1f} | {el:.0f}s"
                 )
-                print(f"    生成: {sample[:80]}")
+                print(f"    生成: {(sample[0] + sample[1])[:80]}")
 
     # ---- 最终 ----
     final = {"train": eval_split("train"), "val": eval_split("val")}
@@ -254,8 +276,8 @@ def write_report(result: dict) -> None:
         vl = next(v for ss, v in result["history"]["val"] if ss == s)
         lines.append(f"| {s} | {tl:.3f} | {vl:.3f} |")
     lines += ["", "![损失曲线](training_curve.png)", "", "## 生成样例（训练后）", ""]
-    for s in result["samples"]:
-        lines.append(f"- 提示「{s[:2]}」→ **{s}**")
+    for prompt, text in result["samples"]:
+        lines.append(f"- 提示「{prompt}」→ **{prompt}{text}**")
     lines += [
         "",
         "## 结论",
@@ -278,8 +300,14 @@ def main() -> None:
     p.add_argument("--seq_len", type=int, default=None)
     p.add_argument("--batch", type=int, default=None)
     p.add_argument("--lr", type=float, default=None)
-    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--eval_every", type=int, default=None)
+    p.add_argument("--gen_len", type=int, default=None)
+    p.add_argument("--seed", type=int, default=None)
     args = p.parse_args()
+
+    # seed 默认取自 config.yaml
+    if args.seed is None:
+        args.seed = load_config(args.config).train.seed
 
     result = train(args)
     if is_main_process():
