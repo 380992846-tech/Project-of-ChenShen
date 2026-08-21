@@ -67,6 +67,7 @@ Project1/
 ├── web（工具·科普·校园·量化·生活）/   # 交互网页（25 个精选 + archive/ 旧版）
 │   └── archive/               # 重复/旧版本归档（不删除）
 ├── 笔记/                      # 知识库（LLM 技术栈 / 课程笔记 / PDF）
+├── 机器学习作业/               # ML 课程作业（分类·聚类·集成·流失预测）
 ├── tests/                     # pytest 单元测试
 ├── docs/                      # 架构说明
 └── 工程设施：pyproject.toml · requirements.txt · LICENSE · .github/ · .editorconfig
