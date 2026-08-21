@@ -31,7 +31,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install deps
-        run: pip install -e .[dev]
+        run: pip install numpy pandas pytest
       - name: Run tests
         run: pytest
 
