@@ -1,393 +1,166 @@
-# Project1 · 个人 AI × 量化 × 创意工坊
+<div align="center">
 
-> 一个集大模型实现、量化交易策略、物理模拟与网页应用于一体的个人学习与实验仓库。
-> 作者：清华计算机系（贵系）学生 · 全国中学生物理竞赛省一
+# Project1 · 大模型 × 量化 × 创意工坊
+
+**从零实现的大模型推理优化 · 量化交易策略 · 交互网页与游戏**
+
+个人研究 Monorepo：把**算法正确**的模型，做成**又快、又省、又能抗并发**的服务。
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.x-orange)
-![JoinQuant](https://img.shields.io/badge/JoinQuant-聚宽策略-red)
-![HTML](https://img.shields.io/badge/HTML-35个页面-purple)
+![JoinQuant](https://img.shields.io/badge/量化-聚宽策略-red)
+![CI](https://img.shields.io/badge/CI-lint+test+smoke-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
----
-
-> **English overview** · A personal research sandbox spanning **LLM implementation**, **quantitative trading**, **interactive web games** and **knowledge notes**. The sections below are in Chinese; see the directory tree and quick-start for a fast overview.
+</div>
 
 ---
 
-##  项目简介
+## 项目简介
 
-本仓库是作者在 **大模型（LLM）**、**量化交易（Quant）**、**Web 创意游戏** 与 **知识整理** 四个方向上的学习与实践合集：
+> 清华计算机系（贵系）学生 · 全国中学生物理竞赛省一。这个仓库把四个方向做成了一套完整实践：
+> **大模型从零实现 + 推理优化**、**量化交易**、**交互网页/游戏**、**知识整理**。
 
--  **《陈深的世界》**：亲手搭建的互动游戏——36 个房间、50 部电影、塔罗占卜、彩蛋结局墙，还有 16 章剧情《陈深的故事》（V5）；
+四大板块：
 
--  **大模型从零实现**：不依赖现成框架地搭建 Transformer，理解注意力机制、生成策略、RAG 与量化；
--  **量化交易策略家族**：基于聚宽（JoinQuant）平台的多版本策略迭代（V14 → V18 → V21），融合机器学习与情绪因子；
--  **创意 Web 应用**：30+ 个清华风格（黑紫玻璃）HTML 页面，覆盖课表、选课、笔记、面试题库与日常工具；
--  **系统性知识库**：大模型、计算机科学与 LLM 技术栈的深度整理文档。
+- 🧠 **推理优化**（`大模型/llm/`）：手搓 decoder-only GPT，从 KV Cache 一路做到量化、投机解码、连续批处理——每条都有可复现 benchmark + 单测。
+- 🤖 **大模型应用**：从零实现的字符级 Transformer、语音/对话助手、古典诗词生成。
+- 📈 **量化交易**：聚宽（JoinQuant）平台的随机森林 / XGBoost+SHAP / 动态风控策略家族。
+- 🎨 **创意工坊**：30+ 个清华紫黑风格的交互网页、以及《陈深的世界》互动游戏。
+
+> ⚠️ 量化策略为研究/回测用途，**非投资建议**，实盘前需充分验证。
 
 ---
 
-##  目录结构
+## 目录结构
 
 ```
 Project1/
-├──  小世界/（4 个）★ 最推荐
-│   ├── 我们在一起V6-房间清单.html   # 《陈深的世界》互动游戏（36房间/50电影/塔罗/结局墙）
-│   ├── 陈深的故事V5.html           # 互动剧情：大模型变成人的16章故事（V5）
-│   ├── 陈深的故事V2.html           # 剧情游戏早期版本
-│   └── 我们在一起V4.html           # 初代卡片版小世界
-├──  大模型/（13 个）
-│   ├── complete_ai_toolkit.py           # 全功能 AI 工具包（见下方详解）
-│   ├── mini_transformer.py              # 从零实现 MiniTransformer
-│   ├── voice_assistant.py               # 清华二校门智能语音助手
-│   ├── camel_chat.py                    # CAMEL × DeepSeek 对话助手
-│   ├── poem_api.py                      # PoeticFlow 古典诗词生成 API
-│   ├── elastic_collision_sim.py         # 一维弹性碰撞物理模拟
-│   ├── joinquant_v18.py                 # 聚宽 A股策略（随机森林版）
-│   ├── quant_v14.py                     # 多资产风险平价量化系统
-│   ├── quant_v21.py                     # 聚宽 ETF 交易策略（V21）
-│   ├── quant_xgboost_shap.py            # 可解释 AI 选股策略
-│   ├── quant_features.py                # 纯函数特征工程模块（供单元测试）
-│   ├── training_data.txt / vocab.json   # LLM 训练语料与词表
-├──  网页作品/（35 个）
-│   ├── 校园课表/选课/叙事（6） 清华大学课程表、选课系统V2、贵系大一/大二…
-│   ├── 学习笔记/工坊（5）     紫清云笔记（V1/V2/V4pro）、贵系全能学长、deepseek_算法工坊
-│   ├── 面试题库（4）         大厂120、大厂助手、大厂面试、大厂面试笔记
-│   ├── 效率工具（5）         Markdown清理器、PDF合并、风控审合同、写诗
-│   ├── 科技可视化（4）       模拟太阳系、银河系+太阳系、量子研究、旋转特效
-│   └── 科普/量化/站点/生活（11） 大模型科普、量化舱、清华极客、ACM/MEM、柏悦酒店、英国旅游、五道口租房…
-│       （另含 `金融数学.py` —— 基于 NumPy/Pandas/ARCH 的金融计量分析脚本）
-├──  笔记/（10 本）
-│   ├── 大模型科学与工程.md（172 KB）/ 计算机科学与技术.md（117 KB）
-│   ├── LLM技术栈.md（43 KB）/ 大模型全栈工程手册07201版.md（53 KB）
-│   └── 参考资料（PDF/DOCX）：LLM.pdf / 算力中心资产管理.pdf / 贵系培养方案.pdf / 量化.docx / 贵系.docx / 宇宙与物理规律.docx
-├──  photos/（86 张）
-│   └── 小世界游戏素材（经 jsDelivr CDN 加载）
-├──  tests/                              # pytest 单元测试
-├──  docs/                               # 架构与工程说明
-└──  工程设施：README.md · pyproject.toml · requirements.txt · LICENSE · .github/ · .editorconfig
+├── 大模型/                    # 代码、训练数据、推理优化
+│   ├── llm/                   # ★ 推理优化主线（见下）
+│   │   ├── gpt.py             # decoder-only GPT（KV Cache / continuous batching）
+│   │   ├── benchmark.py       # KV Cache 加速对比
+│   │   ├── quantize.py        # INT8/INT4/FP8 权重量化
+│   │   ├── quant_compare.py   # 量化对比（PPL/存储/误差）
+│   │   ├── speculative.py     # 投机解码（draft + 并行验证）
+│   │   ├── serving.py         # 批量解码
+│   │   ├── continuous.py      # ★ 真·continuous batching（动态 slot 复用）
+│   │   └── reports/           # 全部 benchmark 报告 + 图表
+│   ├── complete_ai_toolkit.py # 字符级 Transformer 全家桶
+│   ├── mini_transformer.py    # 从零实现 MiniTransformer
+│   ├── voice_assistant.py     # DeepSeek + Edge TTS 语音助手
+│   ├── camel_chat.py          # CAMEL 对话助手
+│   ├── poem_api.py            # 古典诗词生成 API
+│   ├── joinquant_v18.py       # 聚宽随机森林策略
+│   ├── quant_v14.py           # 多资产风险平价回测
+│   ├── quant_v21.py           # 动态止损止盈策略
+│   ├── quant_xgboost_shap.py  # XGBoost + SHAP 可解释策略
+│   ├── quant_features.py      # 纯函数特征工程（供单测）
+│   └── 金融数学.py             # 金融计量分析脚本
+├── 小世界/                    # 《陈深的世界》互动游戏
+├── 网页作品/                   # 交互网页（26 个精选 + archive/ 旧版）
+│   └── archive/               # 重复/旧版本归档（不删除）
+├── 笔记/                      # 知识库（LLM 技术栈 / 课程笔记 / PDF）
+├── tests/                     # pytest 单元测试
+├── docs/                      # 架构说明
+└── 工程设施：pyproject.toml · requirements.txt · LICENSE · .github/ · .editorconfig
 ```
 
 ---
 
-##  Python 模块详解
+## 推理优化（核心亮点）
 
-### 1. `complete_ai_toolkit.py` — 全功能 AI 工具包 
+> 一句话：**把一个大模型从"能跑"优化到"快、省、能扛并发"**，每步都有报告和测试。
 
-一个文件整合完整 AI 流程：文档处理 → 训练 → 生成 → 问答 → 量化 → 可视化。
+| 层面 | 做法 | 关键结果 |
+|------|------|----------|
+| 解码复杂度 | **KV Cache + prefill/decode** | O(T²)→O(T)，实测 ~3.6× |
+| 权重精度 | **INT8/INT4/FP8 量化** | 存储压缩 4–5×，PPL 几乎无损 |
+| 采样算法 | **投机解码** | target 前向降到 0.2 次/token，分布精确保持 |
+| 服务吞吐 | **批量解码 + continuous batching** | 吞吐随 batch 近线性增长；动态 slot 复用 |
 
-| 功能 | 命令 | 说明 |
-|------|------|------|
-| 文档处理 | `--mode build` | 读取 `.docx` / `.txt` 构建训练语料 |
-| 训练 | `--mode train` | 字符级 `CharTransformer`（8头注意力×4层） |
-| 分类 | `--mode classify` | 文本分类器（含主题向量） |
-| 生成 | `--mode generate` | 条件文本生成（温度/重复惩罚控制） |
-| RAG 问答 | `--mode rag` | `SimpleRAG`：索引检索 + 生成回答 |
-| 量化加速 | `--mode quantize` | INT8 量化，2–3 倍推理加速 |
-| 监控面板 | `--mode dashboard` | Streamlit 实时监控训练曲线与推理 |
-
-### 2. `mini_transformer.py` — 从零实现 MiniTransformer
-
-- 完整 `MiniTransformer`：Embedding + 可学习位置编码 + `TransformerEncoder` + 线性输出头；
-- 用**算术序列**（`[a, b, c] → [b, c, a+b]`）演示 next-token 预测；
-- 工程细节：`AdamW` 优化器、`StepLR` 学习率衰减、CrossEntropyLoss。
-
-### 3. `voice_assistant.py` — 清华二校门智能语音助手
-
-- 基于 **DeepSeek API + Edge TTS** 的语音对话助手；
-- 特色：按时间智能问候、**对话记忆持久化**（JSON）、语音播放、角色化人设（"小DeepSeek"）。
-
-### 4. `camel_chat.py` — CAMEL 多智能体对话
-
-- 基于 **CAMEL 框架** 的对话助手，接入 DeepSeek 模型平台，循环命令行交互。
-
-### 5. `poem_api.py` — PoeticFlow 古典诗词生成 API
-
-- Flask RESTful 服务：词库（名词/动词/意象/情感）+ 格律校验 + 风格调制；
-- 启动后访问 `http://localhost:5000`。
-
-### 6. `elastic_collision_sim.py` — 弹性碰撞物理模拟
-
-- **事件驱动引擎**：碰撞时刻预测、完全弹性碰撞解析、球-球/球-墙碰撞、重叠修复；
-- 备选 **RK4 积分器** 路线，支持轨迹绘图、动画帧导出与质量比扫描实验。
-
-### 7. `joinquant_v18.py` — 聚宽 A股策略 v18
-
-- 特征工程（RSI 等技术指标）→ **随机森林** 分类 → 滚动训练；
-- 集成动态风控与回测对比模块（`backtest_compare`）。
-
-### 8. `quant_v14.py` — 多资产风险平价量化系统
-
-- 多资产数据抓取（带本地缓存 `data_cache`）→ 特征标准化 → 随机森林信号；
-- **风险平价** 权重分配 + RSI 择时，含完整回测与日志体系。
-
-### 9. `quant_v21.py` — 聚宽 ETF 交易策略 V21
-
-- 交易标的：沪深300 ETF（510300）；
-- 核心机制：**ATR 动态止损止盈**、RSI 背离、布林带因子、**分批止盈**、大盘环境过滤、波动率过滤、无进展止损。
-
-### 10. `quant_xgboost_shap.py` — 可解释 AI 选股策略
-
-- 情绪因子：新闻 / 社交舆情情感打分；
-- 模型融合：**LSTM + XGBoost** 双模型信号；
-- 可解释性：**SHAP** 特征重要性报告；**值增量学习**：收益分歧检测 + 增量训练；
-- 动态阈值：ATR + 市场状态（牛/熊/震荡）自适应。
-
-### 11. `金融数学.py`（位于 `网页作品/`）— 金融计量分析脚本
-
-- NumPy / Pandas / SciPy / ARCH 技术栈，含 GARCH 类波动率建模等计量分析。
-
----
-
-##  推理优化（Inference Optimization）
-
-> 目标是形成一条完整的推理优化主线：**KV Cache → 量化对比 → 投机解码 → 并发 serving**。
-> 现阶段已完成第一步：KV Cache + prefill/decode 分离。
-
-### 现状（Step 1：KV Cache）
-
-`大模型/llm/` 子包实现了一个 **decoder-only 因果 GPT**，支持：
-
-- **KV Cache**：解码时缓存每层 K/V，避免每步重算整个上下文；
-- **prefill / decode 分离**：首步一次性处理 prompt，之后每步只处理 1 个 token；
-- **正确性保证**：单元测试断言 KV 与非 KV 生成结果**逐 token 完全一致**。
-
-实测（CPU，891K 参数，生成 300 token，3 次取平均）：
-
-| 指标 | 无 KV Cache | 有 KV Cache |
-|------|------------|-------------|
-| 平均每 token 耗时 | 10.0 ms | 2.8 ms |
-| 生成速率 | 99.6 tokens/s | 356.0 tokens/s |
-| **加速比** | 1.0× | **3.6×** |
-
-- 完整报告：[`大模型/llm/reports/kv_cache_report.md`](大模型/llm/reports/kv_cache_report.md)
-- 对比曲线：[`大模型/llm/reports/kv_cache_speedup.png`](大模型/llm/reports/kv_cache_speedup.png)
-
-**复现：**
+所有 benchmark 报告与曲线在 `大模型/llm/reports/`，正确性由 `tests/` 下的单测保证
+（KV 与非 KV 逐 token 一致、量化还原误差、投机"draft==target 时输出完全一致"、
+continuous batching 输出与逐条解码一致）。
 
 ```bash
-python 大模型/llm/benchmark.py --n_layer 4 --n_embd 128 --n_head 4 --prompt_len 128 --gen_len 300
+python 大模型/llm/benchmark.py        # KV Cache 加速
+python 大模型/llm/quant_compare.py    # 量化对比
+python 大模型/llm/spec_bench.py       # 投机解码吞吐
+python 大模型/llm/serve_bench.py      # 批量 serving
+python 大模型/llm/cont_bench.py       # continuous batching
 ```
-
-**Roadmap：**
-- [x] KV Cache + prefill/decode 分离（Step 1）
-- [x] INT8/INT4/FP8 量化对比（Step 2）
-- [x] Speculative Decoding（投机采样）（Step 3）
-- [x] 并发 serving / 批量解码（continuous batching）（Step 4）
 
 ---
 
-### 现状（Step 2：量化对比）
+## 网页作品（26 个精选）
 
-`大模型/llm/quantize.py` + `quant_compare.py`：训练一个小型字符级 GPT，
-对 FP32 / INT8 / INT4 / FP8 做权重量化对比，产出 PPL、存储、误差与延迟报告。
+> 大量重复/旧版本已归档到 `网页作品/archive/`（不删除）。以下为精选主目录：
 
-实测（CPU，237K 参数，训练 300 步）：
+**效率工具**：`Markdown.html`（清理）、`PDF合并.html`、`写诗.html`、`风控审合同.html`、`供应商2.html`
 
-| 精度 | 权重存储 (MB) | 权重还原误差 | logit 偏差 | PPL |
-|------|---------------|--------------|------------|-----|
-| FP32 | 0.905 | 0 | 0 | 414.4 |
-| INT8 | 0.234 | 1.7e-02 | 6.8e-03 | 414.4 |
-| INT4 | 0.178 | 2.1e-01 | 4.6e-02 | 415.9 |
-| FP8  | 0.234 | 1.8e-01 | 1.9e-02 | 414.7 |
+**科普/可视化**：`大模型.html`（万字科普）、`模拟太阳系.html`、`银河系加太阳系.html`、`量子研究.html`、`旋转特效.html`
 
-**结论**：INT8/FP8 压缩约 **4×**、INT4 约 **5×** 存储；各精度 PPL 几乎不变
-（≈414），量化基本无损质量。
+**清华校园**：`清华计算机系课表V2.html`、`清华计算机系选课系统V2.html`、`贵系大一V2.html`、`贵系大二.html`、`贵系全能学长.html`、`deepseek_算法工坊.html`
 
-**复现：**
+**量化/站点**：`量化.html`、`清华极客量化.html`、`清华极客.html`、`清华ACM.html`、`清华MEM.html`、`大厂120.html`
+
+**生活/展示**：`五道口租房.html`、`柏悦酒店.html`、`英国旅游.html`、`紫清云笔记V4 pro.html`
+
+> 所有页面均为**单文件应用**，双击即开，无需构建。
+
+---
+
+## 小世界（游戏）
+
+《陈深的世界》互动游戏系列：36 房间、塔罗占卜、结局墙；以及 16 章剧情《陈深的故事》。
+图片素材经 jsDelivr CDN 加载（详见 `docs/架构说明.md`）。
+
+---
+
+## 工程设施
+
+- `pyproject.toml` —— 项目元数据 + ruff / pytest / mypy 配置
+- `.github/workflows/ci.yml` —— push 自动跑 lint、单测、编译冒烟
+- `tests/` —— pytest（25 个用例）
+- `.editorconfig` / `.pre-commit-config.yaml` / `.gitattributes`
 
 ```bash
-python 大模型/llm/quant_compare.py --train_steps 300 --train_kb 50 --eval_kb 12
+pip install -e .[dev]
+pytest
+ruff check tests 大模型/quant_features.py 大模型/llm
 ```
-
-- 完整报告：[`大模型/llm/reports/quant_compare_report.md`](大模型/llm/reports/quant_compare_report.md)
-- 对比图：[`大模型/llm/reports/quant_compare.png`](大模型/llm/reports/quant_compare.png)
 
 ---
 
-### 现状（Step 3：投机解码 Speculative Decoding）
-
-`大模型/llm/speculative.py` + `spec_bench.py`：用小而快的 **draft 模型**猜 `γ` 个候选，
-**target 模型**一次并行验证，通过**精确拒绝采样**决定接受哪些——从而**严格保持 target
-的分布**，同时用更少的 target 前向产出更多 token。
-
-实测（CPU，target 984K / draft 60K 参数，γ=4）：
-
-| 方式 | 吞吐 (tokens/s) | 每 token 的 target 前向次数 |
-|------|-----------------|------------------------------|
-| target (KV cache) | 255.8 | 1.00 |
-| speculative | 243.0 | **0.20** |
-
-- **算法层收益**：投机把 target 前向从每 token 1 次降到 **0.2 次（约 5×）**，直接对应真实大模型上 target 计算量下降；
-- **墙钟**：CPU 小模型上 draft 不够快，墙钟收益有限（噪声大）；真实加速需 draft/target 速度差足够大（GPU 大模型场景）。
-- **正确性**：精确拒绝采样保证分布等价——测试验证 `draft==target` 时输出与 target 完全一致。
-
-**复现：**
+## 快速开始
 
 ```bash
-python 大模型/llm/spec_bench.py --train_steps 300 --train_kb 50 --gen_len 96 --gamma 4
-```
+# 依赖
+pip install -r requirements.txt
 
-- 完整报告：[`大模型/llm/reports/spec_report.md`](大模型/llm/reports/spec_report.md)
-- 吞吐对比图：[`大模型/llm/reports/spec_speedup.png`](大模型/llm/reports/spec_speedup.png)
+# 训练字符级 Transformer
+python 大模型/complete_ai_toolkit.py --mode train
 
----
+# 本地跑一个量化回测
+python 大模型/quant_v14.py   # （聚宽策略脚本在聚宽平台运行）
 
-### 现状（Step 4：并发 serving / 批量解码）
-
-`大模型/llm/serving.py` + `serve_bench.py`：把多个请求合成 batch，**每步只做一次
-batched 前向**（配合每请求 KV Cache），摊销单步开销，提升整体吞吐。
-
-实测（CPU，187K 参数，48 个请求，3 轮平均）：
-
-| batch size | 吞吐 (tokens/s) | P50 (ms) | P99 (ms) |
-|-----------|-----------------|----------|----------|
-| 1 | 269.5 | 119.3 | 213.3 |
-| 4 | 956.4 | 143.3 | 212.2 |
-| 8 | 2092.9 | 129.3 | 139.6 |
-| 16 | **4379.0** | 115.9 | 136.0 |
-
-- **吞吐随 batch 近乎线性增长**（batch 16 ≈ **16×**），而 P99 延迟基本持平；
-- 真实 serving（vLLM/TGI）在此基础上做 **continuous batching**（动态 slot 复用）与
-  `PagedAttention` 进一步优化。
-
-**复现：**
-
-```bash
-python 大模型/llm/serve_bench.py --train_steps 300 --n_requests 48 --gen_len 32
-```
-
-- 完整报告：[`大模型/llm/reports/serving_report.md`](大模型/llm/reports/serving_report.md)
-- 吞吐/延迟图：`大模型/llm/reports/serving_throughput.png`、`serving_latency.png`
-
----
-
-### 推理优化线总结
-
-`大模型/llm/` 从零实现了一条完整的推理优化链路，覆盖**解码复杂度、权重精度、
-采样算法、服务吞吐**四个层面，且每一步都配了可复现的 benchmark 与单测：
-
-1. **KV Cache + prefill/decode** —— 解码从 O(T²) 降到 O(T)，实测 ~3.6× 加速；
-2. **量化对比（INT8/INT4/FP8）** —— 权重存储压缩 4–5×，PPL 几乎无损；
-3. **投机解码** —— draft 草稿 + 一次并行验证，target 前向降到 0.2 次/token，
-   分布精确保持（测试锁死）；
-4. **并发 serving / 批量解码** —— 吞吐随 batch 近线性增长（16×），P99 持平。
-
-> 这些正是大模型公司推理/部署岗每天都在做的事：把"算法正确"的模型
-> 变成"又快又省又能抗并发"的服务。每条都有报告、图表和测试，可复现。
-
----
-
-##  HTML 应用速览
-
-| 分类 | 页面（共 35 个） | 说明 |
-|------|-----------------|------|
-| 校园课表/选课/叙事（6） | `清华大学课程表.html`、`清华计算机系课程表.html`/`V2`、`清华计算机系选课系统V2.html`、`贵系大一V2.html`、`贵系大二.html` | 清华黑紫风格课表、选课交互与角色化校园故事 |
-| 学习笔记/工坊（5） | `紫清云笔记加强版.html`/`V2`/`V4 pro`、`贵系全能学长.html`、`deepseek_算法工坊.html` | 笔记工具三版本迭代 + AI 工具聚合页 |
-| 面试题库（4） | `大厂120.html`、`大厂面试.html` | 大厂面试 120 题 |
-| 效率工具（5） | `Markdown.html`、`PDF合并.html`、`风控审合同.html`、`供应商2.html`、`写诗.html` | Markdown 清理、PDF 合并、合同风控、诗词生成 |
-| 科技可视化（4） | `模拟太阳系.html`、`银河系加太阳系.html`、`量子研究.html`、`清华大学计算机科学与技术系旋转特效.html` | 粒子/CSS 特效宇宙 |
-| 知识科普（1） | `大模型.html` | 大模型万字科普页 |
-| 量化主题（2） | `量化.html`（紫金投资舱）、`清华极客量化.html`（THU Quant） | 量化投资主题页 |
-| 校园站点（3） | `清华极客.html`、`清华ACM.html`、`清华MEM.html` | 社团/培训/考研复习站 |
-| 展示/生活（5） | `我们在一起V4.html`、`柏悦酒店.html`、`英国旅游.html`、`五道口租房.html`、`贵系学长.html.html` | 个人项目与生活展示 |
-
-> 💡 所有 HTML 页面均为**单文件应用**，双击即可在浏览器打开，无需构建。
-
----
-
-##  知识库文档
-
-| 文档 | 规模 | 内容 |
-|------|------|------|
-| `大模型科学与工程.md` | 172 KB | 从数学/算力基石到 Transformer、Scaling Laws、RLHF/DPO、分布式训练的体系化知识库 |
-| `计算机科学与技术.md` | 117 KB | 数据结构、操作系统、数据库、分布式共识（Raft）等系统性梳理 |
-| `LLM技术栈.md` | 43 KB | RFC 风格技术文档：自注意力从数学推导到 CUDA 实现、Flash Attention、Mamba 等 |
-| `大模型全栈工程手册07201版.md` | 53 KB | 大模型工程实践手册（学术精修与系统重构版） |
-
----
-
-##  快速开始
-
-### 环境要求
-- Python 3.9+
-- 量化策略（`joinquant_v18.py`、`quant_v21.py`、`quant_xgboost_shap.py`）需在**聚宽（JoinQuant）**平台运行
-
-### AI 工具包
-```bash
-pip install torch streamlit python-docx
-
-python complete_ai_toolkit.py --mode train        # 训练字符级 Transformer
-python complete_ai_toolkit.py --mode generate     # 条件文本生成
-python complete_ai_toolkit.py --mode rag          # RAG 问答
-python complete_ai_toolkit.py --mode quantize     # INT8 量化
-python complete_ai_toolkit.py --mode dashboard    # Streamlit 监控面板
-```
-
-### 诗词生成 API
-```bash
-pip install flask flask-cors numpy scikit-learn
-python poem_api.py
-# 访问 http://localhost:5000
-```
-
-### 物理模拟
-```bash
-pip install numpy matplotlib
-python elastic_collision_sim.py --balls 5 --tmax 20 --animate
-```
-
-### 语音助手 / 对话助手
-```bash
-pip install edge-tts openai camel-ai
-# 1) 设置环境变量 DEEPSEEK_API_KEY（见下方「注意事项」）
-# 2) 运行脚本开始对话
+# API Key 从环境变量读取
+export DEEPSEEK_API_KEY="your-key"
+python 大模型/voice_assistant.py
 ```
 
 ---
 
-##  技术栈
+## Roadmap
 
-| 领域 | 技术 |
-|------|------|
-| 深度学习 | PyTorch、Transformer、RAG、MoE、INT8 量化、Streamlit |
-| 机器学习 | Scikit-learn、XGBoost、LSTM、随机森林、SHAP |
-| 量化金融 | 聚宽（JoinQuant）、风险平价、ATR/RSI/布林带、GARCH |
-| 大模型应用 | DeepSeek API、OpenAI SDK、CAMEL、Edge TTS |
-| 物理模拟 | 事件驱动仿真、RK4 数值积分、Matplotlib 动画 |
-| Web 前端 | 原生 HTML/CSS/JS（单文件应用） |
+- [x] 推理优化：KV Cache → 量化 → 投机解码 → 批量/连续批处理
+- [ ] 真·PagedAttention（按块 KV 分配，省显存）
+- [ ] 量化策略统一工程化 + 实盘风控
+- [ ] 小世界游戏持续迭代
 
 ---
 
-## 项目进展与路线图
+## License
 
-- [x] Transformer 从零实现（训练/验证/生成）
-- [x] 生成质量优化（Top-K/P、重复惩罚、温度调节）
-- [x] 量化交易基线（随机森林策略）
-- [x] INT8 量化加速与 KV Cache 实践
-- [x] MoE 架构原型（专家网络 + 路由机制）
-- [x] RAG 检索增强问答
-- [ ] 长上下文扩展（RoPE 插值）
-- [ ] 多模态模型探索
-- [ ] 策略实盘对接与组合风控
-
----
-
-##  注意事项
-
-1. **API Key**：`camel_chat.py` 与 `voice_assistant.py` 会从环境变量 `DEEPSEEK_API_KEY` 读取密钥（代码不再内置密钥）。运行前请先设置：
-   ```bash
-   # Windows (PowerShell)
-   $env:DEEPSEEK_API_KEY = "your-deepseek-api-key"
-   # macOS / Linux
-   export DEEPSEEK_API_KEY="your-deepseek-api-key"
-   ```
-2. **量化策略**：聚宽策略为研究/回测用途，实盘前需充分验证与风控评估，本仓库不对投资结果负责；
-3. **数据文件**：`training_data.txt` 为自整理训练语料，`vocab.json` 为配套词表。
-
----
-
-##  License
-
-[MIT](LICENSE) © 2026 · 本项目为个人学习与实验用途，欢迎自由使用与改进。
+[MIT](LICENSE) © 2026 · 个人学习与实验用途
