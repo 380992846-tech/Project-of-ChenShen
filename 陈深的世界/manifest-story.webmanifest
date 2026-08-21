@@ -5,7 +5,7 @@
   "start_url": "./陈深的故事V5.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#0b0710",
   "theme_color": "#0b0710",
   "icons": [

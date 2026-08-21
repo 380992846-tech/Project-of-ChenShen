@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="manifest" href="./manifest-story.webmanifest">
     <meta name="theme-color" content="#0b0710">
     <link rel="apple-touch-icon" href="./icons/icon-192.png">
@@ -1161,6 +1161,17 @@
         /* 地图会话内的复古框 → 精致玻璃金边 */
         body.map-session .bubble { border-radius: 12px; }
         body.map-session .choice-btn { border-radius: 10px; }
+
+        /* ===== 移动端触控 + 横屏适配（PWA） ===== */
+        html, body { -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+        * { -webkit-touch-callout: none; }
+        button, .choice-btn, .explore-btn, .icon-btn { touch-action: manipulation; }
+        button:active, .choice-btn:active, .explore-btn:active, .icon-btn:active { opacity: .72; }
+        #app, .explore-canvas-wrap { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+        @media (orientation: landscape) and (max-height: 520px) {
+            .explore-hud { font-size: 12px; }
+            .choice-btn { padding: 8px 12px; font-size: 13px; }
+        }
     </style>
 </head>
 <body>
