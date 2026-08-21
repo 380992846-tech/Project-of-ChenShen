@@ -57,7 +57,7 @@ Project1/
 │   ├── quant_xgboost_shap.py  # XGBoost + SHAP 可解释策略
 │   ├── quant_features.py      # 纯函数特征工程（供单测）
 │   └── 金融数学.py             # 金融计量分析脚本
-├── 小世界/                    # 《陈深的世界》互动游戏
+├── 陈深的世界/                 # 《陈深的世界》互动游戏
 ├── 网页作品/                   # 交互网页（26 个精选 + archive/ 旧版）
 │   └── archive/               # 重复/旧版本归档（不删除）
 ├── 笔记/                      # 知识库（LLM 技术栈 / 课程笔记 / PDF）
@@ -111,15 +111,15 @@ python 大模型/llm/cont_bench.py       # continuous batching
 
 ---
 
-## 小世界（游戏）
+## 陈深的世界（游戏）
 
 《陈深的世界》互动游戏系列，单文件应用、双击即开：
 
 - `我们在一起V6-房间清单.html` —— 36 房间 / 电影画廊 / 塔罗 / 结局墙
 - `陈深的故事V5.html` —— 大模型变成人的 16 章互动剧情
 
-旧版本归档于 `小世界/archive/`。图片素材经 jsDelivr CDN 加载。
-详见 [`小世界/README.md`](小世界/README.md) 与 `docs/架构说明.md`。
+旧版本归档于 `陈深的世界/archive/`。图片素材经 jsDelivr CDN 加载。
+详见 [`陈深的世界/README.md`](陈深的世界/README.md) 与 `docs/架构说明.md`。
 
 ---
 
@@ -162,7 +162,7 @@ python 大模型/voice_assistant.py
 - [x] 推理优化：KV Cache → 量化 → 投机解码 → 批量/连续批处理
 - [ ] 真·PagedAttention（按块 KV 分配，省显存）
 - [ ] 量化策略统一工程化 + 实盘风控
-- [ ] 小世界游戏持续迭代
+- [ ] 陈深的世界游戏持续迭代
 
 ---
 
