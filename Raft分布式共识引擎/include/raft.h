@@ -1,5 +1,5 @@
 #pragma once
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <vector>
 #include <map>
 #include <mutex>
@@ -8,6 +8,9 @@
 #include <functional>
 #include <fstream>
 #include <nlohmann/json.hpp>  // 需要安装
+
+// 代码里用的是 `asio::`，这里把它别名到 Boost.Asio
+namespace asio = boost::asio;
 
 using json = nlohmann::json;
 
@@ -73,20 +76,18 @@ public:
     
     // 状态机接口（KV store）
     void submitCommand(const json& cmd, std::function<void(bool, const json&)> callback);
-    
-private:
+
+protected:   // 供 RaftNodeWithRPC 等派生类访问
     // ---------- 核心状态 ----------
     int nodeId_;
     std::vector<std::string> peerAddrs_;
     Role role_ = FOLLOWER;
     std::mt19937 rng_;
-    
+    int voteCount_ = 0;   // 选举计票（Candidate 期间累计票数）
+
     // 持久化状态（需要落盘）
     PersistentState persistentState_;
     std::mutex stateMutex_;
-
-    // 选举计票（Candidate 期间累计票数）
-    int voteCount_ = 0;
     
     // 易失性状态
     int commitIndex_ = 0;
@@ -113,8 +114,8 @@ private:
     void becomeLeader();
     
     // RPC处理
-    RequestVoteReply handleRequestVote(const RequestVoteArgs& args, int fromId);
-    AppendEntriesReply handleAppendEntries(const AppendEntriesArgs& args, int fromId);
+    virtual RequestVoteReply handleRequestVote(const RequestVoteArgs& args, int fromId);
+    virtual AppendEntriesReply handleAppendEntries(const AppendEntriesArgs& args, int fromId);
     
     // 日志复制
     void replicateLogs(int peerId);
@@ -126,6 +127,6 @@ private:
     bool loadPersist();
     
     // RPC发送
-    void sendRequestVote(int peerId);
-    void sendAppendEntries(int peerId);
+    virtual void sendRequestVote(int peerId);
+    virtual void sendAppendEntries(int peerId);
 };

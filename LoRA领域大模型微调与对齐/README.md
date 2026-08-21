@@ -1,6 +1,6 @@
 # 基于 LoRA 的领域大模型微调与对齐实践
 
-> 在单卡 GPU 上，用参数高效微调（LoRA）把 LLaMA-2 适配到垂直领域，并尝试 DPO 对齐。
+> 在单卡 GPU 上，用参数高效微调（LoRA）把 DeepSeek 模型适配到垂直领域，并尝试 DPO 对齐。
 
 ## 背景与挑战
 
@@ -12,7 +12,7 @@
 
 | 项 | 说明 |
 |----|------|
-| 基座 | **LLaMA 2 7B** |
+| 基座 | **DeepSeek-R1-Distill-Qwen-7B**（开放权重） |
 | 微调方法 | **LoRA（r=8，α=16）**，仅更新约 **0.1%** 的参数 |
 | 数据 | 覆盖 **5 个典型场景**的 SFT 数据集（约 **10k 条**） |
 | 提示模板 | 设计 **system prompt 模板**，提升指令泛化性 |
@@ -35,7 +35,7 @@
 
 ## 运行
 
-> 需要 GPU（RTX 3090 或以上，≥24GB 显存），首次会下载 LLaMA-2 7B 权重。
+> 需要 GPU（RTX 3090 或以上，≥24GB 显存），首次会下载 DeepSeek-R1-Distill-Qwen-7B 权重（开放，无需授权）。
 
 ```bash
 pip install torch transformers peft datasets trl bitsandbytes
@@ -48,7 +48,7 @@ python dpo_train.py         # DPO 对齐（基于 train_lora 产出的 lora_fina
 ```
 LoRA领域大模型微调与对齐/
 ├── README.md
-├── train_lora.py    # LoRA SFT 微调（LLaMA-2 7B 4bit + LoRA r8 α16 + 5 场景）
+├── train_lora.py    # LoRA SFT 微调（DeepSeek-R1-Distill-Qwen-7B 4bit + LoRA r8 α16 + 5 场景）
 └── dpo_train.py     # DPO 对齐（chosen/rejected 数据）
 ```
 

@@ -1,6 +1,7 @@
 #include "raft.h"
-#include <asio/read.hpp>
-#include <asio/write.hpp>
+#include <boost/asio/read.hpp>
+#include <boost/asio/write.hpp>
+#include <algorithm>
 #include <iostream>
 
 using namespace std::chrono_literals;
@@ -38,10 +39,8 @@ void RaftNode::becomeCandidate() {
     std::cout << "[Node " << nodeId_ << "] 成为Candidate, Term=" << persistentState_.currentTerm << std::endl;
     
     // 并发发送RequestVote RPC
-    for (auto& [peerId, addr] : peerAddrs_) {
+    for (int peerId = 0; peerId < (int)peerAddrs_.size(); ++peerId) {
         if (peerId == nodeId_) continue;
-        
-        // 异步发送投票请求
         sendRequestVote(peerId);
     }
     
@@ -76,7 +75,7 @@ void RaftNode::sendRequestVote(int peerId) {
             if (role_ == CANDIDATE && reply.voteGranted) {
                 voteCount_++;
                 // 超过半数则成为Leader
-                if (voteCount_ > (int)(peerAddrs_.size() / 2)) {
+                if (voteCount_ > (peerAddrs_.size() / 2)) {
                     becomeLeader();
                 }
             }
@@ -90,7 +89,7 @@ void RaftNode::becomeLeader() {
     std::cout << "[Node " << nodeId_ << "] 成为Leader, Term=" << persistentState_.currentTerm << std::endl;
     
     // 初始化nextIndex和matchIndex
-    for (auto& [peerId, _] : peerAddrs_) {
+    for (int peerId = 0; peerId < (int)peerAddrs_.size(); ++peerId) {
         if (peerId == nodeId_) continue;
         nextIndex_[peerId] = persistentState_.logs.size() + 1;
         matchIndex_[peerId] = 0;
@@ -103,14 +102,14 @@ void RaftNode::becomeLeader() {
 void RaftNode::sendHeartbeat() {
     if (role_ != LEADER) return;
     
-    for (auto& [peerId, _] : peerAddrs_) {
+    for (int peerId = 0; peerId < (int)peerAddrs_.size(); ++peerId) {
         if (peerId == nodeId_) continue;
         replicateLogs(peerId);
     }
     
     // 定时发送心跳 (50ms)
     heartbeatTimer_.expires_after(50ms);
-    heartbeatTimer_.async_wait([this](asio::error_code ec) {
+    heartbeatTimer_.async_wait([this](boost::system::error_code ec) {
         if (!ec && role_ == LEADER) {
             sendHeartbeat();
         }
@@ -139,7 +138,7 @@ void RaftNode::replicateLogs(int peerId) {
     // ... (实际发送代码)
     
     // 处理回复
-    auto handleReply = [this, peerId](const AppendEntriesReply& reply) {
+    auto handleReply = [this, peerId, args](const AppendEntriesReply& reply) {
         std::lock_guard<std::mutex> lock(stateMutex_);
         
         if (reply.term > persistentState_.currentTerm) {
@@ -253,12 +252,142 @@ void RaftNode::resetElectionTimer() {
     int timeoutMs = dist(rng_);
     
     electionTimer_.expires_after(std::chrono::milliseconds(timeoutMs));
-    electionTimer_.async_wait([this](asio::error_code ec) {
+    electionTimer_.async_wait([this](boost::system::error_code ec) {
         if (!ec) {
-            std::lock_guard<std::mutex> lock(stateMutex_);
-            if (role_ != LEADER) {
-                becomeCandidate();
+            // 先判读（短暂持锁），然后释放再调用 becomeCandidate——
+            // 否则 becomeCandidate 内部再加锁同一个 stateMutex_ 会死锁
+            {
+                std::lock_guard<std::mutex> lock(stateMutex_);
+                if (role_ == LEADER) return;
             }
+            becomeCandidate();
         }
     });
+}
+
+// ==================== RPC 处理（Raft 核心逻辑） ====================
+RequestVoteReply RaftNode::handleRequestVote(const RequestVoteArgs& args, int fromId) {
+    std::lock_guard<std::mutex> lock(stateMutex_);
+    RequestVoteReply reply;
+    reply.term = persistentState_.currentTerm;
+    reply.voteGranted = false;
+
+    // 任期落后：拒绝
+    if (args.term < persistentState_.currentTerm) return reply;
+    if (args.term > persistentState_.currentTerm) becomeFollower(args.term);
+
+    // 已投给过别人：拒绝
+    if (persistentState_.votedFor != -1 && persistentState_.votedFor != args.candidateId) return reply;
+
+    // 日志新鲜度：候选人的日志至少和自己一样新
+    int lastIdx = (int)persistentState_.logs.size();
+    int lastTerm = persistentState_.logs.empty() ? 0 : persistentState_.logs.back().term;
+    if (args.lastLogTerm < lastTerm ||
+        (args.lastLogTerm == lastTerm && args.lastLogIndex < lastIdx)) {
+        return reply;
+    }
+
+    persistentState_.votedFor = args.candidateId;
+    reply.voteGranted = true;
+    persist();
+    resetElectionTimer();
+    return reply;
+}
+
+AppendEntriesReply RaftNode::handleAppendEntries(const AppendEntriesArgs& args, int fromId) {
+    std::lock_guard<std::mutex> lock(stateMutex_);
+    AppendEntriesReply reply;
+    reply.term = persistentState_.currentTerm;
+    reply.success = false;
+    reply.conflictIndex = -1;
+    reply.conflictTerm = -1;
+
+    if (args.term < persistentState_.currentTerm) return reply;
+    if (args.term > persistentState_.currentTerm) becomeFollower(args.term);
+
+    // 日志一致性检查
+    if (args.prevLogIndex > 0) {
+        if (args.prevLogIndex > (int)persistentState_.logs.size()) {
+            reply.conflictIndex = (int)persistentState_.logs.size() + 1;  // 需要回退
+            return reply;
+        }
+        if (persistentState_.logs[args.prevLogIndex - 1].term != args.prevLogTerm) {
+            reply.conflictTerm = persistentState_.logs[args.prevLogIndex - 1].term;
+            for (int i = (int)persistentState_.logs.size() - 1; i >= 0; --i) {
+                if (persistentState_.logs[i].term == reply.conflictTerm) {
+                    reply.conflictIndex = i + 1;
+                    break;
+                }
+            }
+            return reply;
+        }
+    }
+
+    // 删除冲突日志并追加新日志
+    if ((int)persistentState_.logs.size() > args.prevLogIndex) {
+        persistentState_.logs.resize(args.prevLogIndex);
+    }
+    for (const auto& e : args.entries) {
+        persistentState_.logs.push_back(e.get<LogEntry>());
+    }
+    persist();
+
+    // 推进 commitIndex 并应用
+    if (args.leaderCommit > commitIndex_) {
+        commitIndex_ = std::min(args.leaderCommit, (int)persistentState_.logs.size());
+        applyCommittedLogs();
+    }
+    reply.success = true;
+    return reply;
+}
+
+void RaftNode::applyCommittedLogs() {
+    while (lastApplied_ < commitIndex_) {
+        const LogEntry& e = persistentState_.logs[lastApplied_];
+        std::cout << "[Node " << nodeId_ << "] 应用日志 " << e.index
+                  << ": " << e.command.dump() << std::endl;
+        lastApplied_++;
+    }
+}
+
+void RaftNode::submitCommand(const json& cmd, std::function<void(bool, const json&)> callback) {
+    if (role_ != LEADER) {
+        callback(false, json{{"error", "not leader"}});
+        return;
+    }
+    LogEntry e;
+    e.term = persistentState_.currentTerm;
+    e.index = (int)persistentState_.logs.size() + 1;
+    e.command = cmd;
+    persistentState_.logs.push_back(e);
+    persist();
+    for (int p = 0; p < (int)peerAddrs_.size(); ++p) {
+        if (p != nodeId_) replicateLogs(p);
+    }
+    callback(true, json{{"index", e.index}});
+}
+
+void RaftNode::stop() {
+    electionTimer_.cancel();
+    heartbeatTimer_.cancel();
+    if (ioThread_ && ioThread_->joinable()) {
+        ioContext_.stop();
+        ioThread_->join();
+    }
+}
+
+RaftNode::~RaftNode() {
+    stop();
+}
+
+void RaftNode::sendAppendEntries(int peerId) {
+    // 基类空实现；实际网络发送由 raft_v2.cpp 的 RaftNodeWithRPC 重写
+    AppendEntriesArgs args;
+    args.term = persistentState_.currentTerm;
+    args.leaderId = nodeId_;
+    args.leaderCommit = commitIndex_;
+    int prevIndex = nextIndex_[peerId] - 1;
+    args.prevLogIndex = prevIndex;
+    args.prevLogTerm = (prevIndex <= 0) ? 0 : persistentState_.logs[prevIndex - 1].term;
+    // ... (网络发送，见 raft_v2.cpp)
 }

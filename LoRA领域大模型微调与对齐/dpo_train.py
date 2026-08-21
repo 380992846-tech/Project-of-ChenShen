@@ -4,8 +4,8 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from datasets import Dataset
 
-# 基座与分词器（与 train_lora.py 保持一致）
-model_name = "meta-llama/Llama-2-7b-hf"
+# 基座与分词器（与 train_lora.py 一致，DeepSeek 开放权重）
+model_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 tokenizer.pad_token = tokenizer.eos_token
 

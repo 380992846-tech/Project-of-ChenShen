@@ -12,7 +12,8 @@ import json
 import os
 
 # ==================== 1. 加载基座模型 ====================
-model_name = "meta-llama/Llama-2-7b-hf"  # 如果本地没有会自动下载
+# 使用 DeepSeek 开放权重模型（无需 HF 授权，单卡 3090 用 4bit + LoRA 可训）
+model_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"  # 如果本地没有会自动下载
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 tokenizer.pad_token = tokenizer.eos_token
 tokenizer.padding_side = "right"
