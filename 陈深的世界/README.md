@@ -32,6 +32,22 @@
 > 说明：`service-worker.js` 会缓存应用外壳 + 运行时缓存 CDN 图片（`/photos/`），
 > 实现离线。图标在 `icons/`（清华紫 + 金色"陈"字）。
 
+## 部署（三选一）
+
+**① GitHub Pages**（免费、跟着仓库走）
+1. 代码已推送到 GitHub 仓库；
+2. 仓库 Settings → **Pages** → Source 选 **Deploy from a branch** → 分支 `main`、目录 `/(root)`；
+3. 等 1–2 分钟，访问 `https://<你的用户名>.github.io/Project1/陈深的世界/陈深的世界-房间清单.html`
+
+**② Vercel / Netlify**（免费、无需 git，拖拽即可）
+1. 打开 vercel.com 或 netlify.com；
+2. 新建项目 → **Upload / Drop** → 把整个 `陈深的世界/` 文件夹拖进去；
+3. 部署后得到一个 URL，手机打开即可（PWA 也生效）。
+
+**③ 本地预览**：直接双击 HTML 就能玩；PWA 的"安装/离线"功能需在 https 托管下才完整。
+
+> 💡 手机想"像 app"：部署后用手机浏览器打开，选"添加到主屏幕"，桌面会出现图标、全屏运行、可离线。
+
 ## 技术说明
 
 - **单文件应用**：所有 HTML/JS/CSS 内嵌，无需构建，直接浏览器打开。
