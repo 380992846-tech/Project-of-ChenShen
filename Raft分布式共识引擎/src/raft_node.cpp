@@ -106,14 +106,19 @@ void RaftNode::reset_election_timer() {
 
 void RaftNode::on_election_timeout(asio::error_code ec) {
     if (ec || !running_) return;
-    
-    std::lock_guard<std::mutex> lock(state_mutex_);
-    
-    // 只有Follower和Candidate才发起选举
-    if (role_ != LEADER) {
-        become_candidate();
+
+    // 先判读角色（短暂持锁），释放后再发起选举——
+    // 否则 become_candidate -> start_election 内部会再锁 state_mutex_，造成死锁
+    {
+        std::lock_guard<std::mutex> lock(state_mutex_);
+        if (role_ == LEADER) {
+            reset_election_timer();
+            return;
+        }
     }
-    
+
+    become_candidate();
+
     // 重置定时器（无论是否发起选举）
     reset_election_timer();
 }

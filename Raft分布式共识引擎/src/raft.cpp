@@ -799,8 +799,10 @@ private:
     }
     
     // ==================== 成员变量 ====================
-    RpcServer rpc_server_;
+    // 注意：io_context_ 必须先声明，因为 rpc_server_ / rpc_work_guard_ 都要用它，
+    // 成员按声明顺序初始化，声明在后面会在构造时用到未初始化的 io_context_（崩溃）
     asio::io_context io_context_;
+    RpcServer rpc_server_;
     asio::executor_work_guard<asio::io_context::executor_type> rpc_work_guard_;
     std::thread io_thread_;
     std::unordered_map<int, std::shared_ptr<RpcClient>> clients_;
@@ -847,11 +849,15 @@ int main(int argc, char* argv[]) {
     }
     
     std::cout << "启动Raft节点 " << nodeId << ", 集群大小=" << peerAddrs.size() << std::endl;
-    
-    auto node = std::make_shared<RaftNodeWithRPC>(nodeId, peerAddrs);
-    node->start();
-    
-    node->start_loop();
+
+    try {
+        auto node = std::make_shared<RaftNodeWithRPC>(nodeId, peerAddrs);
+        node->start();
+        node->start_loop();
+    } catch (const std::exception& e) {
+        std::cerr << "[main] 异常: " << e.what() << std::endl;
+        return 1;
+    }
     
     return 0;
 }
