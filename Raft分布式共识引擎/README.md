@@ -42,10 +42,10 @@
 
 ## 运行
 
-> 需要 C++17 编译器 + Boost 库（Boost.Asio）。代码与测试待补充。
+> 需要 C++17 编译器 + Boost（Boost.Asio）+ nlohmann-json。本环境无编译工具，未在此验证编译。
 
 ```bash
-# 构建（示例）
+# 依赖：g++ (C++17)、Boost.Asio、nlohmann-json
 cmake -B build && cmake --build build
 # 启动 3 节点集群（示意）
 ./raft_node --id 0 --peers 127.0.0.1:7001,127.0.0.1:7002 &
@@ -53,13 +53,26 @@ cmake -B build && cmake --build build
 ./raft_node --id 2 --peers 127.0.0.1:7000,127.0.0.1:7001 &
 ```
 
-## 目录（规划）
+## 目录
 
 ```
 Raft分布式共识引擎/
 ├── README.md
-├── include/            # raft.h 等头文件
-├── src/                # 选举 / 日志复制 / 持久化 / 网络
-├── tests/              # 故障场景测试
-└── CMakeLists.txt
+├── CMakeLists.txt
+├── test_cluster.sh        # 3 节点集群测试脚本
+├── include/raft.h         # RaftNode 类声明 + RPC/日志/持久化结构
+└── src/raft.cpp           # 实现（选举 / 日志复制 / 持久化 / 定时器）
 ```
+
+## 完成度与 TODO
+
+- ✅ 已实现：领导人选举（随机超时 + RequestVote）、日志复制（AppendEntries + 回退）、
+  推进 commitIndex、持久化（term/votedFor/logs 落盘）、随机选举定时器
+- ✅ 已修 bug：投票计数（`votes` 局部变量 → 成员 `voteCount_`）、序列化
+  （`JSON_DEFINE` 宏 → nlohmann `NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE` + `json(...)`）
+- 🔸 **待完成（还差很多）**：
+  - 网络 IO：`sendRequestVote` / `replicateLogs` 里的 `// ...` 占位（TCP 收发 json 消息）
+  - 方法实现：`handleRequestVote`、`handleAppendEntries`、`applyCommittedLogs`、
+    `submitCommand`、`stop`、`destroy`
+  - `CMakeLists.txt` 引用了 `src/rpc.cpp`、`src/persistence.cpp`，需补齐拆分或改为单文件
+  - 状态机（KV store）的 `applyCommittedLogs` 落盘应用

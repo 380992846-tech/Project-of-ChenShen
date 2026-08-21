@@ -35,25 +35,26 @@
 
 ## 运行
 
-> 需要 GPU（RTX 3090 或以上，≥24GB 显存），代码与数据待补充。
+> 需要 GPU（RTX 3090 或以上，≥24GB 显存），首次会下载 LLaMA-2 7B 权重。
 
 ```bash
-# 示例（结构示意，代码待补充）
-pip install torch transformers peft datasets
-# 1. 加载基座 + LoRA 配置
-# 2. 领域 SFT 微调
-# 3. 可选 DPO 对齐
-# 4. 评估与推理
+pip install torch transformers peft datasets trl bitsandbytes
+python train_lora.py        # LoRA SFT 微调（数据为示例/模拟，需替换为真实 10k 数据）
+python dpo_train.py         # DPO 对齐（基于 train_lora 产出的 lora_final_model）
 ```
 
-## 目录（规划）
+## 目录
 
 ```
 LoRA领域大模型微调与对齐/
-├── README.md            # 本项目
-├── sft.py               # LoRA SFT 微调
-├── dpo.py               # DPO 对齐
-├── eval.py              # 评估
-├── data/                # 领域 SFT 数据（5 场景，10k 条）
-└── configs/             # LoRA / DPO 配置
+├── README.md
+├── train_lora.py    # LoRA SFT 微调（LLaMA-2 7B 4bit + LoRA r8 α16 + 5 场景）
+└── dpo_train.py     # DPO 对齐（chosen/rejected 数据）
 ```
+
+## 完成度与 TODO
+
+- ✅ `train_lora.py`：结构完整（加载/量化、LoRA 配置、SFT 数据集、训练参数）
+- 🔸 数据是**模拟/复制**的，需替换为真实 5 场景 10k 条 SFT 数据
+- ✅ `dpo_train.py`：已补齐缺失导入（`AutoModelForCausalLM`/`tokenizer`/`Dataset`）
+- 🔸 DPO 数据为示例，需扩充；`trl` 版本需与 DPOConfig 匹配
