@@ -64,6 +64,32 @@ def _merge(base: dict, overrides: dict) -> dict:
     return out
 
 
+# 需要强制类型转换的数值字段（PyYAML 可能把 3e-3 解析成字符串）
+_NUMERIC_MODEL_FIELDS = {
+    "n_embd": int, "n_layer": int, "n_head": int,
+    "block_size": int, "dropout": float,
+}
+_NUMERIC_TRAIN_FIELDS = {
+    "steps": int, "batch": int, "lr": float, "eval_every": int,
+    "gen_len": int, "grad_clip": float, "seed": int,
+}
+_NUMERIC_DATA_FIELDS = {
+    "seq_len": int, "val_ratio": float,
+}
+
+
+def _coerce_types(cfg: dict, fields: dict) -> dict:
+    """把 cfg 中列出的字段强制转为指定类型。"""
+    out = dict(cfg)
+    for k, caster in fields.items():
+        if k in out and out[k] is not None:
+            try:
+                out[k] = caster(out[k])
+            except (TypeError, ValueError):
+                pass  # 转换失败则保留原值
+    return out
+
+
 def load_config(yaml_path: str | Path | None = None) -> Config:
     """从 YAML 文件加载配置；文件缺失或未指定时用默认值。
 
@@ -91,6 +117,11 @@ def load_config(yaml_path: str | Path | None = None) -> Config:
     model_cfg = _merge(model_defaults, raw.get("model", {}))
     train_cfg = _merge(train_defaults, raw.get("train", {}))
     data_cfg = _merge(data_defaults, raw.get("data", {}))
+
+    # 强制数值类型：PyYAML 可能把 lr: 3e-3 解析成字符串，需显式转换
+    train_cfg = _coerce_types(train_cfg, _NUMERIC_TRAIN_FIELDS)
+    model_cfg = _coerce_types(model_cfg, _NUMERIC_MODEL_FIELDS)
+    data_cfg = _coerce_types(data_cfg, _NUMERIC_DATA_FIELDS)
 
     return Config(
         model=ModelConfig(**model_cfg),
