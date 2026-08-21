@@ -6,7 +6,10 @@ from openai import OpenAI
 from datetime import datetime
 
 # ========== 清华二校门智能语音助手 DeepSeek ==========
-DEEPSEEK_API_KEY =
+# 从环境变量读取密钥，避免把敏感信息硬编码进仓库
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")
+if not DEEPSEEK_API_KEY:
+    raise RuntimeError("请在环境变量 DEEPSEEK_API_KEY 中配置你的 DeepSeek API Key")
 VOICE = "zh-CN-YunxiNeural"
 HISTORY_FILE = "conversation_history.json"  # 新增：记录对话历史
 # ====================================================

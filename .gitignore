@@ -1,0 +1,45 @@
+﻿# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.ipynb_checkpoints/
+build/
+dist/
+
+# --- Virtual env / tooling ---
+.venv/
+venv/
+env/
+ENV/
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# --- Secrets ---
+.env
+.env.*
+*.key
+# 请勿提交真实 API Key 文件
+
+# --- Generated / runtime artifacts ---
+# Trained model weights & checkpoints
+*.pth
+*.pt
+*.onnx
+*.bin
+# Data caches (V14.py 拉取行情时的本地缓存)
+data_cache/
+*.pkl
+# 语音助手运行产生的临时音频与对话历史
+*.mp3
+*.wav
+conversation_history.json
+
+# --- Logs ---
+*.log
+
+# --- OS noise ---
+Thumbs.db
+desktop.ini

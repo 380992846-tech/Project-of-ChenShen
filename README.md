@@ -11,6 +11,10 @@
 
 ---
 
+> **English overview** · A personal research sandbox spanning **LLM implementation**, **quantitative trading**, **interactive web games** and **knowledge notes**. The sections below are in Chinese; see the directory tree and quick-start for a fast overview.
+
+---
+
 ##  项目简介
 
 本仓库是作者在 **大模型（LLM）**、**量化交易（Quant）**、**Web 创意游戏** 与 **知识整理** 四个方向上的学习与实践合集：
@@ -45,7 +49,6 @@ Project1/
 │   ├── V21quant Model.py                  # 聚宽 ETF 交易策略（V21）
 │   ├── SHAP+值增量学习+LSTM+XGBoost.py     # 可解释 AI 选股策略
 │   ├── training_data.txt / vocab.json     # LLM 训练语料与词表
-│   └── 金融数学                            # 金融计量分析脚本
 ├──  网页作品/（35 个）
 │   ├── 校园课表/选课/叙事（6） 清华大学课程表、选课系统V2、贵系大一/大二…
 │   ├── 学习笔记/工坊（5）     紫清云笔记（V1/V2/V4pro）、贵系全能学长、deepseek_算法工坊
@@ -53,6 +56,7 @@ Project1/
 │   ├── 效率工具（5）         Markdown清理器、PDF合并、风控审合同、写诗
 │   ├── 科技可视化（4）       模拟太阳系、银河系+太阳系、量子研究、旋转特效
 │   └── 科普/量化/站点/生活（11） 大模型科普、量化舱、清华极客、ACM/MEM、柏悦酒店、英国旅游、五道口租房…
+│       （另含 `金融数学` —— 基于 NumPy/Pandas/ARCH 的金融计量分析脚本）
 ├──  笔记/（10 本）
 │   ├── 大模型科学与工程.md（172 KB）/ 计算机科学与技术.md（117 KB）
 │   ├── LLM技术栈.md（43 KB）/ 大模型全栈工程手册07201版.md（53 KB）
@@ -127,7 +131,7 @@ Project1/
 - 可解释性：**SHAP** 特征重要性报告；**值增量学习**：收益分歧检测 + 增量训练；
 - 动态阈值：ATR + 市场状态（牛/熊/震荡）自适应。
 
-### 11. `金融数学` — 金融计量分析脚本
+### 11. `金融数学`（位于 `网页作品/`）— 金融计量分析脚本
 
 - NumPy / Pandas / SciPy / ARCH 技术栈，含 GARCH 类波动率建模等计量分析。
 
@@ -195,7 +199,7 @@ python elastic_collision_sim.py --balls 5 --tmax 20 --animate
 ### 语音助手 / 对话助手
 ```bash
 pip install edge-tts openai camel-ai
-# 1) 在 TSINGHUA-小DS.py / chat_with_jiujiu.py 中配置 DEEPSEEK_API_KEY
+# 1) 设置环境变量 DEEPSEEK_API_KEY（见下方「注意事项」）
 # 2) 运行脚本开始对话
 ```
 
@@ -230,7 +234,13 @@ pip install edge-tts openai camel-ai
 
 ##  注意事项
 
-1. **API Key**：`chat_with_jiujiu.py` 与 `TSINGHUA-小DS.py` 中的 `DEEPSEEK_API_KEY` 需自行填写，请勿提交真实密钥；
+1. **API Key**：`chat_with_jiujiu.py` 与 `TSINGHUA-小DS.py` 会从环境变量 `DEEPSEEK_API_KEY` 读取密钥（代码不再内置密钥）。运行前请先设置：
+   ```bash
+   # Windows (PowerShell)
+   $env:DEEPSEEK_API_KEY = "your-deepseek-api-key"
+   # macOS / Linux
+   export DEEPSEEK_API_KEY="your-deepseek-api-key"
+   ```
 2. **量化策略**：聚宽策略为研究/回测用途，实盘前需充分验证与风控评估，本仓库不对投资结果负责；
 3. **数据文件**：`training_data.txt` 为自整理训练语料，`vocab.json` 为配套词表。
 
