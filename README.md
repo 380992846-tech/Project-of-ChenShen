@@ -68,6 +68,8 @@ Project1/
 │   └── archive/               # 重复/旧版本归档（不删除）
 ├── 笔记/                      # 知识库（LLM 技术栈 / 课程笔记 / PDF）
 ├── 机器学习作业/               # ML 课程作业（分类·聚类·集成·流失预测）
+├── LoRA领域大模型微调与对齐/      # LLaMA-2 LoRA 领域微调 + DPO 对齐
+├── Raft分布式共识引擎/           # C++17 + Boost.Asio 从零实现的 Raft
 ├── tests/                     # pytest 单元测试
 ├── docs/                      # 架构说明
 └── 工程设施：pyproject.toml · requirements.txt · LICENSE · .github/ · .editorconfig
