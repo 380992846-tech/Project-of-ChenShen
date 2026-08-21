@@ -1,7 +1,4 @@
-﻿# 将二进制格式明确标记为 binary，避免 Git 误判文本/换行。
-# 注意：这里刻意不写 `* text=auto` / `eol=lf`，
-# 以免一次性重写仓库内大量 CRLF 文本文件造成巨大噪音 diff。
-
+# 将二进制格式明确标记为 binary，避免 Git 误判文本/换行。
 *.docx  binary
 *.pdf   binary
 *.png   binary
