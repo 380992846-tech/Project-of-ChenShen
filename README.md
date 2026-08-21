@@ -93,11 +93,9 @@ python 大模型/llm/cont_bench.py       # continuous batching
 
 ---
 
-## web（网页作品 · 26 个精选）
+## web（网页作品）
 
-> 大量重复/旧版本已归档到 `web/archive/`（不删除）。以下为精选主目录：
-
-**效率工具**：`Markdown.html`（清理）、`PDF合并.html`、`写诗.html`、`风控审合同.html`、`供应商2.html`
+**效率工具**：`Markdown.html`（清理）、`PDF合并.html`、`写诗.html`、`风控审合同.html`
 
 **科普/可视化**：`大模型.html`（万字科普）、`模拟太阳系.html`、`银河系加太阳系.html`、`量子研究.html`、`旋转特效.html`
 
