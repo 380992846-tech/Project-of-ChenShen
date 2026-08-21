@@ -187,6 +187,7 @@ protected:
     int node_id_;
     std::vector<std::string> peer_addrs_;
     Role role_ = FOLLOWER;
+    int leader_id_ = -1;   // 当前认为的 Leader 节点ID（用于 status / 写请求路由）
     std::mt19937 rng_;
     
     // 持久化状态
@@ -229,6 +230,9 @@ protected:
     virtual void replicate_logs(int peerId);
     virtual void advance_commit_index();
     virtual void apply_committed_logs();
+
+    // 把一条已提交的日志条目应用到状态机（默认空实现，子类可重写，如 KV 存储）
+    virtual void apply_command(const json& cmd);
     
     // 持久化
     virtual void persist();

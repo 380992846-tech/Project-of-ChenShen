@@ -170,6 +170,7 @@ void RaftNode::become_follower(int newTerm) {
 
 void RaftNode::become_candidate() {
     role_ = CANDIDATE;
+    leader_id_ = -1;   // 进入选举，暂时没有 Leader
     persistent_state_.currentTerm++;
     persistent_state_.votedFor = node_id_;
     persist();
@@ -183,6 +184,7 @@ void RaftNode::become_candidate() {
 
 void RaftNode::become_leader() {
     role_ = LEADER;
+    leader_id_ = node_id_;   // 自己成为 Leader
     
     // 初始化Leader状态
     for (size_t i = 0; i < peer_addrs_.size(); ++i) {
@@ -268,6 +270,7 @@ AppendEntriesReply RaftNode::handle_append_entries(const AppendEntriesArgs& args
     }
     
     // 重置选举定时器（收到Leader的心跳，说明集群有Leader）
+    leader_id_ = args.leaderId;
     reset_election_timer();
     
     // 检查prevLogIndex和prevLogTerm是否匹配
@@ -345,9 +348,13 @@ void RaftNode::apply_committed_logs() {
     while (last_applied_ < commit_index_) {
         last_applied_++;
         const auto& entry = persistent_state_.logs[last_applied_ - 1];
-        // 应用到状态机（由子类实现）
-        std::cout << "[N" << node_id_ << "] apply log: " << entry.command.dump() << std::endl;
+        apply_command(entry.command);
     }
+}
+
+void RaftNode::apply_command(const json& cmd) {
+    // 默认：只打印；子类（如 KV 存储）可重写为真正的状态机应用
+    std::cout << "[N" << node_id_ << "] apply log: " << cmd.dump() << std::endl;
 }
 
 // ==================== 持久化 ====================

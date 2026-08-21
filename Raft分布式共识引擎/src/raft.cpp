@@ -548,6 +548,31 @@ public:
         }
     }
     
+    // ==================== 对外命令接口 ====================
+    // 读取本地已应用 KV 值（不经过 Raft，直接读本节点状态机）
+    json get_kv(const std::string& key) {
+        std::lock_guard<std::mutex> lock(kv_mutex_);
+        auto it = kv_store_.find(key);
+        if (it == kv_store_.end()) return {{"found", false}};
+        return {{"found", true}, {"value", it->second}};
+    }
+    
+    // 返回节点当前状态（角色/任期/Leader/日志长度/已应用位置）
+    json status() {
+        std::lock_guard<std::mutex> lock(state_mutex_);
+        const char* roleStr = (role_ == LEADER) ? "LEADER" : (role_ == CANDIDATE) ? "CANDIDATE" : "FOLLOWER";
+        return {
+            {"node", node_id_},
+            {"role", roleStr},
+            {"term", persistent_state_.currentTerm},
+            {"leader", leader_id_},
+            {"logLen", static_cast<int>(persistent_state_.logs.size())},
+            {"commitIndex", commit_index_},
+            {"lastApplied", last_applied_},
+            {"kvSize", static_cast<int>(kv_store_.size())}
+        };
+    }
+    
 protected:
     // ==================== 覆盖基类虚函数 ====================
     void start_election() override {
@@ -733,6 +758,24 @@ protected:
         RaftNode::advance_commit_index();
     }
     
+    // 把一条已提交的日志条目应用到 KV 状态机
+    void apply_command(const json& cmd) override {
+        std::lock_guard<std::mutex> lock(kv_mutex_);
+        std::string op = cmd.value("op", "");
+        if (op == "set") {
+            std::string key = cmd.value("key", "");
+            std::string val = cmd.value("value", "");
+            kv_store_[key] = val;
+            std::cout << "[N" << node_id_ << "] APPLY set " << key << " = " << val << std::endl;
+        } else if (op == "del") {
+            std::string key = cmd.value("key", "");
+            kv_store_.erase(key);
+            std::cout << "[N" << node_id_ << "] APPLY del " << key << std::endl;
+        } else {
+            std::cout << "[N" << node_id_ << "] APPLY unknown cmd: " << cmd.dump() << std::endl;
+        }
+    }
+    
 private:
     // ==================== RPC请求处理 ====================
     RpcMessage handle_rpc_request(const RpcMessage& req) {
@@ -830,6 +873,11 @@ private:
     RpcServer rpc_server_;
     std::unordered_map<int, std::shared_ptr<RpcClient>> clients_;
     
+    // KV 状态机（由 apply_command 在日志提交后写入；kv_mutex_ 与 state_mutex_ 相互独立，
+    // 避免在 io 线程已持 state_mutex_ 时又被 apply_command 重复加锁导致死锁）
+    std::map<std::string, std::string> kv_store_;
+    std::mutex kv_mutex_;
+    
     // 选举相关
     int votes_ = 0;
     std::unordered_set<int> voted_peers_;
@@ -871,6 +919,53 @@ int main(int argc, char* argv[]) {
     try {
         auto node = std::make_shared<RaftNodeWithRPC>(nodeId, peerAddrs);
         node->start();
+
+        // 交互式命令线程（读 stdin）
+        std::thread cmd_thread([node]() {
+            std::cout << "Commands: set <k> <v> | del <k> | get <k> | status | quit" << std::endl;
+            std::string line;
+            while (std::getline(std::cin, line)) {
+                std::istringstream iss(line);
+                std::string op;
+                iss >> op;
+                if (op == "quit" || op == "exit") {
+                    break;
+                } else if (op == "set") {
+                    std::string k, v;
+                    if (!(iss >> k >> v)) { std::cout << "usage: set <key> <value>" << std::endl; continue; }
+                    node->submitCommand({{"op", "set"}, {"key", k}, {"value", v}},
+                        [k, v](bool ok, const json& r) {
+                            if (ok) std::cout << "OK set " << k << " = " << v
+                                              << " (index " << r.value("index", -1) << ")" << std::endl;
+                            else std::cout << "ERROR: " << r.value("error", "?") << std::endl;
+                        });
+                } else if (op == "del") {
+                    std::string k;
+                    if (!(iss >> k)) { std::cout << "usage: del <key>" << std::endl; continue; }
+                    node->submitCommand({{"op", "del"}, {"key", k}},
+                        [k](bool ok, const json& r) {
+                            if (ok) std::cout << "OK del " << k
+                                              << " (index " << r.value("index", -1) << ")" << std::endl;
+                            else std::cout << "ERROR: " << r.value("error", "?") << std::endl;
+                        });
+                } else if (op == "get") {
+                    std::string k;
+                    if (!(iss >> k)) { std::cout << "usage: get <key>" << std::endl; continue; }
+                    json r = node->get_kv(k);
+                    if (r.value("found", false)) std::cout << k << " = " << r["value"] << std::endl;
+                    else std::cout << k << " = (not found)" << std::endl;
+                } else if (op == "status") {
+                    json s = node->status();
+                    std::cout << "node=" << s["node"] << " role=" << s["role"]
+                              << " term=" << s["term"] << " leader=" << s["leader"]
+                              << " logLen=" << s["logLen"] << " kvSize=" << s["kvSize"] << std::endl;
+                } else {
+                    std::cout << "Commands: set <k> <v> | del <k> | get <k> | status | quit" << std::endl;
+                }
+            }
+        });
+        cmd_thread.detach();
+
         node->start_loop();
     } catch (const std::exception& e) {
         std::cerr << "[main] exception: " << e.what() << std::endl;

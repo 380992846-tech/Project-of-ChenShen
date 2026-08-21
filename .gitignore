@@ -42,6 +42,9 @@ conversation_history.json
 
 # --- Raft 运行时持久化状态（每个节点的任期/投票/日志） ---
 raft_*.json
+# Raft 运行时 PID 文件 / 本地启动快捷方式（不该进库）
+node*.pid
+node*.cmd.lnk
 
 # --- OS noise ---
 Thumbs.db

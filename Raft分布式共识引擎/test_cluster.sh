@@ -18,9 +18,9 @@ echo "done"
 
 echo "== 3) start 3 nodes on ports 8100-8102 =="
 PEERS=127.0.0.1:8100,127.0.0.1:8101,127.0.0.1:8102
-./build/raft_node.exe --id=0 --peers=$PEERS > node0.log 2>&1 &
-./build/raft_node.exe --id=1 --peers=$PEERS > node1.log 2>&1 &
-./build/raft_node.exe --id=2 --peers=$PEERS > node2.log 2>&1 &
+./build/raft_node.exe --id=0 --peers=$PEERS < /dev/null > node0.log 2>&1 &
+./build/raft_node.exe --id=1 --peers=$PEERS < /dev/null > node1.log 2>&1 &
+./build/raft_node.exe --id=2 --peers=$PEERS < /dev/null > node2.log 2>&1 &
 
 echo "running for 25s..."
 sleep 25
