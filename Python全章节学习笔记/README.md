@@ -8,7 +8,6 @@
   - 12 大部分 + 附录，43 个章节
   - 代码块完整保留（算法章节来自 Jupyter 笔记，含运行输出）
   - PDF 课件中的"方法/说明"已自动转为 Markdown 表格
-  - 文末附来源文件清单
 
 ## 📂 目录结构
 
@@ -36,19 +35,11 @@
 | 八 | 多进程、多线程 |
 | 九~十 | MySQL、NumPy、Matplotlib |
 | 十一 | 算法与数据结构（逻辑强化、递归、回溯、动态规划、贪心、分治） |
-| 附录 | 合并版 PDF 内容 |
 
-## 🔧 重新生成笔记
-
-```bash
-cd scripts
-python3 extract2.py        # 从 PDF 提取（依赖 pypdf）
-python3 build_md.py        # 生成 Python全章节学习笔记.md
 ```
 
 > 原始课件 PDF 体积较大（约 20MB），未包含在本仓库中；如需要可自行补充（去除 `.gitignore` 中的 `*.pdf` 即可）。
 
 ## 📝 说明
 
-- 内容由课件自动提取整理，个别图片型幻灯片通过 macOS Vision OCR 补充（可能有少量识别误差，已在文中标注"OCR 补充"）
 - 面向 Python 3.x，算法章节基于 Jupyter Notebook
