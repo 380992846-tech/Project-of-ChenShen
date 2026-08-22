@@ -140,7 +140,11 @@ $y = \sum_{i=1}^E G(x)_i \cdot E_i(x)$
 
 **证明**：由柯西不等式，$(\sum f_i P_i)(\sum 1) \geq (\sum \sqrt{f_i P_i})^2$，当 $f_i = P_i$ 时取等。又由 $\sum f_i = \sum P_i = 1$，得 $f_i = P_i = 1/E$.
 
-**Capacity Factor**：每个专家的最大token数为 $\text{capacity} = \text{CF} \cdot \frac{\text{total\_tokens}}{E}$.
+**Capacity Factor**：每个专家的最大token数为
+
+$$
+\text{capacity} = \text{CF} \cdot \frac{\text{total\_tokens}}{E}
+$$
 
 - CF=1.0：严格均衡，但可能导致token被丢弃
 - CF=1.25：允许25%的不均衡，通常足够
@@ -395,7 +399,7 @@ $P(y_w \succ y_l | x) = \frac{\exp(r(x,y_w))}{\exp(r(x,y_w)) + \exp(r(x,y_l))}$
 **Step 2: PPO优化**
 
 **TRPO的目标**：
-$\maximize_\theta \mathbb{E}_t\left[\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)} \hat{A}_t\right]$
+$\max_{\theta} \mathbb{E}_t\left[\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)} \hat{A}_t\right]$
 $\text{s.t. } \text{KL}(\pi_\theta \| \pi_{\theta_{\text{old}}}) \leq \delta$
 
 对KL约束做一阶泰勒展开并求解KKT条件：
@@ -551,7 +555,10 @@ $S = \frac{(P+M-1)(F+B)}{(P+2M-2)F} \approx \frac{2(P+M-1)}{P+2M-2}$
 - 经过 $N-1$ 步，每个GPU获得完整结果
 
 **总通信量**：
-$C_{\text{Ring}} = 2\frac{N-1}{N} \cdot \text{data\_size}$
+
+$$
+C_{\text{Ring}} = 2\frac{N-1}{N} \cdot \text{data\_size}
+$$
 
 当 $N$ 很大时，$C_{\text{Ring}} \approx 2 \cdot \text{data\_size}$，与 $N$ 无关。
 
@@ -581,7 +588,7 @@ $C_{\text{Ring}} = 2\frac{N-1}{N} \cdot \text{data\_size}$
 
 **最优并行策略的搜索空间**：
 
-$\minimize_{t,p,d} T(t,p,d) = T_{\text{comp}}(t,p,d) + T_{\text{comm}}(t,p,d)$
+$\min_{t,p,d} \; T(t,p,d) = T_{\text{comp}}(t,p,d) + T_{\text{comm}}(t,p,d)$
 
 subject to:
 
@@ -903,11 +910,18 @@ $\mathbb{E}[\hat{J}(A,B)] = J(A,B) = \frac{|A \cap B|}{|A \cup B|}$
 $\text{SE} = \sqrt{\frac{p(1-p)}{N}}$
 
 **95%置信区间**：
-$\text{CI}_{95\%} = p \pm 1.96 \cdot \text{SE}$
+
+$$
+\text{CI}_{95\%} = p \pm 1.96 \cdot \text{SE}
+$$
 
 **示例**：MMLU有5700题，$p=0.853$：
-$\text{SE} = \sqrt{\frac{0.853 \times 0.147}{5700}} = 0.0047$
-$\text{CI}_{95\%} = 0.853 \pm 0.0092 = [84.4\%, 86.2\%]$
+$$
+\text{SE} = \sqrt{\frac{0.853 \times 0.147}{5700}} = 0.0047
+$$
+$$
+\text{CI}_{95\%} = 0.853 \pm 0.0092 = [84.4\%, 86.2\%]
+$$
 
 模型A的85.3%和模型B的85.1%的差异在误差范围内，不能认为有显著差异。
 
