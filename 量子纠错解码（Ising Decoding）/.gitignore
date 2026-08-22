@@ -1,0 +1,21 @@
+# 量子纠错解码项目 - 忽略规则
+
+# 模型权重（可从 HF 重新下载）
+models/*.safetensors
+models/*.bin
+models/fast/
+models/accurate/
+
+# 生成数据
+data/*.stim
+data/*.jsonl
+
+# 结果
+results/*.json
+!results/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/

@@ -73,6 +73,7 @@ Project of ChenShen/
 ├── Python全章节学习笔记/         # Python 语法 → 数据分析 → 算法 一站式笔记
 ├── 机器学习作业/                # 分类 · 聚类 · 集成 · 流失预测
 ├── LoRA领域大模型微调与对齐/    # LLaMA-2 LoRA + DPO
+├── 量子纠错解码（Ising Decoding）/ # ★ AI 量子纠错预解码器（NVIDIA Ising，激活颜色代码）
 ├── tests/                      # pytest 单元测试（25+ 用例）
 ├── docs/                       # 架构说明
 │
