@@ -23,7 +23,7 @@
 
 ```bash
 pip install numpy pandas scikit-learn matplotlib tqdm yfinance akshare
-python 大模型/量化策略（聚宽·回测）/quant_v14.py
+python 量化策略（聚宽·回测）/quant_v14.py
 ```
 
 输出指标：总收益率、年化、最大回撤、夏普比率、胜率、盈亏比、卖出原因分布。
