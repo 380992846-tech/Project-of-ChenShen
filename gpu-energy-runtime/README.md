@@ -52,7 +52,7 @@ python ../scripts/estimate_cost.py --params 671 --tokens 14800 --gpu H100
 
 安装真实硬件依赖：`pip install -r requirements.txt`（`pynvml` 缺了会降级为模拟）。
 
-## 评估方法论
+## 评估方法论（严肃项目的关键是"可度量"）
 
 - **基准**：LLM 推理（vLLM）/ MLPerf / HPC kernels / 训练 step。
 - **指标**：`perf-per-watt`（FLOPS/W、tokens/s/W）、Energy-Delay Product、峰值功耗、p99 延迟。
@@ -88,6 +88,7 @@ GPU-BBQ-System/  (GEAR)
 ## 许可
 
 - 软件：**MIT**（见 `LICENSE.md`）
+- 本项目由玩笑版 "GPU BBQ System" 严肃化而来：**烤串梗/硬件/固件已归档**在 [`archive/`](archive/)，完整历史见 git。
 
 ---
 
