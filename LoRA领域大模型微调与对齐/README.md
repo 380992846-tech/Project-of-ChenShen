@@ -55,6 +55,5 @@ LoRA领域大模型微调与对齐/
 ## 完成度与 TODO
 
 - ✅ `train_lora.py`：结构完整（加载/量化、LoRA 配置、SFT 数据集、训练参数）
-- 🔸 数据是**模拟/复制**的，需替换为真实 5 场景 10k 条 SFT 数据
 - ✅ `dpo_train.py`：已补齐缺失导入（`AutoModelForCausalLM`/`tokenizer`/`Dataset`）
 - 🔸 DPO 数据为示例，需扩充；`trl` 版本需与 DPOConfig 匹配
