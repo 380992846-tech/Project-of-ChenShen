@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     name: Lint (ruff)
@@ -17,11 +21,10 @@ jobs:
       - name: Install ruff
         run: pip install ruff
       - name: Ruff check
-        # lint 覆盖“受维护/已测试”代码（tests、quant_features、llm 推理优化子包）；
-        # 历史 JoinQuant 脚本暂未纳入，见 docs/架构说明.md
-        run: ruff check tests "大模型/量化策略（聚宽·回测）/quant_features.py" 大模型/llm
+        # 只 lint“受维护/已测试”代码；历史 JoinQuant 策略脚本暂未纳入（见 docs/架构说明.md）
+        run: ruff check tests "量化策略（聚宽·回测）/quant_features.py" "量化策略（聚宽·回测）/tests" LLM推理优化/tests "助手与智能体（DeepSeek·CAMEL）/src" "助手与智能体（DeepSeek·CAMEL）/tests"
       - name: Ruff format check
-        run: ruff format --check tests "大模型/量化策略（聚宽·回测）/quant_features.py" 大模型/llm
+        run: ruff format --check tests "量化策略（聚宽·回测）/quant_features.py" "量化策略（聚宽·回测）/tests" LLM推理优化/tests "助手与智能体（DeepSeek·CAMEL）/src" "助手与智能体（DeepSeek·CAMEL）/tests"
 
   test:
     name: Test (pytest)
@@ -32,9 +35,15 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install deps
-        run: pip install numpy pandas pytest
-      - name: Run tests
-        run: pytest
+        run: |
+          pip install numpy pandas scikit-learn matplotlib pytest
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Test 量化策略
+        run: pytest "量化策略（聚宽·回测）/tests" -q
+      - name: Test LLM推理优化
+        run: pytest "LLM推理优化/tests" -q
+      - name: Test 助手与智能体
+        run: pytest "助手与智能体（DeepSeek·CAMEL）/tests" -q
 
   smoke:
     name: Smoke compile
@@ -46,4 +55,4 @@ jobs:
           python-version: "3.11"
       - name: Compile all Python sources
         run: |
-          find . -name '*.py' -not -path './.git/*' -print0 | xargs -0 -n1 python -m py_compile
+          find . -name '*.py' -not -path './.git/*' -not -path '*/node_modules/*' -print0 | xargs -0 -n1 python -m py_compile

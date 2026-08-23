@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 
 import torch
 
-from llm.gpt import GPT
+from gpt import GPT
 
 
 @dataclass

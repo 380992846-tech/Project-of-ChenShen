@@ -55,3 +55,29 @@ python 量化策略（聚宽·回测）/quant_v14.py
 （+2.66%），提示**可适当延长 `max_hold_days`** 以让利润奔跑。
 
 > ⚠️ 该结果为策略在特定参数/区间下的回测，**不代表未来收益**，也非投资建议。
+
+---
+
+## 目录结构
+
+```
+量化策略（聚宽·回测）/
+├── quant_features.py     # 纯函数特征工程（RSI/ATR/收益率/均线/量比/波动率/趋势 + 标签）
+├── quant_v14.py          # ✅ 本地可跑：多资产（沪深300/国债/黄金）风险平价
+├── joinquant_v18.py      # 聚宽：随机森林策略
+├── quant_v21.py          # 聚宽：技术规则（RSI/ATR/背离）
+├── quant_xgboost_shap.py # 聚宽：XGBoost + SHAP
+├── 金融数学.py             # GBM/OU、ARCH、协整等计量分析
+├── tests/test_quant_features.py  # pytest 单测（纯函数，零外部行情）
+├── pyproject.toml        # 依赖 / pytest / ruff / mypy 配置
+└── README.md
+```
+
+## 开发与测试
+
+```bash
+pip install -e "量化策略（聚宽·回测）[dev]"    # pytest / ruff / mypy
+pytest 量化策略（聚宽·回测）/tests               # 11 个单测（零网络 / 零行情）
+```
+
+测试覆盖 `quant_features.py` 的 RSI（pandas/标量）、ATR、特征工程（无未来泄露）、标签、NaN/Inf 清洗、RSI 底背离。

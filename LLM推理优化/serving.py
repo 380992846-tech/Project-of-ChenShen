@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import torch
 
-from llm.gpt import GPT
+from gpt import GPT
 
 
 @torch.no_grad()

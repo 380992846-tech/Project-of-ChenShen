@@ -33,8 +33,8 @@ import torch.nn.functional as F
 # 让脚本可直接运行：把 大模型/ 加入模块搜索路径
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from llm.gpt import GPT, GPTConfig
-from llm.quantize import (
+from gpt import GPT, GPTConfig
+from quantize import (
     make_int8_dynamic,
     make_quantized_model,
     quantized_memory,

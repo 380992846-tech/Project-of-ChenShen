@@ -1,0 +1,31 @@
+[project]
+name = "quant-strategies"
+version = "0.1.0"
+description = "A股/ETF 量化交易策略家族（聚宽回测 + 本地多资产回测 + 纯函数特征工程）"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+# 聚宽平台策略不需要本地依赖；本地回测数据源（yfinance / akshare）
+data = ["yfinance", "akshare"]
+# 可选：XGBoost + SHAP 可解释策略
+xgb = ["xgboost", "shap"]
+dev = ["pytest>=7", "ruff>=0.4", "mypy>=1.8"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true

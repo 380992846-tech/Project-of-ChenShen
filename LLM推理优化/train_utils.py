@@ -12,7 +12,7 @@ import math
 import torch
 import torch.nn.functional as F
 
-from llm.gpt import GPT, GPTConfig
+from gpt import GPT, GPTConfig
 
 
 def build_tokenizer(text: str):

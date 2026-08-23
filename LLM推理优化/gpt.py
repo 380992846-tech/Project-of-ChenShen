@@ -15,7 +15,7 @@ gpt.py
 --------
 .. code-block:: python
 
-    from llm.gpt import GPT, GPTConfig
+    from gpt import GPT, GPTConfig
 
     cfg = GPTConfig(vocab_size=256, n_layer=4, n_head=4, n_embd=128)
     model = GPT(cfg)

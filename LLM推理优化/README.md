@@ -15,6 +15,7 @@
 5. [快速开始](#快速开始)
 6. [正确性保障](#正确性保障)
 7. [Roadmap](#roadmap)
+8. [文档与测试](#文档与测试)
 
 ---
 
@@ -45,6 +46,8 @@ LLM推理优化/
 ├── continuous.py       # Step 4 进阶: 真·continuous batching（动态 slot 复用）
 ├── cont_bench.py       # Step 4 进阶: continuous batching 基准
 ├── __init__.py
+├── tests/              # pytest 单测（正确性 + KV Cache 一致性）
+├── docs/architecture.md # 架构说明
 └── reports/            # 全部 benchmark 报告 + 图表
 ```
 
@@ -124,6 +127,16 @@ python cont_bench.py
 - **continuous batching** 输出与逐条解码完全一致
 
 ---
+
+## 文档与测试
+
+- **架构说明**：[`docs/architecture.md`](docs/architecture.md)（模块职责 + 优化主线 + 基准入口）。
+- **单元测试**（仅依赖 numpy/torch，无需 GPU）：
+  ```bash
+  pip install -e "LLM推理优化[dev]"
+  pytest LLM推理优化/tests
+  ```
+  覆盖：GPT 前向形状、**KV Cache 与无缓存生成逐字一致**、`quantize_weight_tensor` 各精度的存储/误差。
 
 ## Roadmap
 

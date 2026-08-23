@@ -26,7 +26,7 @@ from __future__ import annotations
 import torch
 import torch.nn.functional as F
 
-from llm.gpt import GPT
+from gpt import GPT
 
 
 @torch.no_grad()

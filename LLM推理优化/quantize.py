@@ -28,7 +28,7 @@ from dataclasses import dataclass
 import torch
 import torch.nn as nn
 
-from llm.gpt import GPT
+from gpt import GPT
 
 GROUP_SIZE = 32
 

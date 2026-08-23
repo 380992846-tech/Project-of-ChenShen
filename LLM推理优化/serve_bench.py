@@ -30,9 +30,9 @@ import torch
 # 让脚本可直接运行：把 大模型/ 加入模块搜索路径
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from llm.gpt import GPT
-from llm.serving import batched_generate
-from llm.train_utils import encode, train_char_gpt
+from gpt import GPT
+from serving import batched_generate
+from train_utils import encode, train_char_gpt
 
 REPORTS_DIR = Path(__file__).resolve().parent / "reports"
 DATA_FILE = Path(__file__).resolve().parent.parent / "training_data.txt"

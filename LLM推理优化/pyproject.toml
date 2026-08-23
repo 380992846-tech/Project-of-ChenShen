@@ -1,0 +1,25 @@
+[project]
+name = "llm-inference-opt"
+version = "0.1.0"
+description = "从零实现的 LLM 推理优化：KV Cache / 权重量化 / 投机解码 / Continuous Batching / 推理服务"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "torch",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.4", "mypy>=1.8"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
