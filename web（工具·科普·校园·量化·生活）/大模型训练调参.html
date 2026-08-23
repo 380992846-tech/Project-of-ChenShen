@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大模型知识全解 · 清华紫玻璃风格</title>
+    <!-- 字体 & 图标库 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0b0719; /* 深底衬托玻璃质感 */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            background-image: radial-gradient(circle at 20% 30%, rgba(120, 80, 255, 0.08) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 70%, rgba(200, 130, 255, 0.06) 0%, transparent 50%);
+        }
+
+        /* 主容器 —— 玻璃质感 + 渐变紫边框 */
+        .glass-container {
+            max-width: 1400px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(18px) saturate(180%);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            border-radius: 48px;
+            padding: 2.5rem 2.8rem;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 
+                        0 0 0 1px rgba(180, 130, 255, 0.15) inset,
+                        0 0 0 1px rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(180, 130, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        /* 清华渐变紫 —— 从 #7B2FBE 到 #A855F7 到 #C084FC */
+        .gradient-text {
+            background: linear-gradient(135deg, #9b4dff 0%, #c084fc 45%, #a855f7 80%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .gradient-border-bottom {
+            border-bottom: 3px solid transparent;
+            border-image: linear-gradient(90deg, #7c3aed, #c084fc, #a855f7) 1;
+        }
+
+        /* 标题区域 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(160, 120, 255, 0.15);
+        }
+
+        .header-left h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .header-left .sub {
+            font-size: 1rem;
+            color: rgba(220, 200, 255, 0.7);
+            margin-top: 0.5rem;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-left .sub i {
+            color: #a78bfa;
+            font-size: 0.9rem;
+        }
+
+        .badge-glow {
+            background: rgba(160, 120, 255, 0.12);
+            padding: 0.3rem 1.2rem;
+            border-radius: 60px;
+            border: 1px solid rgba(200, 160, 255, 0.2);
+            backdrop-filter: blur(4px);
+            color: #d8ccff;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* 网格卡片系统 */
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 1.8rem 2rem;
+            border: 1px solid rgba(200, 170, 255, 0.08);
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.4);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 0% 0%, rgba(160, 120, 255, 0.03), transparent 70%);
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(200, 160, 255, 0.25);
+            box-shadow: 0 20px 40px -10px rgba(80, 40, 200, 0.3);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 1.4rem;
+        }
+
+        .card-header i {
+            font-size: 1.9rem;
+            color: #b48aff;
+            filter: drop-shadow(0 0 8px rgba(160, 120, 255, 0.2));
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f0ecff;
+            letter-spacing: -0.3px;
+        }
+
+        .card-body {
+            color: rgba(230, 220, 255, 0.85);
+            font-weight: 400;
+            line-height: 1.7;
+            font-size: 0.98rem;
+        }
+
+        .card-body p {
+            margin-bottom: 1rem;
+        }
+
+        .card-body ul, .card-body ol {
+            padding-left: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-body li {
+            margin-bottom: 0.5rem;
+        }
+
+        .card-body strong {
+            color: #d4bfff;
+            font-weight: 600;
+        }
+
+        .highlight-glow {
+            background: rgba(140, 100, 255, 0.08);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            border: 1px solid rgba(180, 140, 255, 0.1);
+            font-size: 0.9em;
+            color: #d8caff;
+        }
+
+        .code-snippet {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 16px;
+            padding: 0.8rem 1.2rem;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #d4c8ff;
+            border-left: 3px solid #9b6bff;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            backdrop-filter: blur(4px);
+            margin: 1rem 0;
+        }
+
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0.8rem 0 0.2rem;
+        }
+
+        .tag {
+            background: rgba(160, 120, 255, 0.12);
+            border-radius: 40px;
+            padding: 0.2rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #c7b5ff;
+            border: 1px solid rgba(180, 150, 255, 0.08);
+        }
+
+        .tag i {
+            margin-right: 5px;
+            font-size: 0.7rem;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .two-col-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1100px) {
+            .glass-container {
+                padding: 2rem 1.8rem;
+            }
+            .knowledge-grid {
+                grid-template-columns: 1fr;
+            }
+            .two-col-layout {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem 0.8rem;
+            }
+            .glass-container {
+                padding: 1.5rem 1rem;
+                border-radius: 28px;
+            }
+            .header-left h1 {
+                font-size: 2.2rem;
+            }
+            .card {
+                padding: 1.5rem 1.2rem;
+            }
+            .badge-glow {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.8rem;
+            }
+        }
+
+        /* 额外小点缀 */
+        .glow-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #a78bfa;
+            border-radius: 50%;
+            box-shadow: 0 0 16px #a78bfa;
+            margin-right: 6px;
+        }
+
+        .divider-light {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(160, 130, 255, 0.2), transparent);
+            margin: 1.8rem 0 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-container">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="header-left">
+                <h1>
+                    <span class="gradient-text">✦ 大模型 · 全栈知识</span>
+                </h1>
+                <div class="sub">
+                    <i class="fas fa-cube"></i> 对话框 · ML · NLP · 训练调参 
+                    <i class="fas fa-circle" style="font-size: 0.3rem; opacity: 0.3;"></i>
+                    <span class="badge-glow"><i class="fas fa-microchip"></i> 清华渐变紫 · 玻璃质感</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 知识网格 -->
+        <div class="knowledge-grid">
+
+            <!-- 1. 对话框技术 -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-comment-dots"></i>
+                    <h2>对话框 · 上下文</h2>
+                </div>
+                <div class="card-body">
+                    <p><span class="highlight-glow"><i class="fas fa-arrow-right"></i> 核心机制</span> 对话框的本质是 <strong>多轮上下文管理</strong>。系统通过 <strong>System Prompt</strong> 设定角色，User/Assistant 消息交替构建记忆。</p>
+                    <ul>
+                        <li><strong>上下文窗口</strong>：当前主流 128K~1M tokens，超出则截断或摘要压缩。</li>
+                        <li><strong>临时喂数据</strong>：将文档、表格直接粘贴在提问前，用 <code>###</code> 或三引号分隔。</li>
+                        <li><strong>结构化输出</strong>：要求模型返回 JSON / Markdown，配合 <code>temperature=0.2</code> 提高稳定性。</li>
+                    </ul>
+                    <div class="code-snippet">
+                        &lt;|system|&gt; 你是资深AI架构师<br>
+                        &lt;|user|&gt; 请基于以下数据：... 生成总结
+                    </div>
+                    <div class="tag-group">
+                        <span class="tag"><i class="fas fa-database"></i> 上下文注入</span>
+                        <span class="tag"><i class="fas fa-sliders-h"></i> Temp / Top-p</span>
+                        <span class="tag"><i class="fas fa-memory"></i> 窗口管理</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 机器学习基础 -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-brain"></i>
+                    <h2>ML · 机器学习</h2>
+                </div>
+                <div class="card-body">
+                    <p><span class="highlight-glow"><i class="fas fa-robot"></i> 基石</span> 大模型基于 <strong>深度学习</strong>，核心是 <strong>梯度下降</strong> 与 <strong>反向传播</strong>。</p>
+                    <ul>
+                        <li><strong>监督学习</strong>：海量文本对 (输入-输出) 训练，学习概率分布。</li>
+                        <li><strong>自监督</strong>：掩码语言建模 (MLM) / 自回归 (AR) 预训练。</li>
+                        <li><strong>关键概念</strong>：Epoch, Batch Size, Learning Rate, Loss Function (Cross-Entropy)。</li>
+                    </ul>
+                    <div class="code-snippet">
+                        loss = cross_entropy(logits, labels)  <br>
+                        optimizer.step()  # 梯度更新
+                    </div>
+                    <div class="tag-group">
+                        <span class="tag"><i class="fas fa-chart-line"></i> 梯度下降</span>
+                        <span class="tag"><i class="fas fa-layer-group"></i> 神经网络</span>
+                        <span class="tag"><i class="fas fa-cogs"></i> 反向传播</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. NLP 自然语言处理 -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-language"></i>
+                    <h2>NLP · 语言理解</h2>
+                </div>
+                <div class="card-body">
+                    <p><span class="highlight-glow"><i class="fas fa-book-open"></i> 核心任务</span> 分词 → 词向量 → 上下文表征 (Transformer)。</p>
+                    <ul>
+                        <li><strong>Tokenizer</strong>：将文本切分为 subword (BPE/WordPiece)，映射为 token id。</li>
+                        <li><strong>Embedding</strong>：将 token 映射为稠密向量，捕捉语义。</li>
+                        <li><strong>Attention</strong>：自注意力机制捕获长距离依赖，是大模型的支柱。</li>
+                    </ul>
+                    <div class="code-snippet">
+                        tokens = tokenizer.encode("你好大模型")  # [101, 234, ...]<br>
+                        embeddings = nn.Embedding(vocab_size, hidden_dim)
+                    </div>
+                    <div class="tag-group">
+                        <span class="tag"><i class="fas fa-tag"></i> Tokenization</span>
+                        <span class="tag"><i class="fas fa-vector-square"></i> Embedding</span>
+                        <span class="tag"><i class="fas fa-eye"></i> Attention</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. 大模型训练 -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-fire"></i>
+                    <h2>训练 · 预训练 & SFT</h2>
+                </div>
+                <div class="card-body">
+                    <p><span class="highlight-glow"><i class="fas fa-dumbbell"></i> 两阶段</span> <strong>预训练 (PT)</strong> 在海量语料上自监督学习，<strong>监督微调 (SFT)</strong> 用对话数据对齐。</p>
+                    <ul>
+                        <li><strong>数据规模</strong>：PT 需 TB 级文本，SFT 需 10k~100k 高质量对话。</li>
+                        <li><strong>计算资源</strong>：PT 需千卡集群，SFT 可用单卡 (QLoRA) 微调。</li>
+                        <li><strong>训练策略</strong>：Warmup, 余弦退火, 梯度裁剪, 混合精度 (FP16/BF16)。</li>
+                    </ul>
+                    <div class="code-snippet">
+                        # 伪代码 <br>
+                        for epoch in range(3): <br>
+                        &nbsp;&nbsp;for batch in dataloader: <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;loss = model(batch) <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;loss.backward(); optimizer.step()
+                    </div>
+                    <div class="tag-group">
+                        <span class="tag"><i class="fas fa-database"></i> 海量数据</span>
+                        <span class="tag"><i class="fas fa-server"></i> 分布式</span>
+                        <span class="tag"><i class="fas fa-adjust"></i> 混合精度</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. 调参 & 优化 (宽列) -->
+            <div class="card full-width">
+                <div class="card-header">
+                    <i class="fas fa-sliders-h"></i>
+                    <h2>调参 · 超参数 & 微调技巧</h2>
+                </div>
+                <div class="card-body">
+                    <div class="two-col-layout">
+                        <div>
+                            <p><span class="highlight-glow"><i class="fas fa-wrench"></i> 关键超参数</span></p>
+                            <ul>
+                                <li><strong>Learning Rate</strong>：1e-5 ~ 5e-5 (SFT) ；预热后余弦衰减。</li>
+                                <li><strong>Batch Size</strong>：受显存限制，可用梯度累积模拟大 batch。</li>
+                                <li><strong>Epochs</strong>：SFT 通常 2~5 轮，过多会过拟合。</li>
+                                <li><strong>LoRA Rank (r)</strong>：8~64，越大可学习参数越多，但显存增加。</li>
+                                <li><strong>Weight Decay</strong>：0.01~0.1，防止过拟合。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p><span class="highlight-glow"><i class="fas fa-chart-pie"></i> 微调策略</span></p>
+                            <ul>
+                                <li><strong>全量微调</strong>：更新全部参数，效果好但昂贵。</li>
+                                <li><strong>LoRA / QLoRA</strong>：低秩适配，显存节省 70%，效果接近全量。</li>
+                                <li><strong>Prompt Tuning</strong>：只更新连续 prompt 向量，极轻量。</li>
+                                <li><strong>RLHF / DPO</strong>：用偏好数据对齐人类价值观。</li>
+                            </ul>
+                            <div class="code-snippet" style="font-size:0.8rem;">
+                                # LoRA 配置 (PEFT) <br>
+                                lora_config = LoraConfig(r=16, lora_alpha=32, target_modules=["q_proj","v_proj"])
+                            </div>
+                        </div>
+                    </div>
+                    <div class="divider-light"></div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 6px;">
+                        <span class="tag" style="background: rgba(140, 100, 255, 0.15);"><i class="fas fa-bolt"></i> 学习率 2e-5</span>
+                        <span class="tag" style="background: rgba(140, 100, 255, 0.15);"><i class="fas fa-microchip"></i> LoRA r=16</span>
+                        <span class="tag" style="background: rgba(140, 100, 255, 0.15);"><i class="fas fa-cubes"></i> 梯度累积 4</span>
+                        <span class="tag" style="background: rgba(140, 100, 255, 0.15);"><i class="fas fa-history"></i> Warmup 10%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. 喂数据 · 微调实战 -->
+            <div class="card full-width">
+                <div class="card-header">
+                    <i class="fas fa-upload"></i>
+                    <h2>喂数据 · 从清洗到打包</h2>
+                </div>
+                <div class="card-body">
+                    <div class="two-col-layout">
+                        <div>
+                            <p><span class="highlight-glow"><i class="fas fa-filter"></i> 数据清洗 4 步</span></p>
+                            <ol>
+                                <li><strong>去重</strong>：删除完全重复或高度相似的问答对。</li>
+                                <li><strong>格式统一</strong>：转义换行/引号，确保 JSON 合法。</li>
+                                <li><strong>长度裁剪</strong>：单条回答 ≤ 2048 tokens (约 1500 汉字)。</li>
+                                <li><strong>加系统提示</strong>：在对话开头插入 system 消息固化风格。</li>
+                            </ol>
+                            <div class="code-snippet">
+                                {"conversations": [<br>
+                                &nbsp;&nbsp;{"from":"system","value":"你是专业客服"},<br>
+                                &nbsp;&nbsp;{"from":"human","value":"..."},<br>
+                                &nbsp;&nbsp;{"from":"gpt","value":"..."}]}
+                            </div>
+                        </div>
+                        <div>
+                            <p><span class="highlight-glow"><i class="fas fa-file-export"></i> 打包 & 训练</span></p>
+                            <ul>
+                                <li><strong>格式</strong>：JSONL (每行一条 JSON) ，非数组。</li>
+                                <li><strong>工具</strong>：LLaMA-Factory (推荐) / Axolotl / Unsloth。</li>
+                                <li><strong>数据量</strong>：最少 500 条有效样本，低于 100 条基本无效。</li>
+                                <li><strong>验证集</strong>：留出 5%~10% 数据监控过拟合。</li>
+                            </ul>
+                            <div class="code-snippet">
+                                # 写入 JSONL <br>
+                                with open("train.jsonl","w") as f:<br>
+                                &nbsp;&nbsp;for item in data: <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;f.write(json.dumps(item)+"\n")
+                            </div>
+                            <div class="tag-group">
+                                <span class="tag"><i class="fas fa-check-circle"></i> 质量 > 数量</span>
+                                <span class="tag"><i class="fas fa-tools"></i> LLaMA-Factory</span>
+                                <span class="tag"><i class="fas fa-chart-simple"></i> 验证 Loss</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. 训练调参 · 实践流程 -->
+            <div class="card full-width">
+                <div class="card-header">
+                    <i class="fas fa-route"></i>
+                    <h2>训练调参 · 实践流程</h2>
+                </div>
+                <div class="card-body">
+                    <p><span class="highlight-glow"><i class="fas fa-play"></i> 从数据到模型的五步</span></p>
+                    <ol>
+                        <li><strong>数据准备</strong>：清洗 → 去重 → 格式统一 → 切 train/val。</li>
+                        <li><strong>基线跑通</strong>：先用默认参数小规模跑 1 轮，确认能收敛、无 NaN。</li>
+                        <li><strong>粗调</strong>：先定 <strong>Learning Rate</strong>（1e-5~5e-5），再调 batch/epochs。</li>
+                        <li><strong>细调</strong>：LoRA rank、warmup、梯度裁剪、混合精度。</li>
+                        <li><strong>评估迭代</strong>：看 val loss + 实际生成质量，返回第 2 步。</li>
+                    </ol>
+                    <div class="divider-light"></div>
+                    <p><span class="highlight-glow"><i class="fas fa-table"></i> 保守起点参数</span></p>
+                    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:6px;">
+                        <tr style="color:#d4bfff;text-align:left;border-bottom:1px solid rgba(160,120,255,0.15);"><th style="padding:5px 6px;">参数</th><th style="padding:5px 6px;">起点</th><th style="padding:5px 6px;">范围</th></tr>
+                        <tr style="border-bottom:1px solid rgba(160,120,255,0.08);"><td style="padding:5px 6px;">Learning Rate</td><td style="padding:5px 6px;">2e-5</td><td style="padding:5px 6px;">1e-5 ~ 5e-5</td></tr>
+                        <tr style="border-bottom:1px solid rgba(160,120,255,0.08);"><td style="padding:5px 6px;">Batch (累积)</td><td style="padding:5px 6px;">16</td><td style="padding:5px 6px;">8~64（显存受限用累积）</td></tr>
+                        <tr style="border-bottom:1px solid rgba(160,120,255,0.08);"><td style="padding:5px 6px;">Epochs</td><td style="padding:5px 6px;">3</td><td style="padding:5px 6px;">2~5（多了过拟合）</td></tr>
+                        <tr style="border-bottom:1px solid rgba(160,120,255,0.08);"><td style="padding:5px 6px;">LoRA r</td><td style="padding:5px 6px;">16</td><td style="padding:5px 6px;">8~64</td></tr>
+                        <tr style="border-bottom:1px solid rgba(160,120,255,0.08);"><td style="padding:5px 6px;">Warmup</td><td style="padding:5px 6px;">10%</td><td style="padding:5px 6px;">5%~15%</td></tr>
+                        <tr><td style="padding:5px 6px;">Weight Decay</td><td style="padding:5px 6px;">0.01</td><td style="padding:5px 6px;">0.01~0.1</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 8. 评估 · 防过拟合 -->
+            <div class="card full-width">
+                <div class="card-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h2>评估 · 防过拟合</h2>
+                </div>
+                <div class="card-body">
+                    <div class="two-col-layout">
+                        <div>
+                            <p><span class="highlight-glow"><i class="fas fa-search"></i> 评估信号</span></p>
+                            <ul>
+                                <li><strong>val loss</strong>：不降反升 → 过拟合，降低 epoch / 加正则。</li>
+                                <li><strong>生成质量</strong>：抽查真实输出，比 loss 更直观。</li>
+                                <li><strong>数据分布</strong>：别只看平均 loss，看难例/长尾。</li>
+                                <li><strong>人类偏好</strong>：RLHF/DPO 后看 aligned 程度。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p><span class="highlight-glow"><i class="fas fa-shield"></i> 防过拟合手段</span></p>
+                            <ul>
+                                <li><strong>数据增强/清洗</strong>：质量 > 数量，去重去污染。</li>
+                                <li><strong>正则</strong>：weight decay、dropout、early stopping。</li>
+                                <li><strong>LoRA 小秩</strong>：参数更少，泛化更好。</li>
+                                <li><strong>合理 epoch</strong>：SFT 通常 2~5 轮。</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="tag-group">
+                        <span class="tag"><i class="fas fa-check"></i> val loss 早停</span>
+                        <span class="tag"><i class="fas fa-database"></i> 数据质量优先</span>
+                        <span class="tag"><i class="fas fa-chart-simple"></i> 抽查生成</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. 部署 & 推理 (额外) -->
+            <div class="card full-width" style="margin-top: 0.2rem;">
+                <div class="card-header">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h2>部署 · 量化 & 推理框架</h2>
+                </div>
+                <div class="card-body">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1.8rem; justify-content: space-between;">
+                        <div style="flex:1; min-width: 200px;">
+                            <p><span class="highlight-glow"><i class="fas fa-compress"></i> 量化</span> GPTQ / AWQ / GGUF 压缩至 4bit/8bit，显存需求降低 60%~80%。</p>
+                        </div>
+                        <div style="flex:1; min-width: 200px;">
+                            <p><span class="highlight-glow"><i class="fas fa-rocket"></i> 推理引擎</span> <strong>vLLM</strong> (高吞吐) · <strong>llama.cpp</strong> (CPU/边缘) · <strong>TensorRT-LLM</strong> (NVIDIA)。</p>
+                        </div>
+                        <div style="flex:1; min-width: 200px;">
+                            <span class="tag"><i class="fas fa-microchip"></i> 4bit 量化</span>
+                            <span class="tag"><i class="fas fa-tachometer-alt"></i> vLLM</span>
+                            <span class="tag"><i class="fas fa-mobile-alt"></i> llama.cpp</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- end knowledge-grid -->
+
+        <!-- Footer 轻提示 -->
+        <div style="margin-top: 2.8rem; text-align: center; border-top: 1px solid rgba(160, 130, 255, 0.08); padding-top: 1.8rem;">
+            <span style="color: rgba(200, 185, 255, 0.3); font-size: 0.8rem; letter-spacing: 0.5px;">
+                <i class="fas fa-gem" style="color: rgba(160, 120, 255, 0.2);"></i> 
+                清华渐变紫 · 玻璃质感 · 系统讲解对话框 / ML / NLP / 大模型训练调参
+            </span>
+        </div>
+
+    </div> <!-- end glass-container -->
+</body>
+</html>
