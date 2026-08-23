@@ -1,0 +1,20 @@
+[project]
+name = "gear-gpu-runtime"
+version = "0.1.0"
+description = "GEAR · GPU Energy-Aware Runtime — 能耗感知 DVFS、功耗封顶与热管理"
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.4", "mypy>=1.8"]
+
+[tool.pytest.ini_options]
+pythonpath = ["software"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true

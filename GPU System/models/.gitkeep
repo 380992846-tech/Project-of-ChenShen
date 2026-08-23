@@ -1,0 +1,2 @@
+# 占位：放置预训练的能效预测模型 rf_power_model.joblib
+# 可用 scripts/calibrate.py 采集数据后用 scikit-learn 训练得到
