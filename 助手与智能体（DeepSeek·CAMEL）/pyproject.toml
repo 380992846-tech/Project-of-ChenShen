@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dsh-assistant"
+version = "0.1.0"
+description = "DeepSeek · CAMEL 助手与智能体（语音助手 + 对话智能体）"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "陈深" }]
+keywords = ["deepseek", "agent", "assistant", "camel", "voice"]
+dependencies = [
+    "openai>=1.0",
+    "edge-tts>=6.1",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+camel = ["camel-ai>=0.2"]
+dev = ["pytest>=7", "ruff>=0.4", "mypy>=1.8"]
+
+[project.scripts]
+dsh-assistant = "dsh_assistant.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true

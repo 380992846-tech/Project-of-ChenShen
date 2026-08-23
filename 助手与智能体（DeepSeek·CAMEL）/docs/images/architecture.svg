@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="640" viewBox="0 0 920 640" font-family="Segoe UI, PingFang SC, Microsoft YaHei, sans-serif">
+  <defs>
+    <linearGradient id="gBox" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16213b"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="gAccent" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect width="920" height="640" fill="#0b1220"/>
+  <rect x="20" y="20" width="880" height="600" rx="18" fill="#0f172a" stroke="#1e293b"/>
+
+  <!-- title -->
+  <text x="40" y="58" fill="#e2e8f0" font-size="22" font-weight="600">dsh-assistant · 分层架构</text>
+  <text x="40" y="80" fill="#94a3b8" font-size="13">DeepSeek · CAMEL 助手与智能体</text>
+
+  <!-- Layer 1: 入口层 -->
+  <g>
+    <rect x="40" y="100" width="840" height="66" rx="10" fill="url(#gBox)" stroke="#334155"/>
+    <rect x="40" y="100" width="8" height="66" rx="4" fill="url(#gAccent)"/>
+    <text x="64" y="126" fill="#38bdf8" font-size="15" font-weight="600">入口层 · cli.py</text>
+    <text x="64" y="150" fill="#cbd5e1" font-size="13">dsh-assistant voice | camel — 解析参数 → 加载配置 → 初始化日志 → 分发</text>
+  </g>
+  <line x1="460" y1="166" x2="460" y2="192" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Layer 2: 应用层 -->
+  <g>
+    <rect x="40" y="196" width="840" height="78" rx="10" fill="url(#gBox)" stroke="#334155"/>
+    <rect x="40" y="196" width="8" height="78" rx="4" fill="url(#gAccent)"/>
+    <text x="64" y="222" fill="#38bdf8" font-size="15" font-weight="600">应用层</text>
+    <text x="64" y="246" fill="#cbd5e1" font-size="13">VoiceAssistant（语音助手） · CamelChatAgent（CAMEL 智能体）</text>
+    <text x="64" y="266" fill="#94a3b8" font-size="12">编排：命令处理 + 对话循环</text>
+  </g>
+  <line x1="460" y1="274" x2="460" y2="300" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Layer 3: 能力层 -->
+  <g>
+    <rect x="40" y="304" width="840" height="90" rx="10" fill="url(#gBox)" stroke="#334155"/>
+    <rect x="40" y="304" width="8" height="90" rx="4" fill="url(#gAccent)"/>
+    <text x="64" y="330" fill="#38bdf8" font-size="15" font-weight="600">能力层</text>
+    <text x="64" y="354" fill="#cbd5e1" font-size="13">llm.py · tts.py · memory.py</text>
+    <text x="64" y="376" fill="#94a3b8" font-size="12">LLM 调用（超时+重试） · Edge TTS 播报 · 对话记忆（线程安全+原子写）</text>
+  </g>
+  <line x1="460" y1="394" x2="460" y2="420" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Layer 4: 基础层 -->
+  <g>
+    <rect x="40" y="424" width="840" height="66" rx="10" fill="url(#gBox)" stroke="#334155"/>
+    <rect x="40" y="424" width="8" height="66" rx="4" fill="url(#gAccent)"/>
+    <text x="64" y="450" fill="#38bdf8" font-size="15" font-weight="600">基础层</text>
+    <text x="64" y="474" fill="#cbd5e1" font-size="13">config.py · prompts.py · logging_setup.py</text>
+    <text x="64" y="486" fill="#94a3b8" font-size="12">配置/提示词/日志（无外部依赖，可单测）</text>
+  </g>
+  <line x1="460" y1="490" x2="460" y2="516" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Layer 5: 外部 -->
+  <g>
+    <rect x="40" y="520" width="840" height="66" rx="10" fill="url(#gBox)" stroke="#334155"/>
+    <rect x="40" y="520" width="8" height="66" rx="4" fill="url(#gAccent)"/>
+    <text x="64" y="546" fill="#38bdf8" font-size="15" font-weight="600">外部 / 环境</text>
+    <text x="64" y="570" fill="#cbd5e1" font-size="13">DeepSeek API · Edge TTS · ~/.dsh_assistant（记忆）</text>
+  </g>
+</svg>

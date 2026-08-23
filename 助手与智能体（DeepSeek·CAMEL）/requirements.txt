@@ -1,0 +1,10 @@
+# 运行依赖
+openai>=1.0
+edge-tts>=6.1
+python-dotenv>=1.0
+
+# 可选：CAMEL 智能体（未安装时 camel 子命令会提示安装）
+camel-ai>=0.2
+
+# 开发
+# pytest ruff mypy（见 pyproject.toml [project.optional-dependencies].dev）

@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install (lightweight, no network/key)
+        run: pip install --quiet pytest ruff
+      - name: Unit tests
+        run: pytest -q
+      - name: Compile check
+        run: python -m py_compile src/dsh_assistant/*.py
+      - name: Lint (ruff)
+        run: ruff check src tests
