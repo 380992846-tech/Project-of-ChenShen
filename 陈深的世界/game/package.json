@@ -1,0 +1,17 @@
+{
+  "name": "chenshen-renjianyanhuo",
+  "productName": "陈深·人间烟火",
+  "version": "1.0.0",
+  "description": "陈深的世界 × 陈深的故事 —— 合二为一的典藏版游戏",
+  "main": "main.js",
+  "author": "陈深",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-packager . 陈深-人间烟火 --platform=win32 --arch=x64 --out=release --overwrite --asar --prune=true --ignore=\"\\.ps1$|build_localized|retry_missing|url_map|all_image_urls|download_\""
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-packager": "^17.1.2"
+  }
+}
