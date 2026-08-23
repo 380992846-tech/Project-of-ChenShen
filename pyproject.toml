@@ -34,8 +34,8 @@ dev = ["ruff", "pytest", "mypy", "pre-commit"]
 packages = []
 
 [tool.pytest.ini_options]
-# 让测试可以直接 `import llm.*` / `import quant_features`
-pythonpath = ["大模型", "大模型/量化策略（聚宽·回测）"]
+# 让测试可以直接 `import quant_features` / 助手包 / 推理模块
+pythonpath = ["量化策略（聚宽·回测）", "助手与智能体（DeepSeek·CAMEL）/src", "LLM推理优化"]
 testpaths = ["tests"]
 addopts = "-q"
 

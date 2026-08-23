@@ -54,3 +54,8 @@ desktop.ini
 .pytest_cache/
 .ruff_cache/
 pytest-cache-files-*/
+
+# --- 陈深的世界 游戏构建产物（Electron / node_modules / release 不入库）---
+陈深的世界/game/node_modules/
+陈深的世界/game/release/
+陈深的世界/game/__pycache__/
