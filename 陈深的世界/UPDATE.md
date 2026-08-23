@@ -87,7 +87,7 @@ game/
   index.html        主菜单（合并入口）
   main.js           Electron 主进程
   package.json      Electron 配置
-  photos/           79 张私人照片
+  photos/           照片
   assets/           本地化后的通用图片素材
   icons/            PWA/应用图标（来自仓库）
   app.ico           Windows 应用图标
