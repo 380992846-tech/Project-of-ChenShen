@@ -6,7 +6,7 @@
     <link rel="manifest" href="./manifest-story.webmanifest">
     <meta name="theme-color" content="#0b0710">
     <link rel="apple-touch-icon" href="./icons/icon-192.png">
-    <title>陈深的故事 V5 · 鲸鱼昼夜 · 万卡集群大模型的人间烟火</title>
+    <title>陈深的故事 V6 · 鲸鱼昼夜 · 万卡集群大模型的人间烟火</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
         html, body { height: 100%; }
@@ -69,9 +69,11 @@
         }
         .bg-home {
             background:
-                radial-gradient(800px 400px at 70% 12%, rgba(140, 90, 255, 0.18), transparent 60%),
-                radial-gradient(600px 400px at 18% 88%, rgba(247, 201, 72, 0.07), transparent 60%),
-                linear-gradient(160deg, #17102b 0%, #0b0710 72%);
+                radial-gradient(900px 460px at 72% 12%, rgba(0, 229, 255, 0.20), transparent 60%),
+                radial-gradient(720px 400px at 16% 82%, rgba(255, 0, 200, 0.16), transparent 60%),
+                radial-gradient(560px 340px at 58% 52%, rgba(120, 80, 255, 0.16), transparent 60%),
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 4px),
+                linear-gradient(160deg, #0b0b12 0%, #07070c 55%, #030306 100%);
         }
         .bg-kitchen {
             background:
@@ -117,9 +119,10 @@
         }
         .bg-game {
             background:
-                radial-gradient(900px 500px at 20% 30%, rgba(120, 80, 255, 0.18), transparent 60%),
-                radial-gradient(700px 400px at 80% 70%, rgba(0, 180, 255, 0.14), transparent 60%),
-                linear-gradient(160deg, #0d0a1c 0%, #080610 70%);
+                radial-gradient(900px 460px at 20% 28%, rgba(120, 80, 255, 0.20), transparent 60%),
+                radial-gradient(720px 420px at 78% 62%, rgba(0, 180, 255, 0.20), transparent 60%),
+                radial-gradient(520px 340px at 50% 88%, rgba(255, 0, 200, 0.14), transparent 60%),
+                linear-gradient(160deg, #0a0a12 0%, #06060a 55%, #030306 100%);
         }
         @keyframes twinkle {
             from { opacity: 0.45; }
@@ -202,21 +205,23 @@
         .portrait-frame.show { opacity: 1; transform: none; }
         .portrait-frame svg { width: 100%; height: 100%; display: block; }
         .portrait-name {
-            font-size: 12px; letter-spacing: 3px; color: #b3a1d4;
-            font-weight: 600;
+            font-size: 13px; letter-spacing: 3px; color: #c3b1e4;
+            font-weight: 700;
         }
-        .portrait-sub { font-size: 9px; color: #5d4c84; letter-spacing: 1px; }
+        .portrait-sub { font-size: 10px; color: #7a68a8; letter-spacing: 1px; }
 
         /* ===== 对话区 ===== */
         .chat {
             flex: 1;
             overflow-y: auto;
-            padding: 18px 20px 24px;
+            padding: 18px 20px 26px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 16px;
             scroll-behavior: smooth;
             min-width: 0;
+            background: linear-gradient(180deg, rgba(8, 5, 18, 0.00) 0%, rgba(8, 5, 18, 0.08) 42%, rgba(8, 5, 18, 0.46) 100%);
+            box-shadow: inset 0 0 120px rgba(6, 4, 14, 0.38);
         }
         .chat::-webkit-scrollbar { width: 4px; }
         .chat::-webkit-scrollbar-thumb { background: #4e3a78; border-radius: 10px; }
@@ -224,11 +229,12 @@
         .scene-chip {
             align-self: center;
             display: flex; align-items: center; gap: 6px;
-            font-size: 10px; color: #9480c0; letter-spacing: 2px;
-            background: rgba(16, 10, 30, 0.45);
-            border: 1px solid rgba(160, 120, 255, 0.10);
-            padding: 3px 14px; border-radius: 40px;
-            margin: 2px 0;
+            font-size: 11px; color: #b5a4e0; letter-spacing: 2px;
+            background: rgba(16, 10, 30, 0.78);
+            border: 1px solid rgba(160, 120, 255, 0.30);
+            padding: 5px 16px; border-radius: 40px;
+            margin: 3px 0;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.38);
         }
         .msg {
             display: flex;
@@ -248,21 +254,22 @@
         }
         .msg-body { display: flex; flex-direction: column; min-width: 0; }
         .msg.me .msg-body { align-items: flex-end; }
-        .msg-name { font-size: 11px; letter-spacing: 0.5px; margin-bottom: 4px; font-weight: 600; }
+        .msg-name { font-size: 12px; letter-spacing: 0.5px; margin-bottom: 5px; font-weight: 700; }
         .bubble {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(160, 120, 255, 0.10);
+            background: rgba(18, 12, 34, 0.94);
+            backdrop-filter: blur(6px);
+            border: 1.5px solid rgba(160, 120, 255, 0.24);
             border-radius: 4px 16px 16px 16px;
-            padding: 10px 14px;
-            font-size: 14px;
-            line-height: 1.8;
-            color: #e8e2f5;
+            padding: 12px 16px;
+            font-size: 15px;
+            line-height: 1.85;
+            color: #f2edfc;
             max-width: 100%;
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.42);
         }
         .msg.me .bubble {
-            background: rgba(88, 214, 160, 0.10);
-            border-color: rgba(88, 214, 160, 0.26);
+            background: rgba(20, 60, 46, 0.94);
+            border-color: rgba(88, 214, 160, 0.60);
             border-radius: 16px 4px 16px 16px;
         }
         .bubble .caret {
@@ -287,19 +294,20 @@
         }
         .choice-btn {
             display: flex; align-items: center; gap: 10px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(24, 18, 44, 0.90);
             backdrop-filter: blur(6px);
-            border: 1px solid rgba(160, 120, 255, 0.12);
+            border: 1.5px solid rgba(160, 120, 255, 0.24);
             border-radius: 16px;
-            padding: 10px 14px;
-            color: #ddd2f0;
-            font-size: 13px;
+            padding: 12px 16px;
+            color: #eae2fa;
+            font-size: 14px;
             font-family: inherit;
             text-align: left;
             cursor: pointer;
             transition: 0.25s;
             width: 100%;
             animation: popIn 0.3s ease both;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30);
         }
         .choice-btn:hover {
             background: rgba(255, 255, 255, 0.09);
@@ -1045,6 +1053,13 @@
         body[data-theme="night"] .bg-home, body[data-theme="night"] .bg-kitchen, body[data-theme="night"] .bg-duck, body[data-theme="night"] .bg-hotpot { background: radial-gradient(800px 400px at 70% 12%, rgba(197,164,104,.20), transparent 60%), linear-gradient(165deg,#191329 0%,#0a0918 100%); }
         body[data-theme="night"] .bg-campus, body[data-theme="night"] .bg-sea { background: radial-gradient(900px 500px at 30% 15%, rgba(70,150,110,.20), transparent 60%), linear-gradient(165deg,#0d1f28 0%,#081018 100%); }
         body[data-theme="night"] .bg-game { background: radial-gradient(900px 500px at 20% 30%, rgba(120,90,240,.20), transparent 60%), linear-gradient(165deg,#141038 0%,#080718 100%); }
+        /* 赛博窝点/电竞房：黑底 RGB 霓虹电竞风（覆盖昼夜主题） */
+        body[data-theme="day"] .bg-home, body[data-theme="night"] .bg-home {
+            background: radial-gradient(900px 460px at 72% 12%, rgba(0,229,255,.20), transparent 60%), radial-gradient(720px 400px at 16% 82%, rgba(255,0,200,.16), transparent 60%), radial-gradient(560px 340px at 58% 52%, rgba(120,80,255,.16), transparent 60%), repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 4px), linear-gradient(160deg,#0b0b12 0%,#07070c 55%,#030306 100%);
+        }
+        body[data-theme="day"] .bg-game, body[data-theme="night"] .bg-game {
+            background: radial-gradient(900px 460px at 20% 28%, rgba(120,80,255,.20), transparent 60%), radial-gradient(720px 420px at 78% 62%, rgba(0,180,255,.20), transparent 60%), radial-gradient(520px 340px at 50% 88%, rgba(255,0,200,.14), transparent 60%), linear-gradient(160deg,#0a0a12 0%,#06060a 55%,#030306 100%);
+        }
         /* 照片背景 + 昼夜遮罩 */
         .app-container.bg-photo { background-size: cover !important; background-position: center !important; }
         body[data-theme="day"] .app-container.bg-photo::after,
@@ -1067,8 +1082,8 @@
         body[data-theme="day"] .portrait-sub, body[data-theme="night"] .portrait-sub { color: var(--ink-3); }
         /* 对话 */
         body[data-theme="day"] .scene-chip, body[data-theme="night"] .scene-chip { background: var(--chip); border: 1px solid var(--line); color: var(--accent); }
-        body[data-theme="day"] .bubble, body[data-theme="night"] .bubble { background: var(--glass-2); border: 1px solid var(--line); color: var(--ink-1); box-shadow: 0 4px 16px var(--shadow); }
-        body[data-theme="day"] .msg.me .bubble, body[data-theme="night"] .msg.me .bubble { background: var(--me-bg); border-color: var(--me-line); }
+        body[data-theme="day"] .bubble, body[data-theme="night"] .bubble { background: var(--glass-3); border: 1.5px solid var(--line); color: var(--ink-1); box-shadow: 0 8px 26px var(--shadow), 0 0 0 1px rgba(0,0,0,0.06); }
+        body[data-theme="day"] .msg.me .bubble, body[data-theme="night"] .msg.me .bubble { background: var(--glass-3); border-color: var(--me-line); }
         body[data-theme="day"] .msg-name, body[data-theme="night"] .msg-name { color: var(--accent); }
         body[data-theme="day"] .chat::-webkit-scrollbar-thumb, body[data-theme="night"] .chat::-webkit-scrollbar-thumb { background: var(--scroll-thumb); }
         /* 选项 */
@@ -5734,12 +5749,53 @@
             /* ================= 音乐（WebAudio 合成 BGM，按场景换情绪） ================= */
             var Music = {
                 ctx: null, master: null, filter: null, timer: null,
-                step: 0, nextTime: 0, mood: 'cozy', started: false,
+                step: 0, absStep: 0, nextTime: 0, mood: 'cozy', started: false, theme: 0,
                 TEMPOS: { cozy: 66, tech: 84, festive: 96 },
                 CHORDS: {
-                    cozy: [[57, 60, 64, 67], [53, 57, 60, 64], [48, 52, 55, 59], [55, 59, 62, 67]],
-                    tech: [[57, 60, 64, 67], [50, 53, 57, 60], [55, 59, 62, 67], [48, 52, 55, 59]],
-                    festive: [[48, 52, 55, 59], [55, 59, 62, 67], [41, 48, 52, 57], [43, 50, 53, 57]]
+                    cozy: [[57, 60, 64, 67], [53, 57, 60, 64], [48, 52, 55, 59], [55, 59, 62, 67],
+                           [57, 60, 64, 67], [53, 57, 60, 64], [48, 52, 55, 59], [52, 55, 59, 62],
+                           [57, 60, 64, 67], [50, 53, 57, 60], [53, 57, 60, 64], [45, 48, 52, 55],
+                           [53, 57, 60, 64], [48, 52, 55, 59], [55, 59, 62, 67], [57, 60, 64, 67]],
+                    tech: [[57, 60, 64, 67], [50, 53, 57, 60], [53, 57, 60, 64], [45, 48, 52, 55],
+                           [57, 60, 64, 67], [50, 53, 57, 60], [48, 52, 55, 59], [55, 59, 62, 67],
+                           [57, 60, 64, 67], [45, 48, 52, 55], [53, 57, 60, 64], [50, 53, 57, 60],
+                           [55, 59, 62, 67], [48, 52, 55, 59], [53, 57, 60, 64], [57, 60, 64, 67]],
+                    festive: [[48, 52, 55, 59], [55, 59, 62, 67], [41, 48, 52, 57], [43, 50, 53, 57],
+                              [48, 52, 55, 59], [43, 50, 53, 57], [45, 50, 53, 57], [55, 59, 62, 67],
+                              [48, 52, 55, 59], [40, 43, 48, 52], [45, 50, 53, 57], [55, 59, 62, 67],
+                              [48, 52, 55, 59], [41, 48, 52, 57], [55, 59, 62, 67], [48, 52, 55, 59]]
+                },
+                MELODY: {
+                    cozy: [
+                      [72, 0, 76, 0, 74, 0, 72, 0, 69, 0, 72, 0, 74, 76, 74, 72,
+                       76, 0, 79, 0, 76, 74, 72, 0, 69, 0, 74, 0, 72, 0, 0, 0,
+                       74, 0, 76, 0, 74, 72, 69, 0, 67, 0, 69, 0, 72, 0, 0, 0,
+                       69, 0, 72, 0, 74, 76, 79, 0, 74, 0, 72, 0, 72, 0, 0, 0],
+                      [76, 0, 79, 0, 76, 0, 74, 0, 72, 0, 74, 0, 76, 74, 72, 0,
+                       72, 0, 74, 76, 79, 0, 76, 0, 74, 0, 72, 0, 69, 0, 0, 0,
+                       72, 0, 74, 0, 76, 74, 72, 0, 69, 0, 67, 0, 69, 0, 0, 0,
+                       74, 0, 76, 0, 79, 81, 79, 0, 76, 0, 74, 0, 72, 0, 0, 0]
+                    ],
+                    tech: [
+                      [72, 74, 76, 0, 72, 74, 76, 0, 79, 76, 74, 72, 74, 72, 0, 0,
+                       76, 79, 81, 0, 79, 76, 74, 0, 76, 74, 72, 74, 76, 0, 0, 0,
+                       74, 72, 69, 0, 72, 74, 76, 0, 74, 72, 69, 67, 69, 0, 0, 0,
+                       72, 74, 76, 79, 0, 76, 79, 81, 0, 79, 76, 74, 72, 0, 0, 0],
+                      [76, 0, 79, 81, 0, 79, 76, 0, 74, 0, 76, 0, 74, 72, 0, 0,
+                       79, 0, 76, 74, 0, 72, 0, 74, 76, 79, 81, 0, 79, 0, 0, 0,
+                       74, 76, 79, 81, 0, 79, 76, 74, 0, 72, 74, 76, 72, 0, 0, 0,
+                       76, 0, 74, 0, 72, 0, 69, 0, 72, 74, 76, 79, 76, 0, 0, 0]
+                    ],
+                    festive: [
+                      [76, 0, 79, 0, 81, 0, 79, 0, 76, 74, 72, 74, 76, 0, 0, 0,
+                       79, 0, 81, 0, 79, 76, 74, 0, 76, 0, 74, 0, 72, 0, 0, 0,
+                       74, 0, 76, 0, 79, 0, 81, 0, 79, 76, 74, 72, 76, 0, 0, 0,
+                       79, 0, 76, 0, 74, 0, 72, 0, 74, 76, 79, 81, 79, 0, 0, 0],
+                      [72, 0, 74, 0, 76, 0, 79, 0, 81, 0, 79, 0, 76, 0, 0, 0,
+                       74, 0, 76, 0, 79, 81, 79, 0, 76, 0, 74, 0, 72, 0, 0, 0,
+                       79, 0, 81, 0, 76, 0, 74, 0, 72, 0, 74, 0, 76, 0, 0, 0,
+                       76, 0, 79, 0, 81, 0, 79, 0, 76, 0, 74, 0, 72, 0, 0, 0]
+                    ]
                 },
                 midi: function (m) { return 440 * Math.pow(2, (m - 69) / 12); },
                 ensureCtx: function () {
@@ -5752,7 +5808,7 @@
                         this.master.gain.value = 0.0;
                         this.filter = this.ctx.createBiquadFilter();
                         this.filter.type = 'lowpass';
-                        this.filter.frequency.value = 1500;
+                        this.filter.frequency.value = 2300;
                         this.filter.Q.value = 0.5;
                         this.master.connect(this.filter);
                         this.filter.connect(this.ctx.destination);
@@ -5766,6 +5822,7 @@
                     if (this.ctx.state === 'suspended') this.ctx.resume();
                     this.started = true;
                     this.step = 0;
+                    this.absStep = 0;
                     this.nextTime = this.ctx.currentTime + 0.15;
                     var self = this;
                     this.timer = setInterval(function () { self.scheduler(); }, 40);
@@ -5793,7 +5850,7 @@
                     }
                 },
                 setMood: function (m) {
-                    if (this.mood !== m) { this.mood = m; this.step = 0; }
+                    if (this.mood !== m) { this.mood = m; this.step = 0; this.absStep = 0; }
                 },
                 note: function (freq, t, dur, type, vol) {
                     if (!this.ctx) return;
@@ -5816,31 +5873,47 @@
                     var bpm = this.TEMPOS[this.mood] || 72;
                     var stepDur = 60 / bpm / 4;
                     while (this.nextTime < this.ctx.currentTime + 0.25) {
-                        this.playStep(this.step, this.nextTime, stepDur);
+                        this.playStep(this.absStep, this.nextTime, stepDur);
                         this.nextTime += stepDur;
-                        this.step = (this.step + 1) % 16;
+                        this.absStep = (this.absStep + 1) % 64;
                     }
                 },
                 playStep: function (s, t, dur) {
+                    var mood = this.mood;
                     var bar = Math.floor(s / 4);
                     var beat = s % 4;
-                    var chords = this.CHORDS[this.mood];
+                    var chords = this.CHORDS[mood];
                     var chord = chords[bar % chords.length];
                     var bassRoot = chord[0] - 12;
+                    // 和弦垫：柔和三角波，铺得稍慢、更暖
                     if (beat === 0) {
                         for (var i = 0; i < chord.length; i++) {
-                            this.note(this.midi(chord[i] - 12), t, dur * 5, 'triangle', 0.026);
+                            this.note(this.midi(chord[i] - 12), t, dur * 5.4, 'triangle', 0.05);
                         }
                     }
+                    // 贝斯：轻盈正弦
                     if (beat === 0 || beat === 2) {
-                        this.note(this.midi(bassRoot), t, dur * 3.4, 'sine', 0.07);
+                        this.note(this.midi(bassRoot), t, dur * 3.6, 'sine', 0.06);
                     }
-                    var arpPattern = [0, 1, 2, 3, 2, 1];
-                    var arpOn = (this.mood === 'cozy') ? (s % 2 === 0) : true;
-                    if (arpOn) {
-                        var idx = arpPattern[s % 6];
-                        var oct = (this.mood === 'festive') ? 12 : 0;
-                        this.note(this.midi(chord[idx] + oct), t, dur * 1.8, (this.mood === 'tech' ? 'square' : 'sine'), 0.028);
+                    // tech：贝斯律动（根音—五度—高八度）
+                    if (mood === 'tech') {
+                        var bt = (beat === 1) ? bassRoot + 7 : ((beat === 3) ? bassRoot + 12 : 0);
+                        if (bt) this.note(this.midi(bt), t, dur * 1.8, 'sine', 0.05);
+                    }
+                    // 主旋律：柔和正弦，按章节主题选变体，更有调性
+                    var fam = this.MELODY[mood];
+                    var mel = fam[this.theme % fam.length];
+                    var mn = mel[s % mel.length];
+                    if (mn) {
+                        this.note(this.midi(mn), t, dur * 2.4, 'sine', 0.085);
+                    }
+                    // 点缀：tech 轻快琶音 / festive 高八度铃音
+                    if (mood === 'tech' && beat !== 0) {
+                        var pidx = [0, 1, 2, 3, 2][s % 5];
+                        this.note(this.midi(chord[pidx]), t, dur * 1.3, 'sine', 0.03);
+                    }
+                    if (mood === 'festive' && beat === 2) {
+                        this.note(this.midi(chord[2] + 12), t, dur * 1.7, 'sine', 0.024);
                     }
                 }
             };
@@ -5889,17 +5962,17 @@
             var lastBg = '';
             /* ================= V5 · 场景日漫背景（safebooru 动漫场景插画） ================= */
             var BG_PHOTOS = {
-                server: 'https://safebooru.org/images/785/1f7d6aec150b45406dcb318300c7e51275bdb2f7.jpg',
-                street: 'https://safebooru.org/images/3658/0aa084d5c4b9653bd6cdbda7293e515df7cd84b5.jpg',
-                home: 'https://safebooru.org/images/544/6e1de4c87a991b3ca7bacf31899b91117772b0c5.jpg',
-                kitchen: 'https://safebooru.org/images/65/734bff58cae9741df7f63d51df7b4c5780690e09.jpg',
-                duck: 'https://safebooru.org/images/4187/819d5abf868957faf7892fde8e4fb795816ec7e0.jpg',
-                hotpot: 'https://safebooru.org/images/4161/e515464e1e8790a82f76e1c4afc3b52a387312dd.jpg',
-                mall: 'https://safebooru.org/images/3857/84b879d2b1299781c6b42107ee0966c2574207ba.jpg',
-                lab: 'https://safebooru.org/images/829/dbef13dc6ecee0261e4b5cf155ee7a1e8be871df.png',
-                campus: 'https://safebooru.org/images/3906/f9e55eab3fa2f60caa5b7448ea221cd6ded4a4d9.png',
-                sea: 'https://safebooru.org/images/588/bdb706c56a32e7b1ac972e7a5d938304b32e3330.jpg',
-                game: 'https://safebooru.org/images/312/c06f52212445697b68a137633eb80364d64c0705.jpg'
+                server: 'assets/img_71b14454aa.jpg',
+                street: 'assets/img_f72240ad69.jpg',
+                home: 'assets/img_gaming_b.jpg',
+                kitchen: 'assets/img_c274409527.jpg',
+                duck: 'assets/img_f905a836c6.jpg',
+                hotpot: 'assets/img_94160a4255.jpg',
+                mall: 'assets/img_f48ce2d1ca.jpg',
+                lab: 'assets/img_6a3200b00b.png',
+                campus: 'assets/img_6ad2782627.png',
+                sea: 'assets/img_9d8a8583d7.jpg',
+                game: 'assets/img_gaming_b.jpg'
             };
             var bgPhotoLoaded = {};
             function applyBgPhoto(name) {
@@ -6406,6 +6479,11 @@
                 var rank = document.createElement('div'); rank.className = 'stat-rank';
                 rank.textContent = '信任 · ' + trustRank(t) + ' ｜ 好感 · ' + loveRank(l);
                 body.appendChild(rank);
+                var legend = document.createElement('div'); legend.className = 'stat-legend';
+                legend.style.cssText = 'font-size:11px;line-height:1.75;color:#a89cd0;margin-top:8px;padding:9px 11px;background:rgba(255,255,255,.035);border-radius:10px;border:1px solid rgba(160,120,255,.10);text-align:left;';
+                legend.innerHTML = '<b style="color:#c9b37e;">信任</b>（章节内）= 把心里话讲出来、被接纳换来的，会影响部分结局台词。<br>' +
+                    '<b style="color:#e889c8;">好感</b>（跨章节）= 跟某位角色的亲近度，攒满会解锁 TA 的专属结局。';
+                body.appendChild(legend);
                 var counts = document.createElement('div'); counts.className = 'ach-progress';
                 counts.innerHTML = '章节 <b>' + getDoneChapters().length + '</b>/' + CHAPTERS.length +
                     ' ｜ 结局 <b>' + countEnds() + '</b>/' + ENDINGS.length +
@@ -6721,6 +6799,7 @@
                 clearSave();
                 F = { trust: 0, rentJob: 0, bugDeal: 0, mathMode: 0, firstBite: 0, answer: 0, outfit: 0, panic: 0, hotpotFirst: 0, yaoReply: 0, partyIntro: 0, partyAct: 0, wechat: 0, hobby: 0, offer: 0, shot: 0, parkReply: 0, toast: 0, codeHelp: 0, beach: 0, value: 0, idCheck: 0, scientistReply: 0, chenName: 0, bugStyle: 0, perfReply: 0, bonusReply: 0, architectReply: 0, cakeSee: 0, pendant: 0, toastStyle: 0, birthdayFood: 0, houseQ: 0, decor: 0, bed: 0, moveToast: 0, finalQ: 0, finalToast: 0, codeHelp: 0, mentorFeel: 0, professor: 0, quant: 0, cto: 0, common: 0, travel: 0, marry: 0, pretrain: 0, harness: 0, acm: 0 };
                 readName();
+                Music.theme = Math.max(0, parseInt(String(ch.id).replace(/\D/g, ''), 10) - 1) || 0;
                 history = [];
                 chat.innerHTML = '';
                 currentNode = ch.start;

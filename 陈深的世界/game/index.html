@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陈深 · 人间烟火</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;}
+html,body{width:100%;height:100%;overflow:hidden;background:#0b0710;color:#e6e0f0;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+
+/* ============ 主菜单 ============ */
+#hub{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;z-index:10;
+  background:radial-gradient(ellipse at 50% 26%, #1a1428 0%, #0c0818 60%, #060409 100%);}
+.stars{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.stars span{position:absolute;border-radius:50%;background:#c9b37e;animation:twinkle 4s infinite ease-in-out;}
+@keyframes twinkle{0%,100%{opacity:.04;transform:scale(.8);}50%{opacity:.55;transform:scale(1.15);}}
+.frame-l{position:absolute;top:24px;left:28px;width:56px;height:56px;border-top:1px solid rgba(201,179,126,.35);border-left:1px solid rgba(201,179,126,.35);}
+.frame-r{position:absolute;bottom:24px;right:28px;width:56px;height:56px;border-bottom:1px solid rgba(201,179,126,.35);border-right:1px solid rgba(201,179,126,.35);}
+.logo-ring{position:relative;z-index:2;width:80px;height:80px;border-radius:50%;border:1px solid rgba(201,179,126,.5);display:flex;align-items:center;justify-content:center;font-size:34px;color:#f4d78a;box-shadow:0 0 50px rgba(201,179,126,.18);background:rgba(255,255,255,.02);}
+h1{position:relative;z-index:2;font-family:'Songti SC','STSong','Noto Serif SC','Times New Roman',serif;font-weight:400;font-size:46px;letter-spacing:14px;color:#e7cf9a;text-shadow:0 2px 36px rgba(201,179,126,.18);}
+.sub{position:relative;z-index:2;font-size:12px;color:#8a857a;letter-spacing:8px;font-weight:300;}
+.gold-line{position:relative;z-index:2;width:72px;height:1px;background:linear-gradient(90deg,transparent,#c9b37e,transparent);}
+
+.modes{position:relative;z-index:2;display:flex;gap:22px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
+.mode{position:relative;width:300px;padding:26px 24px 22px;border-radius:18px;background:rgba(22,16,38,.55);border:1px solid rgba(160,120,255,.18);transition:.3s;text-align:left;overflow:hidden;}
+.mode:hover{transform:translateY(-4px);border-color:rgba(201,179,126,.5);box-shadow:0 16px 48px rgba(0,0,0,.5);}
+.mode .icon{font-size:30px;margin-bottom:10px;}
+.mode .t{font-size:20px;letter-spacing:3px;color:#f0eaff;font-weight:600;}
+.mode .d{font-size:12px;color:#9a92ad;line-height:1.8;margin-top:8px;}
+.mode .go{margin-top:16px;display:inline-block;font-size:13px;letter-spacing:4px;color:#c9b37e;padding:8px 26px;border:1px solid rgba(201,179,126,.4);border-radius:30px;transition:.25s;}
+.mode:hover .go{background:#c9b37e;color:#0c0b09;}
+.mode .badge{position:absolute;top:16px;right:16px;font-size:10px;color:#c9b37e;border:1px solid rgba(201,179,126,.35);padding:2px 8px;border-radius:20px;letter-spacing:1px;}
+
+.links{position:relative;z-index:2;display:flex;gap:16px;margin-top:8px;}
+.links button{font-size:12px;color:#bdb4d8;border:1px solid rgba(160,120,255,.25);border-radius:30px;padding:8px 22px;letter-spacing:2px;transition:.25s;background:rgba(13,9,24,.5);}
+.links button:hover{color:#f4d78a;border-color:#c9b37e;}
+.foot{position:absolute;bottom:20px;left:0;right:0;text-align:center;z-index:2;font-size:11px;color:#5f5a6b;letter-spacing:1px;}
+
+/* ============ 游戏舞台 ============ */
+#stage{position:fixed;inset:0;z-index:20;display:none;background:#000;}
+#stage.show{display:block;}
+#backBtn{position:fixed;top:14px;left:14px;z-index:30;font-size:13px;letter-spacing:2px;color:#f0eaff;background:rgba(11,7,16,.7);border:1px solid rgba(201,179,126,.4);border-radius:30px;padding:8px 18px;backdrop-filter:blur(6px);transition:.2s;}
+#backBtn:hover{background:rgba(201,179,126,.2);border-color:#c9b37e;}
+#gameFrame{position:fixed;inset:0;width:100%;height:100%;border:none;}
+
+/* ============ 图鉴弹窗 ============ */
+#galleryModal{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;background:rgba(5,3,10,.85);backdrop-filter:blur(6px);padding:24px;}
+#galleryModal.show{display:flex;}
+.g-card{width:min(900px,94vw);max-height:86vh;background:linear-gradient(160deg,#171028,#0e0a1c);border:1px solid rgba(160,120,255,.22);border-radius:20px;padding:22px;display:flex;flex-direction:column;overflow:hidden;}
+.g-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.g-head h2{font-size:18px;letter-spacing:3px;color:#f0eaff;font-weight:500;}
+.g-close{font-size:12px;color:#cbb8f0;border:1px solid rgba(160,120,255,.3);border-radius:20px;padding:6px 16px;}
+.g-count{font-size:12px;color:#8a857a;margin-top:2px;}
+.g-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;overflow-y:auto;padding:4px;}
+.g-item{position:relative;border-radius:12px;overflow:hidden;border:1px solid rgba(160,120,255,.15);background:#0a0712;}
+.g-item img{width:100%;height:120px;object-fit:cover;display:block;}
+.g-item .cap{font-size:11px;color:#bdb4d8;padding:7px 9px;text-align:center;letter-spacing:.5px;}
+.g-item:hover{border-color:#c9b37e;}
+
+/* ============ 开场叙事（可跳过） ============ */
+#intro{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#060409;text-align:center;transition:opacity .9s;cursor:pointer;}
+#intro.hide{opacity:0;pointer-events:none;}
+#intro .it{font-family:'Songti SC','STSong','Noto Serif SC','Times New Roman',serif;font-size:30px;letter-spacing:9px;color:#e7cf9a;opacity:0;animation:fadeIn 1.2s forwards;animation-delay:.2s;text-shadow:0 2px 30px rgba(201,179,126,.22);}
+#intro .is{font-size:13px;color:#9a92ad;letter-spacing:5px;opacity:0;animation:fadeIn 1.2s forwards;animation-delay:1.1s;line-height:2;}
+#intro .line{width:70px;height:1px;background:linear-gradient(90deg,transparent,#c9b37e,transparent);opacity:0;animation:fadeIn 1s forwards;animation-delay:.9s;}
+#intro .skip{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);font-size:11px;color:#7c786e;letter-spacing:2px;border:1px solid rgba(201,179,126,.25);border-radius:20px;padding:7px 20px;}
+@keyframes fadeIn{to{opacity:1;}}
+
+/* ============ 昼夜主题切换 ============ */
+body.day #hub{background:radial-gradient(ellipse at 50% 26%, #2b2540 0%, #1b1730 55%, #141120 100%);}
+body.day #intro{background:radial-gradient(ellipse at 50% 30%, #2b2540 0%, #141120 70%);}
+body.day h1,body.day #intro .it{color:#d9caff;}
+body.day .sub,body.day .foot{color:#8f86a8;}
+body.day .mode{background:rgba(255,255,255,.06);border-color:rgba(184,146,255,.35);}
+body.day .mode .t{color:#efe6ff;}
+body.day .logo-ring{color:#b28aff;border-color:rgba(178,138,255,.6);box-shadow:0 0 50px rgba(178,138,255,.22);}
+body.day .mode:hover{border-color:#58d6a0;box-shadow:0 16px 48px rgba(0,0,0,.45);}
+body.day .mode .go{color:#58d6a0;border-color:rgba(88,214,160,.5);}
+body.day .mode:hover .go{background:#58d6a0;color:#0b0f0d;}
+body.day .links button{border-color:rgba(184,146,255,.4);}
+body.day .links button:hover{color:#58d6a0;border-color:#58d6a0;}
+body.day .gold-line{background:linear-gradient(90deg,transparent,#b28aff,transparent);}
+body.day .stars span{background:#a8cfff;}
+</style>
+</head>
+<body>
+
+<!-- 开场叙事（可跳过） -->
+<div id="intro">
+  <div class="it">🌙 鲸鱼昼夜</div>
+  <div class="line"></div>
+  <div class="is">万卡集群 · 亿万次心跳<br>他的世界 × 他的故事，今夜为你点亮</div>
+  <div class="skip">点 击 开 始 →</div>
+</div>
+
+<!-- 主菜单 -->
+<div id="hub">
+  <div class="stars" id="stars"></div>
+  <div class="frame-l"></div><div class="frame-r"></div>
+  <div class="logo-ring">🌙</div>
+  <h1>陈深 · 人间烟火</h1>
+  <div class="sub">WHALE & DAY · 鲸鱼昼夜 · 万卡集群的亿万次心跳</div>
+  <div class="gold-line"></div>
+
+  <div class="modes">
+    <div class="mode" id="modeWorld">
+      <span class="badge">探索</span>
+      <div class="icon">🌌</div>
+      <div class="t">他的世界</div>
+      <div class="d">从欧式别墅到中关村、伦敦、清华……<br>一栋栋房间、一件件旧物，散落着待找回的彩蛋。</div>
+      <span class="go">进入世界 →</span>
+    </div>
+    <div class="mode" id="modeStory">
+      <span class="badge">叙事</span>
+      <div class="icon">📖</div>
+      <div class="t">他的故事</div>
+      <div class="d">章节互动 · 多重结局。<br>每一个选择都改变他与你之间那条细细的红线。</div>
+      <span class="go">翻开故事 →</span>
+    </div>
+  </div>
+
+  <div class="links">
+    <button id="themeBtn">🌙 夜</button>
+    <button id="galleryBtn">🖼 回忆图鉴</button>
+  </div>
+  <div class="foot">陈深 · 人间烟火 典藏版 —— 他的世界 × 他的故事，合二为一</div>
+</div>
+
+<!-- 游戏舞台 -->
+<div id="stage">
+  <button id="backBtn">← 返回主菜单</button>
+  <iframe id="gameFrame" allowfullscreen></iframe>
+</div>
+
+<!-- 回忆图鉴 -->
+<div id="galleryModal">
+  <div class="g-card">
+    <div class="g-head">
+      <div>
+        <h2>🖼 回忆图鉴</h2>
+        <div class="g-count" id="galCount"></div>
+      </div>
+      <button class="g-close" id="galClose">✕ 关闭</button>
+    </div>
+    <div class="g-grid" id="galGrid"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  // 星空
+  var stars=document.getElementById('stars');
+  for(var i=0;i<60;i++){var s=document.createElement('span');var sz=Math.random()*2+1;var d=(Math.random()*4+3)+'s';s.style.width=sz+'px';s.style.height=sz+'px';s.style.left=(Math.random()*100)+'%';s.style.top=(Math.random()*100)+'%';s.style.animationDuration=d;s.style.animationDelay=(Math.random()*4)+'s';stars.appendChild(s);}
+
+  var stage=document.getElementById('stage');
+  var frame=document.getElementById('gameFrame');
+  var hub=document.getElementById('hub');
+
+  function openGame(src){
+    frame.src=src;
+    hub.style.display='none';
+    stage.classList.add('show');
+  }
+  function goBack(){
+    stage.classList.remove('show');
+    hub.style.display='flex';
+    frame.src='about:blank';
+  }
+  document.getElementById('modeWorld').addEventListener('click',function(){openGame('陈深的世界V6.html');});
+  document.getElementById('modeStory').addEventListener('click',function(){openGame('陈深的故事V6.html');});
+  document.getElementById('backBtn').addEventListener('click',goBack);
+
+  // 回忆图鉴：遍历 photos 目录下所有图片
+  var PHOTO_NAMES=['CTO形象陈深.jpeg','FIT楼.jpeg','FIT楼实验室.jpeg','IMG_3370.jpeg','IMG_9186.jpeg','ROG20周年鼠标.jpg','三里屯5-新图.jpeg','中关村写字楼.jpeg','中科院计算所.jpeg','保时捷卡曼.JPG','别墅内部.jpeg','别墅内部2 加’.jpeg','别墅外观.jpeg','别墅大门.jpeg','别墅游泳池.jpeg','卡西欧手表.jpeg','卫生间 加.jpeg','卫生间1.jpeg','卫生间图2换这个.jpeg','卫生间末.jpeg','吊灯.JPG','啤啤猫烧烤.jpeg','外星人键盘2.JPG','奔驰S 加.jpeg','威海海鲜.JPG','威海龙虾.JPG','宇宙图-pinterest.jpg','实验室包.jpeg','客厅.JPG','客厅2.jpeg','小龙虾1.jpeg','工位.JPG','布偶1.JPG','布偶2.JPG','布偶3.JPG','布偶4.JPG','布达佩斯.jpeg','度假海边.jpeg','故宫.jpeg','李兆基科技大楼.jpeg','梅花.jpeg','海边香槟烤章鱼.jpeg','清华2026毕业典礼.jpeg','清华主楼.jpeg','清华南门.jpeg','清华学堂2.jpeg','清华时光.jpeg','清华毕业长跑纪念牌.jpeg','清华紫色共享单车.jpeg','清华艺术博物馆.jpeg','清华黑天鹅.jpeg','清芬园.jpeg','清青快餐.jpeg','游戏角色.jpeg','父母房间换这个.jpeg','电竞图1-雷蛇V3Pro.jpg','老婆的裙子.JPG','老婆的裙子4.jpeg','老婆的裙子5.jpeg','老婆的银杏手链-陈深送的.jpeg','花家怡园 外景.jpeg','花家怡园烤鸭.jpeg','花家怡园鸭方.jpeg','花家怡园鹅肝.jpeg','融科1.jpeg','融科2.jpeg','融科C座.jpeg','融科C座大鲸鱼.jpeg','融科c标牌.jpeg','融科小吊梨汤果球虾.jpeg','融科小吊梨汤烤鸭.jpeg','融科小吊梨汤酸菜软骨.jpeg','融科小桥流水.jpeg','融科钟书阁.jpeg','迈巴赫.jpeg','迪士尼.jpeg','钢琴.jpeg','陈深少年形象.jpeg','黑色大衣.jpg'];
+  var modal=document.getElementById('galleryModal');
+  var grid=document.getElementById('galGrid');
+  document.getElementById('galleryBtn').addEventListener('click',function(){
+    grid.innerHTML='';
+    PHOTO_NAMES.forEach(function(nm){
+      var it=document.createElement('div');it.className='g-item';
+      var img=document.createElement('img');img.loading='lazy';img.src='photos/'+encodeURI(nm);img.alt=nm;
+      img.onerror=function(){this.style.display='none';};
+      var cap=document.createElement('div');cap.className='cap';cap.textContent=nm.replace(/\.[^.]+$/,'');
+      it.appendChild(img);it.appendChild(cap);grid.appendChild(it);
+    });
+    document.getElementById('galCount').textContent='共 '+PHOTO_NAMES.length+' 张私人回忆';
+    modal.classList.add('show');
+  });
+  document.getElementById('galClose').addEventListener('click',function(){modal.classList.remove('show');});
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.classList.remove('show');});
+
+  // Esc 返回主菜单
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&stage.classList.contains('show'))goBack();});
+
+  // 开场叙事（点击/回车跳过）
+  var intro=document.getElementById('intro');
+  function dismissIntro(){ intro.classList.add('hide'); setTimeout(function(){intro.style.display='none';},950); }
+  intro.addEventListener('click', dismissIntro);
+  document.addEventListener('keydown',function(e){ if((e.key==='Enter'||e.key===' ')&&intro.style.display!=='none') dismissIntro(); });
+
+  // 昼夜主题切换（记忆偏好）
+  var themeBtn=document.getElementById('themeBtn');
+  var savedTheme='night'; try{ savedTheme=localStorage.getItem('cs_theme')||'night'; }catch(e){}
+  if(savedTheme==='day'){ document.body.classList.add('day'); themeBtn.textContent='☀️ 昼'; }
+  themeBtn.addEventListener('click',function(){
+    var isDay=document.body.classList.toggle('day');
+    themeBtn.textContent=isDay?'☀️ 昼':'🌙 夜';
+    try{ localStorage.setItem('cs_theme', isDay?'day':'night'); }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

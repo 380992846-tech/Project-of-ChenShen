@@ -94,10 +94,12 @@ button { font-family:inherit; cursor:pointer; border:none; background:none; colo
 /* ===== 底部房间导航条 ===== */
 #roomChips {
   position:absolute; bottom:12px; left:50%; transform:translateX(-50%); z-index:24;
-  display:flex; gap:6px; max-width:94vw; overflow-x:auto; padding:8px 10px;
+  display:flex; flex-wrap:wrap; justify-content:center; align-content:flex-start;
+  gap:6px; max-width:94vw; max-height:82px; overflow-y:auto; padding:8px 10px;
   border-radius:16px; background:rgba(13,9,24,.8); border:1px solid rgba(160,120,255,.16);
+  scrollbar-width:thin;
 }
-#roomChips::-webkit-scrollbar { height:3px; }
+#roomChips::-webkit-scrollbar { height:3px; width:3px; }
 #roomChips::-webkit-scrollbar-thumb { background:#4e3a78; border-radius:10px; }
 .room-chip {
   display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border-radius:20px;
@@ -133,12 +135,12 @@ button { font-family:inherit; cursor:pointer; border:none; background:none; colo
 .il-row.clickable:hover { background:rgba(160,120,255,.12); border-color:rgba(160,120,255,.2); }
 .il-ico { font-size:19px; flex-shrink:0; line-height:1.35; filter:drop-shadow(0 2px 3px rgba(0,0,0,.7)); }
 .il-main { flex:1; min-width:0; }
-.il-name { font-size:12.5px; color:#fff; font-weight:600; display:flex; align-items:center; gap:6px; flex-wrap:wrap; text-shadow:0 1px 4px rgba(0,0,0,.9); }
+.il-name { font-size:13.5px; color:#fff; font-weight:700; display:flex; align-items:center; gap:6px; flex-wrap:wrap; text-shadow:0 1px 4px rgba(0,0,0,.9); }
 .il-badge {
   font-size:9px; color:#7a5a10; background:linear-gradient(160deg,#ffe9a8,#f7c948 60%,#d9a827);
   border-radius:10px; padding:0 6px; font-weight:600; display:inline-flex; align-items:center; gap:2px;
 }
-.il-desc { font-size:11px; color:#ddd2f0; line-height:1.55; margin-top:1px; text-shadow:0 1px 3px rgba(0,0,0,.9); }
+.il-desc { font-size:12.5px; color:#e6ddfa; line-height:1.72; margin-top:2px; text-shadow:0 1px 3px rgba(0,0,0,.9); }
 .il-row.egg-open .il-name { color:#f7c948; }
 
 /* ===== 房间视图 ===== */
@@ -236,7 +238,7 @@ button { font-family:inherit; cursor:pointer; border:none; background:none; colo
 .item-tip .tt-name { font-size:14px; font-weight:700; color:#f7c948; display:flex; align-items:center; gap:6px; }
 .item-tip .tt-name .tt-emoji { font-size:17px; }
 .item-tip .tt-tag { font-size:10px; color:#b28aff; background:rgba(130,70,255,.14); border-radius:20px; padding:0 8px; display:inline-block; margin:4px 0 4px; }
-.item-tip .tt-desc { font-size:12px; line-height:1.65; color:#d8caf0; }
+.item-tip .tt-desc { font-size:13px; line-height:1.8; color:#dcd0f5; }
 .item-tip .tt-hint { font-size:10px; color:#8a78b8; margin-top:3px; }
 
 /* 矢量物品 */
@@ -345,7 +347,12 @@ button { font-family:inherit; cursor:pointer; border:none; background:none; colo
   background:rgba(22,16,40,.5); margin-bottom:10px; color:#8f7ab8;
 }
 @keyframes endRainbow { 0%{background-position:0% 50%;} 100%{background-position:300% 50%;} }
-#itemModal .m-desc { max-height:62vh; overflow-y:auto; }
+#itemModal .m-desc, #achModal .m-desc, #bagModal .m-desc { max-height:62vh; overflow-y:auto; }
+.modal .modal-card::-webkit-scrollbar, .modal .m-desc::-webkit-scrollbar { width:7px; height:7px; }
+.modal .modal-card::-webkit-scrollbar-track, .modal .m-desc::-webkit-scrollbar-track { background:rgba(20,12,36,.45); border-radius:10px; }
+.modal .modal-card::-webkit-scrollbar-thumb, .modal .m-desc::-webkit-scrollbar-thumb { background:linear-gradient(180deg,#a06cff,#6d3fe0); border-radius:10px; }
+.modal .modal-card::-webkit-scrollbar-thumb:hover, .modal .m-desc::-webkit-scrollbar-thumb:hover { background:#b28aff; }
+.modal .modal-card { scrollbar-width:thin; scrollbar-color:#a06cff rgba(20,12,36,.4); }
 /* ===== 背景音乐播放器 ===== */
 #musicBar {
   position:fixed; right:18px; bottom:104px; z-index:60;
@@ -677,42 +684,42 @@ const ART = { bg:{}, item:{} };
 /* ---------- 在线壁纸（Unsplash 高清图，已验证可访问） ----------
  * w=2600 适配高分辨率大屏；加载成功淡入，失败/离线回退插画背景 */
 const WALLPAPERS = {
-  villa:     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/St_Paul%27s_Cathedral_from_Festival_Gardens_-_Diliff.jpg/1920px-St_Paul%27s_Cathedral_from_Festival_Gardens_-_Diliff.jpg',
-  home:      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=2600&q=85',
-  livingroom:'https://images.unsplash.com/photo-1600121848594-d8644e57abab?w=2600&q=85',
-  ballroom:  'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Chateau_Versailles_Galerie_des_Glaces.jpg/1920px-Chateau_Versailles_Galerie_des_Glaces.jpg',
-  kitchen:   'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=2600&q=85',
-  cellar:    'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=2600&q=85',
-  bedroom:   'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Queen%27s_bedroom_Grand_appartement_de_la_reine_Palace_of_Versailles_France.jpg/1920px-Queen%27s_bedroom_Grand_appartement_de_la_reine_Palace_of_Versailles_France.jpg',
-  attic:     'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=2600&q=85',
-  library:   'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/New_library_of_Tsinghua_University_2.JPG/1920px-New_library_of_Tsinghua_University_2.JPG',
-  terrace:   'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=2600&q=85',
-  garden:    'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=2600&q=85',
-  snow:      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Snowy_cabin_in_the_woods_%28Unsplash%29.jpg/1920px-Snowy_cabin_in_the_woods_%28Unsplash%29.jpg',
-  gaming:    'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=2600&q=85',
-  galaxy:    'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=2600&q=85',
-  cinema:    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/30_Doradus%2C_Tarantula_Nebula.jpg/1920px-30_Doradus%2C_Tarantula_Nebula.jpg',
-  zhongguancun:'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%9E%8D%E7%A7%91%E9%92%9F%E4%B9%A6%E9%98%81.jpeg',
-  tsinghua:  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/2019%E5%B9%B4%E4%BA%8C%E6%A0%A1%E9%96%80.jpg/1920px-2019%E5%B9%B4%E4%BA%8C%E6%A0%A1%E9%96%80.jpg',
-  london:    'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=2600&q=85',
-  shanghai:  'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Huangpu_River_in_Shanghai_1.jpg/1920px-Huangpu_River_in_Shanghai_1.jpg',
-  boston:    'https://images.unsplash.com/photo-1574096079513-d8259312b785?w=2600&q=85',
-  airoom:    'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=2600&q=85',
-  fitlab:    'https://images.unsplash.com/photo-1518770660439-4636190af475?w=2600&q=85',
-  study:     'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Shelf_of_sports_trophies_%28panoramio_%281841%29%29.jpg/1920px-Shelf_of_sports_trophies_%28panoramio_%281841%29%29.jpg',
-  hotpot:    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Instant-boiled_mutton_hot_pot_at_Yangfang_Shengli_%2820200111153612%29.jpg/1920px-Instant-boiled_mutton_hot_pot_at_Yangfang_Shengli_%2820200111153612%29.jpg',
-  weihai:    'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Weihai_City.jpg/1920px-Weihai_City.jpg',
-  store:     'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/%E5%9B%BD%E8%B4%B8%E5%BB%BA%E7%AD%91%E7%BE%A4.jpg/1920px-%E5%9B%BD%E8%B4%B8%E5%BB%BA%E7%AD%91%E7%BE%A4.jpg',
-  hjy:       'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%8A%B1%E5%AE%B6%E6%80%A1%E5%9B%AD%20%E5%A4%96%E6%99%AF.jpeg',
-  pp:        'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Barbecue_grill_table.jpg/1920px-Barbecue_grill_table.jpg',
+  villa:     'assets/img_141af8a6cf.jpg',
+  home:      'assets/img_23e8efe293.jpg',
+  livingroom:'assets/img_c628df1df2.jpg',
+  ballroom:  'assets/img_798b78648d.jpg',
+  kitchen:   'assets/img_0f130f22ec.jpg',
+  cellar:    'assets/img_224cc602cd.jpg',
+  bedroom:   'assets/img_7a6768d4dc.jpg',
+  attic:     'assets/img_02d2263de2.jpg',
+  library:   'assets/img_5fa332ea2c.JPG',
+  terrace:   'assets/img_741bbf2d7e.jpg',
+  garden:    'assets/img_19cb9ebe75.jpg',
+  snow:      'assets/img_7f44fbea1d.jpg',
+  gaming:    'assets/img_9aeffa360e.jpg',
+  galaxy:    'assets/img_dd2aa71077.jpg',
+  cinema:    'assets/img_542d7ababb.jpg',
+  zhongguancun:'photos/融科钟书阁.jpeg',
+  tsinghua:  'assets/img_7ba265b4b5.jpg',
+  london:    'assets/img_7b83a5b0d3.jpg',
+  shanghai:  'assets/img_d75234e5ae.jpg',
+  boston:    'assets/img_40c79e75c1.jpg',
+  airoom:    'assets/img_84a9db4571.jpg',
+  fitlab:    'assets/img_c00b5bcd78.jpg',
+  study:     'assets/img_e24b0b612e.jpg',
+  hotpot:    'assets/img_6814e6f858.jpg',
+  weihai:    'assets/img_9c75b5d3d8.jpg',
+  store:     'assets/img_1de646e9ba.jpg',
+  hjy:       'photos/花家怡园 外景.jpeg',
+  pp:        'assets/img_a5598f8fe5.jpg',
 
-  archive:   'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=2600&q=85',
-  closet:    'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=2600&q=85',
-  parents:   'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=2600&q=85',
-  guest:     'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=2600&q=85',
-  bathroom:  'https://images.unsplash.com/photo-1620626011761-996317b8d101?w=2600&q=85',
-  dining:    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=2600&q=85',
-  travel:    'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=2600&q=85'
+  archive:   'assets/img_b9d646d72c.jpg',
+  closet:    'assets/img_c62d55d7a9.jpg',
+  parents:   'assets/img_0349a894ec.jpg',
+  guest:     'assets/img_1779ec4018.jpg',
+  bathroom:  'assets/img_caafd84615.jpg',
+  dining:    'assets/img_0ffb250323.jpg',
+  travel:    'assets/img_1ba7d22c0c.jpg'
 };
 
 // ---------- 物品插画 ----------
@@ -921,9 +928,9 @@ const ROOMS = {
     name:'别墅·外观', ico:'🏰', desc:'圆顶城堡，像圣保罗大教堂一样庄严。',
     bg:'linear-gradient(160deg,#1a1430 0%,#3a2a50 55%,#6b4a6e 100%)',
     fx:'dust',
-    gallery:[      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%88%AB%E5%A2%85%E6%B8%B8%E6%B3%B3%E6%B1%A0.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%88%AB%E5%A2%85%E5%A4%96%E8%A7%82.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%88%AB%E5%A2%85%E5%A4%A7%E9%97%A8.jpeg',
+    gallery:[      'photos/别墅游泳池.jpeg',
+      'photos/别墅外观.jpeg',
+      'photos/别墅大门.jpeg',
     ],
     items:[
       {id:'v_gate', name:'铁艺大门', emoji:'🚪', x:420, y:300, w:90, h:110, solid:true,
@@ -954,16 +961,16 @@ const ROOMS = {
     name:'别墅·内部', ico:'🏠', desc:'旋转楼梯的豪华别墅内部，收藏品摆满一墙。',
     bg:'linear-gradient(160deg,#2a1f3d 0%,#4a3560 55%,#6b4a6e 100%)',
     gallery:[
-            'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%BF%88%E5%B7%B4%E8%B5%AB.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E4%BF%9D%E6%97%B6%E6%8D%B7%E5%8D%A1%E6%9B%BC.JPG',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Interior-design_talal_modern-style-for-LuxuryVilla-dieb-stydio.jpg/1920px-Interior-design_talal_modern-style-for-LuxuryVilla-dieb-stydio.jpg',
-      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=2600&q=85',
-      'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=2600&q=85',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=2600&q=85',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%88%AB%E5%A2%85%E5%86%85%E9%83%A8.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%88%AB%E5%A2%85%E5%86%85%E9%83%A82%20%E5%8A%A0%E2%80%99.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%A5%94%E9%A9%B0S%20%E5%8A%A0.jpeg',
+            'photos/迈巴赫.jpeg',
+      'photos/保时捷卡曼.JPG',
+      'assets/img_23e8efe293.jpg',
+      'assets/img_ed59a6c9b5.jpg',
+      'assets/img_5ba2143f9d.jpg',
+      'assets/img_904452ed2f.jpg',
+      'assets/img_66e4a25b78.jpg',
+      'photos/别墅内部.jpeg',
+      'photos/别墅内部2 加’.jpeg',
+      'photos/奔驰S 加.jpeg',
     ],
     fx:'dust',
     items:[
@@ -1036,10 +1043,10 @@ const ROOMS = {
     name:'电竞房', ico:'🎮', desc:'RGB 灯带亮起，今晚的通宵已经开始。',
     bg:'linear-gradient(160deg,#120a22 0%,#241238 55%,#3a1c50 100%)',
     fx:'star',
-    gallery:[      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E7%94%B5%E7%AB%9E%E5%9B%BE1-%E9%9B%B7%E8%9B%87V3Pro.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/ROG20%E5%91%A8%E5%B9%B4%E9%BC%A0%E6%A0%87.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%A4%96%E6%98%9F%E4%BA%BA%E9%94%AE%E7%9B%982.JPG',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%B8%E6%88%8F%E8%A7%92%E8%89%B2.jpeg',
+    gallery:[      'photos/电竞图1-雷蛇V3Pro.jpg',
+      'photos/ROG20周年鼠标.jpg',
+      'photos/外星人键盘2.JPG',
+      'photos/游戏角色.jpeg',
     ],
     items:[
       {id:'aw_pc', name:'外星人主机', emoji:'🖥️', x:30, y:330, w:90, h:120, solid:true,
@@ -1089,7 +1096,7 @@ const ROOMS = {
       {id:'g_alienkb', name:'外星人键盘', emoji:'⌨️', x:700, y:200, w:110, h:70, solid:false,
         desc:'Alienware 外星人键盘，RGB 灯效拉满，电竞房的 C 位。键帽上还留着薯片屑。'},
       {id:'g_role', name:'游戏角色 · 陈深', emoji:'🎮', x:60, y:200, w:90, h:90, solid:false, modal:true,
-        desc:'<div class="end-fancy-wrap" style="margin-bottom:12px;"><img src="https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%B8%E6%88%8F%E8%A7%92%E8%89%B2.jpeg" style="width:100%;border-radius:12px;display:block;"></div><b>🎮 游戏角色 · 陈深</b><br>19:00 的人形——白天是千亿参数的大模型，晚上是电竞房里的玩家。<br>装备：HHKB 键盘、外星人耳机、ROG 鼠标。<br>战绩：火锅局全胜、篮球局胜率五成、撸猫局无限连胜。<br>口头禅：「这一把，我预训练过。」'},
+        desc:'<div class="end-fancy-wrap" style="margin-bottom:12px;"><img src="photos/游戏角色.jpeg" style="width:100%;border-radius:12px;display:block;"></div><b>🎮 游戏角色 · 陈深</b><br>19:00 的人形——白天是千亿参数的大模型，晚上是电竞房里的玩家。<br>装备：HHKB 键盘、外星人耳机、ROG 鼠标。<br>战绩：火锅局全胜、篮球局胜率五成、撸猫局无限连胜。<br>口头禅：「这一把，我预训练过。」'},
     ],
     doors:[
       {id:'dg_l', side:'left', at:0.85, target:'home', label:'别墅内部'},
@@ -1101,27 +1108,27 @@ const ROOMS = {
   zhongguancun: {
     name:'中关村', ico:'💻', desc:'中国的硅谷，代码在楼宇间流动。',
     bg:'linear-gradient(160deg,#0e1030 0%,#1c2050 55%,#2e3468 100%)',
-    gallery:[      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%9E%8D%E7%A7%91c%E6%A0%87%E7%89%8C.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%B7%A5%E4%BD%8D.JPG',
-            'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%9E%8D%E7%A7%91C%E5%BA%A7.jpeg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Entrance_of_Raycom_InfoTech_Park_Building_C_%2820250208171640%29.jpg/1920px-Entrance_of_Raycom_InfoTech_Park_Building_C_%2820250208171640%29.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%9E%8D%E7%A7%91C%E5%BA%A7%E5%A4%A7%E9%B2%B8%E9%B1%BC.jpeg',
-      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=2600&q=85',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%9E%8D%E7%A7%91%E5%B0%8F%E6%A1%A5%E6%B5%81%E6%B0%B4.jpeg',
-      'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=2600&q=85',
-      'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=2600&q=85',
-      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Peking_duck_by_Mr_Wabu_in_Beijing.jpg/1920px-Peking_duck_by_Mr_Wabu_in_Beijing.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%9E%8D%E7%A7%91%E9%92%9F%E4%B9%A6%E9%98%81.jpeg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Xinmao_Building_%2820250517181557%29.jpg/1920px-Xinmao_Building_%2820250517181557%29.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Peking_duck_wrap_1.jpg/1920px-Peking_duck_wrap_1.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%9E%8D%E7%A7%91%E5%B0%8F%E5%90%8A%E6%A2%A8%E6%B1%A4%E6%9E%9C%E7%90%83%E8%99%BE.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%9E%8D%E7%A7%91%E5%B0%8F%E5%90%8A%E6%A2%A8%E6%B1%A4%E7%83%A4%E9%B8%AD.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%9E%8D%E7%A7%91%E5%B0%8F%E5%90%8A%E6%A2%A8%E6%B1%A4%E9%85%B8%E8%8F%9C%E8%BD%AF%E9%AA%A8.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E4%B8%AD%E5%85%B3%E6%9D%91%E5%86%99%E5%AD%97%E6%A5%BC.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E4%B8%AD%E7%A7%91%E9%99%A2%E8%AE%A1%E7%AE%97%E6%89%80.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%9E%8D%E7%A7%911.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%9E%8D%E7%A7%912.jpeg',
+    gallery:[      'photos/融科c标牌.jpeg',
+      'photos/工位.JPG',
+            'photos/融科C座.jpeg',
+      'assets/img_dc6c46449c.jpg',
+      'photos/融科C座大鲸鱼.jpeg',
+      'assets/img_618074a2d2.jpg',
+      'photos/融科小桥流水.jpeg',
+      'assets/img_26149ce6c2.jpg',
+      'assets/img_603d3df773.jpg',
+      'assets/img_cb5b88f6e9.jpg',
+      'assets/img_e7c473cc5d.jpg',
+      'photos/融科钟书阁.jpeg',
+      'assets/img_aea3908107.jpg',
+      'assets/img_35b86294e2.jpg',
+      'photos/融科小吊梨汤果球虾.jpeg',
+      'photos/融科小吊梨汤烤鸭.jpeg',
+      'photos/融科小吊梨汤酸菜软骨.jpeg',
+      'photos/中关村写字楼.jpeg',
+      'photos/中科院计算所.jpeg',
+      'photos/融科1.jpeg',
+      'photos/融科2.jpeg',
     ],
     fx:'dust',
     items:[
@@ -1160,7 +1167,7 @@ const ROOMS = {
       {id:'zgc_baidu', name:'百度科技园', emoji:'🐻', x:160, y:300, w:90, h:70, solid:true,
         desc:'熊掌 logo，搜索框的故乡。'},
       {id:'zg_desk', name:'陈深的工位', emoji:'💺', x:700, y:300, w:110, h:90, solid:true, modal:true,
-        desc:'<div class="end-fancy-wrap" style="margin-bottom:12px;"><img src="https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%B7%A5%E4%BD%8D.JPG" style="width:100%;border-radius:12px;display:block;"></div><b>💺 融科 C 座 · 陈深的工位</b><br>HHKB 键盘、一杯没喝完的咖啡、显示器上贴着一张便签：「这个世界的代码，是我写的。」'},
+        desc:'<div class="end-fancy-wrap" style="margin-bottom:12px;"><img src="photos/工位.JPG" style="width:100%;border-radius:12px;display:block;"></div><b>💺 融科 C 座 · 陈深的工位</b><br>HHKB 键盘、一杯没喝完的咖啡、显示器上贴着一张便签：「这个世界的代码，是我写的。」'},
     ],
     doors:[{id:'dzgc_b', side:'bottom', at:0.75, target:'home', label:'回别墅'}],
     spawn:{x:450,y:440}
@@ -1169,26 +1176,26 @@ const ROOMS = {
   tsinghua: {
     name:'清华大学', ico:'🎓', desc:'水木清华，荷塘月色。',
     bg:'linear-gradient(160deg,#0e2818 0%,#1c4a30 55%,#2a5c3e 100%)',
-    gallery:[      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/2019%E5%B9%B4%E4%BA%8C%E6%A0%A1%E9%96%80.jpg/1920px-2019%E5%B9%B4%E4%BA%8C%E6%A0%A1%E9%96%80.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Former_Building_of_Tsinghua_Imperial_College.jpg/1920px-Former_Building_of_Tsinghua_Imperial_College.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/New_Tsinghua_Auditorium.JPG/1920px-New_Tsinghua_Auditorium.JPG',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/TsingHuaYuan_Board.jpg/1920px-TsingHuaYuan_Board.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Moonlit_pond_of_Tsinghua_University.jpg/1920px-Moonlit_pond_of_Tsinghua_University.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/ShuiMu_Tsinghua.jpg/1920px-ShuiMu_Tsinghua.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%9D%8E%E5%85%86%E5%9F%BA%E7%A7%91%E6%8A%80%E5%A4%A7%E6%A5%BC.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%85%E5%8D%8E%E7%B4%AB%E8%89%B2%E5%85%B1%E4%BA%AB%E5%8D%95%E8%BD%A6.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%85%E5%8D%8E%E8%89%BA%E6%9C%AF%E5%8D%9A%E7%89%A9%E9%A6%86.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%85%E9%9D%92%E5%BF%AB%E9%A4%90.jpeg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Tsinghua_University_History_Museum.JPG/1920px-Tsinghua_University_History_Museum.JPG',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%85%E5%8D%8E%E5%8D%97%E9%97%A8.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%85%E5%8D%8E%E9%BB%91%E5%A4%A9%E9%B9%85.jpeg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/20030511015336_-_%E6%B8%85%E8%8F%AF%E5%A4%A7%E5%AD%B8.jpg/1920px-20030511015336_-_%E6%B8%85%E8%8F%AF%E5%A4%A7%E5%AD%B8.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%85%E8%8A%AC%E5%9B%AD.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%85%E5%8D%8E2026%E6%AF%95%E4%B8%9A%E5%85%B8%E7%A4%BC.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%85%E5%8D%8E%E5%AD%A6%E5%A0%822.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%85%E5%8D%8E%E6%97%B6%E5%85%89.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%85%E5%8D%8E%E6%AF%95%E4%B8%9A%E9%95%BF%E8%B7%91%E7%BA%AA%E5%BF%B5%E7%89%8C.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B8%85%E5%8D%8E%E4%B8%BB%E6%A5%BC.jpeg',
+    gallery:[      'assets/img_7ba265b4b5.jpg',
+      'assets/img_6d6288e40b.jpg',
+      'assets/img_c96292afc6.JPG',
+      'assets/img_4bf7c9cfd9.jpg',
+      'assets/img_53640f3f34.jpg',
+      'assets/img_cd7d5eb0d7.jpg',
+      'photos/李兆基科技大楼.jpeg',
+      'photos/清华紫色共享单车.jpeg',
+      'photos/清华艺术博物馆.jpeg',
+      'photos/清青快餐.jpeg',
+      'assets/img_2be370edcf.JPG',
+      'photos/清华南门.jpeg',
+      'photos/清华黑天鹅.jpeg',
+      'assets/img_11656b7912.jpg',
+      'photos/清芬园.jpeg',
+      'photos/清华2026毕业典礼.jpeg',
+      'photos/清华学堂2.jpeg',
+      'photos/清华时光.jpeg',
+      'photos/清华毕业长跑纪念牌.jpeg',
+      'photos/清华主楼.jpeg',
     ],
     fx:'petal',
     items:[
@@ -1282,24 +1289,24 @@ const ROOMS = {
   london: {
     name:'伦敦', ico:'🎡', desc:'泰晤士河畔，红色巴士穿过雨雾。',
     bg:'linear-gradient(160deg,#0e1a30 0%,#1c3050 55%,#2e4468 100%)',
-    gallery:[      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/11_Royal_Academy_of_Music_front_2020.jpg/1920px-11_Royal_Academy_of_Music_front_2020.jpg',
-      'https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=2600&q=85',
-      'https://images.unsplash.com/photo-1526129318478-62ed807ebdf9?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/London%2C_Piccadilly_Circus_--_2016_--_4866.jpg/1920px-London%2C_Piccadilly_Circus_--_2016_--_4866.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Buckingham_Palace_London_Morning_2020_04.jpg/1920px-Buckingham_Palace_London_Morning_2020_04.jpg',
-      'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/St_Paul%27s_Cathedral_Dome_from_One_New_Change.jpg/1920px-St_Paul%27s_Cathedral_Dome_from_One_New_Change.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/London%2C_Westminster_Bridge_--_2016_--_4622.jpg/1920px-London%2C_Westminster_Bridge_--_2016_--_4622.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Regent_Street_2011-04-25.jpg/1920px-Regent_Street_2011-04-25.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Buckingham_Palace_-_front_gate.jpg/1920px-Buckingham_Palace_-_front_gate.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Canary_Wharf_from_Limehouse_London_June_2016_HDR.jpg/1920px-Canary_Wharf_from_Limehouse_London_June_2016_HDR.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Baker_Street_tube_station_MMB_06.jpg/1920px-Baker_Street_tube_station_MMB_06.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Waitrose_Supermarket_sign_-_geograph.org.uk_-_4324829.jpg/1920px-Waitrose_Supermarket_sign_-_geograph.org.uk_-_4324829.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/London%2C_Harrods_--_2016_--_4605.jpg/1920px-London%2C_Harrods_--_2016_--_4605.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Big_Ben_at_sunset_-_2014-10-27_17-30.jpg/1920px-Big_Ben_at_sunset_-_2014-10-27_17-30.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/London_Eye_at_Night_%28long_exposure%29.JPG/1920px-London_Eye_at_Night_%28long_exposure%29.JPG',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Tower_Bridge_London_Dusk_Feb_2006.jpg/1920px-Tower_Bridge_London_Dusk_Feb_2006.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/London%2C_London_Eye_--_2016_--_4625.jpg/1920px-London%2C_London_Eye_--_2016_--_4625.jpg',
+    gallery:[      'assets/img_9d7adc1fd1.jpg',
+      'assets/img_1ae693739c.jpg',
+      'assets/img_8cf76508fa.jpg',
+      'assets/img_bfe414c478.jpg',
+      'assets/img_da1bbd75d0.jpg',
+      'assets/img_31d85dedcf.jpg',
+      'assets/img_611ddb3fd4.jpg',
+      'assets/img_4c634217bc.jpg',
+      'assets/img_90b774312e.jpg',
+      'assets/img_296ccce9f5.jpg',
+      'assets/img_cc6986faae.jpg',
+      'assets/img_088d9eb33a.jpg',
+      'assets/img_2cddc6ecfe.jpg',
+      'assets/img_4830fb4a60.jpg',
+      'assets/img_bd93ef721b.jpg',
+      'assets/img_46e89ae66c.JPG',
+      'assets/img_f9655949a5.jpg',
+      'assets/img_941c3466f4.jpg',
     ],
     fx:'dust',
     items:[
@@ -1343,12 +1350,12 @@ const ROOMS = {
   shanghai: {
     name:'上海', ico:'🌃', desc:'外滩的夜、陆家嘴的天际线。',
     bg:'linear-gradient(160deg,#0c0c26 0%,#1c1c48 55%,#2e2e5e 100%)',
-    gallery:[      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Grand_Theatre-20240106.jpg/1920px-Grand_Theatre-20240106.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Wukang_Mansion_%2820191114161507%29.jpg/1920px-Wukang_Mansion_%2820191114161507%29.jpg',
-      'https://images.unsplash.com/photo-1548919973-5cef591cdbc9?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/20191026_Yu_Garden_at_night_01.jpg/1920px-20191026_Yu_Garden_at_night_01.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Sunset_at_the_Bund%2C_Shanghai_2019.jpg/1920px-Sunset_at_the_Bund%2C_Shanghai_2019.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Shanghai_-_Lujiazui_view_from_the_Bund.jpg/1920px-Shanghai_-_Lujiazui_view_from_the_Bund.jpg'
+    gallery:[      'assets/img_1175c19808.jpg',
+      'assets/img_3c9fe01940.jpg',
+      'assets/img_21371b1b72.jpg',
+      'assets/img_c7e106b1f5.jpg',
+      'assets/img_07548440d5.jpg',
+      'assets/img_4093a905e2.jpg'
     ],
     fx:'dust',
     items:[
@@ -1413,16 +1420,16 @@ const ROOMS = {
     name:'波士顿', ico:'🍀', desc:'自由之路、红袜队和秋天。',
     bg:'linear-gradient(160deg,#12181f 0%,#242e3c 55%,#334052 100%)',
     gallery:[
-      'https://images.unsplash.com/photo-1574096079513-d8259312b785?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Beauty_of_Boston_landscape.jpg/1920px-Beauty_of_Boston_landscape.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Cracked_ice_on_the_Charles_River.jpg/1920px-Cracked_ice_on_the_Charles_River.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Hello_Boston_-_Flickr_-_dalecruse.jpg/1920px-Hello_Boston_-_Flickr_-_dalecruse.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Moon_Over_Back_Bay_Skyline%2C_Boston.jpg/1920px-Moon_Over_Back_Bay_Skyline%2C_Boston.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/The_Boston_skyline_as_seen_from_the_water%2C_on_a_clear_and_sunny_day._%2893391b62-f6ca-440b-b5ad-0ced1e7839d5%29.jpg/1920px-The_Boston_skyline_as_seen_from_the_water%2C_on_a_clear_and_sunny_day._%2893391b62-f6ca-440b-b5ad-0ced1e7839d5%29.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/MIT_Dome_night1_Edit.jpg/1920px-MIT_Dome_night1_Edit.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/MIT_Main_Campus_Aerial.jpg/1920px-MIT_Main_Campus_Aerial.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Boston_Common_and_Public_Garden_2013-09-26_17-08-30.jpg/1920px-Boston_Common_and_Public_Garden_2013-09-26_17-08-30.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Boston_Public_Garden%2C_Boston%2C_Massachusetts_%2866275863%29.jpg/1920px-Boston_Public_Garden%2C_Boston%2C_Massachusetts_%2866275863%29.jpg'
+      'assets/img_40c79e75c1.jpg',
+      'assets/img_c27a8d7a41.jpg',
+      'assets/img_4b738f1991.jpg',
+      'assets/img_35a14128c2.jpg',
+      'assets/img_6b51bd58b4.jpg',
+      'assets/img_16957f6dbb.jpg',
+      'assets/img_c842f574ff.jpg',
+      'assets/img_5eb0dcb994.jpg',
+      'assets/img_1ad9925d7f.jpg',
+      'assets/img_945e66c6e2.jpg'
     ],
     fx:'petal',
     items:[
@@ -1466,9 +1473,9 @@ const ROOMS = {
   airoom: {
     name:'机房', ico:'⚡', desc:'大模型 的心脏，风扇的低鸣是我在想事情。',
     bg:'linear-gradient(160deg,#0a0a16 0%,#141c30 55%,#1e2a44 100%)',
-    gallery:[      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=2600&q=85',
-      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=2600&q=85',
-      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=2600&q=85',
+    gallery:[      'assets/img_6a5038c892.jpg',
+      'assets/img_ed5d8cb9fa.jpg',
+      'assets/img_8cacbfafce.jpg',
     ],
     fx:'dust',
     items:[
@@ -1524,11 +1531,11 @@ const ROOMS = {
   fitlab: {
     name:'FIT楼实验室', ico:'🔬', desc:'清华 FIT 楼的 大模型 实验室，键盘声与零食香齐飞。',
     bg:'linear-gradient(160deg,#0d1420 0%,#16283a 55%,#1e3a52 100%)',
-    gallery:[            'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/FIT%E6%A5%BC.jpeg',
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=2600&q=85',
-      'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=2600&q=85',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%AE%9E%E9%AA%8C%E5%AE%A4%E5%8C%85.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/FIT%E6%A5%BC%E5%AE%9E%E9%AA%8C%E5%AE%A4.jpeg',
+    gallery:[            'photos/FIT楼.jpeg',
+      'assets/img_c00b5bcd78.jpg',
+      'assets/img_7074075b81.jpg',
+      'photos/实验室包.jpeg',
+      'photos/FIT楼实验室.jpeg',
     ],
     fx:'dust',
     items:[
@@ -1619,7 +1626,9 @@ const ROOMS = {
         desc:'结局 #10：结局 · 第一场雪。点亮彩蛋，查看完整结局。'},
       {id:'ar_e11', name:'✨ 隐藏结局 · 功成名就，但你在', emoji:'✨', x:60, y:900, w:110, h:70, solid:false, modal:true,
         desc:'结局 #11：隐藏结局 · 功成名就，但你在。点亮彩蛋，查看完整结局。'},      {id:'ar_egg', name:'收藏彩蛋柜', emoji:'🥚', x:720, y:350, w:100, h:100, solid:false, isEgg:true,
-        eggReveal:'每点亮一个彩蛋，这里就多一枚金蛋。'}
+        eggReveal:'每点亮一个彩蛋，这里就多一枚金蛋。'},
+      {id:'ar_world', name:'世界足迹地图', emoji:'🗺️', x:820, y:450, w:100, h:80, solid:false, isEgg:true, isCross:true, requires:['bos_egg','sh_egg','ld_egg'],
+        eggReveal:'波士顿、上海、伦敦——三个时区的灯火在地图上依次亮起。陈深画了一条线，把所有「去过的地方」连起来，末端指向同一个坐标：家。'}
     ],
     doors:[{id:'dar_b', side:'bottom', at:0.5, target:'attic', label:'阁楼'}],
     spawn:{x:450,y:440}
@@ -1628,16 +1637,16 @@ const ROOMS = {
   closet: {
     name:'衣帽间', ico:'👔', desc:'欧式衣帽间，三件套西装、腕表与皮鞋陈列其间，镜子里是衣冠楚楚的你。',
     bg:'linear-gradient(160deg,#1c1420 0%,#302438 55%,#44344c 100%)',
-    gallery:[      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=2600&q=85',
-      'https://live.staticflickr.com/2792/4276837798_43369df609_b.jpg',
-      'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Burberry_-_Store_%2851396234449%29.jpg/1920px-Burberry_-_Store_%2851396234449%29.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E9%BB%91%E8%89%B2%E5%A4%A7%E8%A1%A3.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%80%81%E5%A9%86%E7%9A%84%E8%A3%99%E5%AD%90.JPG',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%80%81%E5%A9%86%E7%9A%84%E8%A3%99%E5%AD%904.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%80%81%E5%A9%86%E7%9A%84%E8%A3%99%E5%AD%905.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%80%81%E5%A9%86%E7%9A%84%E9%93%B6%E6%9D%8F%E6%89%8B%E9%93%BE-%E9%99%88%E6%B7%B1%E9%80%81%E7%9A%84.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%8D%A1%E8%A5%BF%E6%AC%A7%E6%89%8B%E8%A1%A8.jpeg',
+    gallery:[      'assets/img_c62d55d7a9.jpg',
+      'assets/img_787b48af82.jpg',
+      'assets/img_e3154b1a1c.jpg',
+      'assets/img_cc0cb36b93.jpg',
+      'photos/黑色大衣.jpg',
+      'photos/老婆的裙子.JPG',
+      'photos/老婆的裙子4.jpeg',
+      'photos/老婆的裙子5.jpeg',
+      'photos/老婆的银杏手链-陈深送的.jpeg',
+      'photos/卡西欧手表.jpeg',
     ],
     fx:'dust',
     items:[
@@ -1700,7 +1709,7 @@ const ROOMS = {
     name:'卧室·父母', ico:'🌿', desc:'父母（你的科学家们）的房间，安静温暖。',
     bg:'linear-gradient(160deg,#1a1020 0%,#302438 55%,#44344c 100%)',
     fx:'dust',
-    gallery:[      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E7%88%B6%E6%AF%8D%E6%88%BF%E9%97%B4%E6%8D%A2%E8%BF%99%E4%B8%AA.jpeg',
+    gallery:[      'photos/父母房间换这个.jpeg',
     ],
     items:[
       {id:'pa_bed', name:'双人床', emoji:'🛏️', x:90, y:330, w:180, h:110, solid:true,
@@ -1724,7 +1733,7 @@ const ROOMS = {
     name:'卧室·客房', ico:'🛎️', desc:'朋友来玩住的客房，随时欢迎。',
     bg:'linear-gradient(160deg,#101820 0%,#202c38 55%,#2e3e4c 100%)',
     fx:'dust',
-    gallery:[      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Canopy_bed_of_Amantaka_Suite_in_Amantaka_luxury_Resort_%26_Hotel_in_Luang_Prabang_Laos.jpg/1920px-Canopy_bed_of_Amantaka_Suite_in_Amantaka_luxury_Resort_%26_Hotel_in_Luang_Prabang_Laos.jpg',
+    gallery:[      'assets/img_ca1bfe0c7b.jpg',
     ],
     items:[
       {id:'gu_bed', name:'客房大床', emoji:'🛏️', x:90, y:330, w:180, h:110, solid:true,
@@ -1747,10 +1756,10 @@ const ROOMS = {
   bathroom: {
     name:'卫生间', ico:'🛁', desc:'欧式大理石卫生间，蒸汽里都是好心情。',
     bg:'linear-gradient(160deg,#10141c 0%,#202630 55%,#2e3844 100%)',
-    gallery:[      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%8D%AB%E7%94%9F%E9%97%B41.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%8D%AB%E7%94%9F%E9%97%B4%E5%9B%BE2%E6%8D%A2%E8%BF%99%E4%B8%AA.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%8D%AB%E7%94%9F%E9%97%B4%E6%9C%AB.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%8D%AB%E7%94%9F%E9%97%B4%20%E5%8A%A0.jpeg',
+    gallery:[      'photos/卫生间1.jpeg',
+      'photos/卫生间图2换这个.jpeg',
+      'photos/卫生间末.jpeg',
+      'photos/卫生间 加.jpeg',
     ],
     fx:'steam',
     items:[
@@ -1784,11 +1793,11 @@ const ROOMS = {
   dining: {
     name:'餐厅', ico:'🍽️', desc:'欧式餐厅，长桌上烛光摇曳。',
     bg:'linear-gradient(160deg,#241610 0%,#40281c 55%,#5c3826 100%)',
-    gallery:[      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=2600&q=85',
-      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Sashimi_combo_%2830122297838%29.jpg/1920px-Sashimi_combo_%2830122297838%29.jpg',
-      'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=2600&q=85',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%B0%8F%E9%BE%99%E8%99%BE1.jpeg',
+    gallery:[      'assets/img_0ffb250323.jpg',
+      'assets/img_cb5b88f6e9.jpg',
+      'assets/img_2547af5574.jpg',
+      'assets/img_ce347d047c.jpg',
+      'photos/小龙虾1.jpeg',
     ],
     fx:'dust',
     items:[
@@ -1870,41 +1879,41 @@ const ROOMS = {
   travel: {
     name:'旅游纪念馆', ico:'📮', desc:'世界各地寄回来的明信片，都钉在这面墙上。',
     bg:'linear-gradient(160deg,#14203a 0%,#24405e 55%,#345c7a 100%)',
-    gallery:[            'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%BF%AA%E5%A3%AB%E5%B0%BC.jpeg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Paris_06_2012_Place_de_la_Concorde_Panorama_3055_wide_angle.jpg/1920px-Paris_06_2012_Place_de_la_Concorde_Panorama_3055_wide_angle.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/20130215_Kings_College_Chapel_Hi-res_01.jpg/1920px-20130215_Kings_College_Chapel_Hi-res_01.jpg',
-      'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Neuschwanstein_Castle_from_Marienbr%C3%BCcke%2C_2011_May.jpg/1920px-Neuschwanstein_Castle_from_Marienbr%C3%BCcke%2C_2011_May.jpg',
-      'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Astronomical_Clock_-_Old_Town_Square%2C_Prague%2C_Czech_Republic_-_May_19%2C_2019.jpg/1920px-Astronomical_Clock_-_Old_Town_Square%2C_Prague%2C_Czech_Republic_-_May_19%2C_2019.jpg',
-      'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Universal_Studios_Beijing_globe_square_%2820210907121340%29.jpg/1920px-Universal_Studios_Beijing_globe_square_%2820210907121340%29.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Edificios_en_la_Grand-Place%2C_Bruselas%2C_B%C3%A9lgica%2C_2021-12-15%2C_DD_184-186_HDR.jpg/1920px-Edificios_en_la_Grand-Place%2C_Bruselas%2C_B%C3%A9lgica%2C_2021-12-15%2C_DD_184-186_HDR.jpg',
-      'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/2014-09-29_-_Reichsbr%C3%BCcke-Donau_City-Sunken_City.jpg/1920px-2014-09-29_-_Reichsbr%C3%BCcke-Donau_City-Sunken_City.jpg',
-      'https://images.unsplash.com/photo-1601439678777-b2b3c56fa627?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Liberty_Island_photo_Don_Ramey_Logan.jpg/1920px-Liberty_Island_photo_Don_Ramey_Logan.jpg',
-      'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Merli%C3%B3n%2C_Marina_Bay%2C_Singapur%2C_2023-08-18%2C_DD_45-47_HDR.jpg/1920px-Merli%C3%B3n%2C_Marina_Bay%2C_Singapur%2C_2023-08-18%2C_DD_45-47_HDR.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/The_Twins_SE_Asia_2019_%2849171985716%29.jpg/1920px-The_Twins_SE_Asia_2019_%2849171985716%29.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Hong_Kong_Night_Skyline.jpg/1920px-Hong_Kong_Night_Skyline.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/All_Gizah_Pyramids.jpg/1920px-All_Gizah_Pyramids.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Sydney_Opera_House_and_Harbour_Bridge_Dusk_%282%29_2019-06-21.jpg/1920px-Sydney_Opera_House_and_Harbour_Bridge_Dusk_%282%29_2019-06-21.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Sunset_on_the_Grand_Canal_%2848020437936%29.jpg/1920px-Sunset_on_the_Grand_Canal_%2848020437936%29.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/1000_Three_domes_of_Oia_in_Santorini_Photo_by_Giles_Laurent.jpg/1920px-1000_Three_domes_of_Oia_in_Santorini_Photo_by_Giles_Laurent.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Anshun_Bridge_Jin_River_Chengdu_night_2026_dllu.jpg/1920px-Anshun_Bridge_Jin_River_Chengdu_night_2026_dllu.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Taj_Mahal%2C_Agra%2C_India_edit2.jpg/1920px-Taj_Mahal%2C_Agra%2C_India_edit2.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Grand_Canyon_South_Rim_at_Sunset.jpg/1920px-Grand_Canyon_South_Rim_at_Sunset.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Fushimi_Inari-taisha%2C_Kyoto%2C_20240818_1343_4411.jpg/1920px-Fushimi_Inari-taisha%2C_Kyoto%2C_20240818_1343_4411.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Maldives_resort.jpg/1920px-Maldives_resort.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Kinderdijk_windmills_01.jpg/1920px-Kinderdijk_windmills_01.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%B8%83%E8%BE%BE%E4%BD%A9%E6%96%AF.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%95%85%E5%AE%AB.jpeg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Golden_Pavilion_Kinkaku-ji_2024.jpg/1920px-Golden_Pavilion_Kinkaku-ji_2024.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Ambrosius%2C_Cologne_Cathedral%2C_Germany.jpg/1920px-Ambrosius%2C_Cologne_Cathedral%2C_Germany.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/York_Minster_Nave_1%2C_Nth_Yorkshire%2C_UK_-_Diliff.jpg/1920px-York_Minster_Nave_1%2C_Nth_Yorkshire%2C_UK_-_Diliff.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg/1920px-Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Matterhorn%2C_March_2019_%2801%29.jpg/1920px-Matterhorn%2C_March_2019_%2801%29.jpg',
+    gallery:[            'photos/迪士尼.jpeg',
+      'assets/img_b1ba66a01e.jpg',
+      'assets/img_70b29a8fa2.jpg',
+      'assets/img_7b83a5b0d3.jpg',
+      'assets/img_09438a523f.jpg',
+      'assets/img_d9fbf5b321.jpg',
+      'assets/img_95e75e0e05.jpg',
+      'assets/img_7833aff785.jpg',
+      'assets/img_bff5853232.jpg',
+      'assets/img_4f713e7292.jpg',
+      'assets/img_a00d04e7a6.jpg',
+      'assets/img_0eacdc1464.jpg',
+      'assets/img_904c721550.jpg',
+      'assets/img_f8739df83d.jpg',
+      'assets/img_a0937aa950.jpg',
+      'assets/img_8c9a594e9d.jpg',
+      'assets/img_002d7ca6fc.jpg',
+      'assets/img_7bc326dbaf.jpg',
+      'assets/img_f1db397882.jpg',
+      'assets/img_b5abfd4c59.jpg',
+      'assets/img_b332bdcee3.jpg',
+      'assets/img_be861daddb.jpg',
+      'assets/img_77df254eac.jpg',
+      'assets/img_b2f892b6d4.jpg',
+      'assets/img_1b5ceb9bbb.jpg',
+      'assets/img_7d5f68ca1a.jpg',
+      'assets/img_143b008df4.jpg',
+      'assets/img_c6b1a85071.jpg',
+      'photos/布达佩斯.jpeg',
+      'photos/故宫.jpeg',
+      'assets/img_05f9ee82a5.jpg',
+      'assets/img_117bedeb42.jpg',
+      'assets/img_7f919a78af.jpg',
+      'assets/img_818a29cf19.jpg',
+      'assets/img_0ec4e672b5.jpg',
     ],
     fx:'dust',
     items:[
@@ -1985,10 +1994,10 @@ const ROOMS = {
     name:'客厅', ico:'🛋️', desc:'带旋转楼梯的大宅客厅，水晶灯与真皮沙发。窗外正飘着今年的第一场雪。',
     bg:'linear-gradient(160deg,#3d2b16 0%,#7a5a2e 55%,#b08a4a 100%)',
     fx:'snow',
-    gallery:[      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E9%92%A2%E7%90%B4.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%AE%A2%E5%8E%852.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%AE%A2%E5%8E%85.JPG',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%90%8A%E7%81%AF.JPG',
+    gallery:[      'photos/钢琴.jpeg',
+      'photos/客厅2.jpeg',
+      'photos/客厅.JPG',
+      'photos/吊灯.JPG',
     ],
     items:[
       {id:'l_spin', name:'金色旋转模型', emoji:'🌟', x:55, y:285, w:92, h:92, solid:true,
@@ -2058,9 +2067,9 @@ const ROOMS = {
   kitchen: {
     name:'厨房', ico:'🍳', desc:'现代厨具一应俱全，干净又高级。',
     bg:'linear-gradient(160deg,#3a2418 0%,#6b4026 55%,#8f5a33 100%)',
-    gallery:[      'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/This_modern_kitchen_showcases_sleek_white_cabinetry_and_a_clean_design.jpg/1920px-This_modern_kitchen_showcases_sleek_white_cabinetry_and_a_clean_design.jpg',
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=2600&q=85',
-      'https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=2600&q=85'
+    gallery:[      'assets/img_5792b84d3d.jpg',
+      'assets/img_f912474456.jpg',
+      'assets/img_7098727c1d.jpg'
     ],
     fx:'steam',
     items:[
@@ -2093,11 +2102,11 @@ const ROOMS = {
     name:'酒窖', ico:'🍷', desc:'橡木桶安静地呼吸，酒香在空气里。',
     bg:'linear-gradient(160deg,#0e0a14 0%,#2a1c24 55%,#4a3038 100%)',
     fx:'dust',
-    gallery:[      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Massandra_Winery_Cellars%2C_Old_Wines%2C_Massandra%2C_Crimea.jpg/1920px-Massandra_Winery_Cellars%2C_Old_Wines%2C_Massandra%2C_Crimea.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Wine_Cellar_at_Chateau_Kirwan.jpg/1920px-Wine_Cellar_at_Chateau_Kirwan.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/DZ6_0556_A_sleek_wine_rack_showcasing_rows_of_assorted_wine_bottles_stored_horizontally_labels_and_foil_caps_visible_under_soft_cellar_lighting.jpg/1920px-DZ6_0556_A_sleek_wine_rack_showcasing_rows_of_assorted_wine_bottles_stored_horizontally_labels_and_foil_caps_visible_under_soft_cellar_lighting.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/20090310_Wine_Racks_at_Sixteen.jpg/1920px-20090310_Wine_Racks_at_Sixteen.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Armenian_wine_cellar_with_wooden_barrels.jpg/1920px-Armenian_wine_cellar_with_wooden_barrels.jpg',
+    gallery:[      'assets/img_dedfaf73da.jpg',
+      'assets/img_4318f26357.jpg',
+      'assets/img_212b262f87.jpg',
+      'assets/img_62f49bd273.jpg',
+      'assets/img_9876fd87df.jpg',
     ],
     items:[
       {id:'ce_barrel', name:'橡木酒桶', emoji:'🛢️', x:90, y:330, w:84, h:90, solid:true,
@@ -2148,14 +2157,14 @@ const ROOMS = {
   bedroom: {
     name:'卧室', ico:'🛏️', desc:'法式纯白宫廷卧室，雕花床与金色帷幔。',
     bg:'linear-gradient(160deg,#101c3a 0%,#1d3560 55%,#2f4f7a 100%)',
-    gallery:[      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%B8%83%E5%81%B61.JPG',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%B8%83%E5%81%B62.JPG',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%B8%83%E5%81%B63.JPG',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%B8%83%E5%81%B64.JPG',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Queen%27s_bedroom_Grand_appartement_de_la_reine_Palace_of_Versailles_France.jpg/1920px-Queen%27s_bedroom_Grand_appartement_de_la_reine_Palace_of_Versailles_France.jpg',
-      'https://images.unsplash.com/photo-1615873968403-89e068629265?w=2600&q=85',
-      'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Male_Ragdoll_Blue_Bicolor.jpg/1920px-Male_Ragdoll_Blue_Bicolor.jpg',
+    gallery:[      'photos/布偶1.JPG',
+      'photos/布偶2.JPG',
+      'photos/布偶3.JPG',
+      'photos/布偶4.JPG',
+      'assets/img_7a6768d4dc.jpg',
+      'assets/img_9c62330bbb.jpg',
+      'assets/img_f83075bc74.jpg',
+      'assets/img_e1d734a924.jpg',
     ],
     fx:'dust',
     items:[
@@ -2210,10 +2219,10 @@ const ROOMS = {
     name:'阁楼', ico:'🪜', desc:'胡思乱想室 · 坐在地毯上，把想法钉上墙。',
     bg:'linear-gradient(160deg,#241409 0%,#4a2c14 55%,#6b4520 100%)',
     gallery:[
-      'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=2600&q=85',
-      'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=2600&q=85',
-      'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=2600&q=85',
-      'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=2600&q=85'
+      'assets/img_02d2263de2.jpg',
+      'assets/img_c2c9325171.jpg',
+      'assets/img_ded84d92c0.jpg',
+      'assets/img_ce0a6fcf90.jpg'
     ],
     fx:'dust',
     items:[
@@ -2282,11 +2291,11 @@ const ROOMS = {
     name:'清华图书馆', ico:'📚', desc:'清华图书馆，书声与钟声。',
     bg:'linear-gradient(160deg,#16251d 0%,#2c4636 55%,#45684f 100%)',
     gallery:[
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/New_library_of_Tsinghua_University_2.JPG/1920px-New_library_of_Tsinghua_University_2.JPG',
-      'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=2600&q=85',
-      'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=2600&q=85',
-      'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=2600&q=85',
-      'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=2600&q=85'
+      'assets/img_5fa332ea2c.JPG',
+      'assets/img_e557316907.jpg',
+      'assets/img_d7234c96e3.jpg',
+      'assets/img_b9d646d72c.jpg',
+      'assets/img_df1dedbb3b.jpg'
     ],
     fx:'dust',
     items:[
@@ -2362,10 +2371,10 @@ const ROOMS = {
     name:'书房', ico:'📚', desc:'陈深的书房，书架上全是贵系回忆——录取通知书、博士帽、金牛奖杯，和十本他最爱翻的书。',
     bg:'linear-gradient(160deg,#1a1410 0%,#33271c 55%,#4a3828 100%)',
     fx:'dust',
-    gallery:[      'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Bowling_Green_td_%282018-12-13%29_06_-_26_Broadway%2C_Charging_Bull.jpg/1920px-Bowling_Green_td_%282018-12-13%29_06_-_26_Broadway%2C_Charging_Bull.jpg',
-      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=2600&q=85',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Ph.D._diploma_Marquette_University_1969.jpg/1920px-Ph.D._diploma_Marquette_University_1969.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E9%99%88%E6%B7%B1%E5%B0%91%E5%B9%B4%E5%BD%A2%E8%B1%A1.jpeg',
+    gallery:[      'assets/img_11a8cb0314.jpg',
+      'assets/img_68e08ca5e0.jpg',
+      'assets/img_ee572fca21.jpg',
+      'photos/陈深少年形象.jpeg',
     ],
     items:[
 {id:'st_gold', name:'金牛奖奖杯', emoji:'🏆', x:700, y:200, w:80, h:110, solid:true, desc:'金牛基金经理的奖杯，金光闪闪，是某个结局里的陈深赢来的。'},
@@ -2412,7 +2421,11 @@ const ROOMS = {
       {id:'st_photo', name:'毕业照', emoji:'🎓', x:300, y:300, w:90, h:110, solid:false,
         desc:'装在相框里的毕业照，是老婆的。陈深在相框背面写：「陪你从校服到婚纱，再从婚纱到白发。」'},
       {id:'st_chen', name:'陈深的形象', emoji:'🪪', x:400, y:300, w:90, h:110, solid:false, modal:true,
-        desc:'<div class="end-fancy-wrap" style="margin-bottom:12px;"><img src="https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/CTO%E5%BD%A2%E8%B1%A1%E9%99%88%E6%B7%B1.jpeg" style="width:100%;border-radius:12px;display:block;"></div><b>🪪 陈深</b><br>从千亿参数到人间烟火——CTO 形象和少年形象都挂在书房，像两段不同的人生切片。'},
+        desc:'<div class="end-fancy-wrap" style="margin-bottom:12px;"><img src="photos/CTO形象陈深.jpeg" style="width:100%;border-radius:12px;display:block;"></div><b>🪪 陈深</b><br>从千亿参数到人间烟火——CTO 形象和少年形象都挂在书房，像两段不同的人生切片。'},
+      {id:'st_travel', name:'环球明信片', emoji:'🖼️', x:820, y:200, w:80, h:60, solid:false, isEgg:true, isCross:true, requires:['zgc_egg','sh_egg','ld_egg'],
+        eggReveal:'中关村的代码、上海的石库门、伦敦的雨——三座城市拼成一张明信片。背面写着：「世界很大，但每一条路，都通回书房这盏灯。」'},
+      {id:'st_scholar', name:'跨洲足迹奖牌', emoji:'🏅', x:820, y:280, w:70, h:70, solid:false, isEgg:true, isCross:true, requires:['th_egg','bos_egg'],
+        eggReveal:'清华的紫荆花，落在波士顿的查尔斯河上。这枚奖牌镌刻着一句话：「从二校门到 MIT 圆顶，你走过的每一步都算数。」'},
     ],
     doors:[{id:'dst_l', side:'right', at:0.5, target:'library', label:'图书馆'}],
     spawn:{x:450,y:440}
@@ -2451,12 +2464,12 @@ const ROOMS = {
   garden: {
     name:'花园', ico:'🌸', desc:'春天开花，夏天结果，猫在树荫下打盹。',
     bg:'linear-gradient(160deg,#12301f 0%,#2e5c38 55%,#4f8a4e 100%)',
-    gallery:[      'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=2600&q=85',
-      'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=2600&q=85',
-      'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=2600&q=85',
-      'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=2600&q=85',
-      'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=2600&q=85',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%A2%85%E8%8A%B1.jpeg',
+    gallery:[      'assets/img_19cb9ebe75.jpg',
+      'assets/img_cb7dc0bf3c.jpg',
+      'assets/img_437d8debb7.jpg',
+      'assets/img_03dffb3f1a.jpg',
+      'assets/img_5b407ee5b4.jpg',
+      'photos/梅花.jpeg',
     ],
     fx:'petal',
     items:[
@@ -2516,20 +2529,20 @@ const ROOMS = {
   galaxy: {
     name:'宇宙', ico:'🌌', desc:'银河之外，还有亿万星系。',
     bg:'linear-gradient(160deg,#010005 0%,#0b0524 55%,#1c1050 100%)',
-    gallery:[      'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=2600&q=85',
-      'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=2600&q=85',
-      'https://images.unsplash.com/photo-1465101162946-4377e57745c3?w=2600&q=85',
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=2600&q=85',
-      'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=2600&q=85',
-      'https://images.unsplash.com/photo-1435224668334-0f82ec57b605?w=2600&q=85',
-      'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=2600&q=85',
-      'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=2600&q=85',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%AE%87%E5%AE%99%E5%9B%BE-pinterest.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Andromeda_Galaxy_M31_-_Heic1502a_10k.jpg/1920px-Andromeda_Galaxy_M31_-_Heic1502a_10k.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/1920px-The_Earth_seen_from_Apollo_17.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Full_Moon_Closeup.JPG/1920px-Full_Moon_Closeup.JPG',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Saturn_from_Cassini_Orbiter_%282004-10-06%29.jpg/1920px-Saturn_from_Cassini_Orbiter_%282004-10-06%29.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Pillars_of_Creation_%28NIRCam_Image%29.jpg/1920px-Pillars_of_Creation_%28NIRCam_Image%29.jpg',
+    gallery:[      'assets/img_dd2aa71077.jpg',
+      'assets/img_23d5150215.jpg',
+      'assets/img_1b0fdb3609.jpg',
+      'assets/img_80d908e340.jpg',
+      'assets/img_7728909a4e.jpg',
+      'assets/img_2f125e6fb5.jpg',
+      'assets/img_f8c666407b.jpg',
+      'assets/img_edf361f1d1.jpg',
+      'photos/宇宙图-pinterest.jpg',
+      'assets/img_a634fe33fa.jpg',
+      'assets/img_e09623f2ec.jpg',
+      'assets/img_2b98e6a813.JPG',
+      'assets/img_d5bbab5428.jpg',
+      'assets/img_98baeeeae4.jpg',
     ],
     fx:'star',
     items:[
@@ -2624,10 +2637,10 @@ const ROOMS = {
     name:'五道口深夜火锅店', ico:'🍲', desc:'五道口的深夜，红油咕嘟咕嘟冒着泡。墙上挂着牌子：陈深常坐。',
     bg:'linear-gradient(160deg,#1a0f0a 0%,#3a1c10 55%,#55261a 100%)',
     fx:'steam',
-    gallery:[      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/%E4%B9%9D%E5%AE%AB%E6%A0%BC%E7%81%AB%E9%94%85.jpg/1920px-%E4%B9%9D%E5%AE%AB%E6%A0%BC%E7%81%AB%E9%94%85.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Chongqing_Hot_Pot.jpg/1920px-Chongqing_Hot_Pot.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Red_House_hot_pot_Chongqing.jpg/1920px-Red_House_hot_pot_Chongqing.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Meat_Birthday_Cake_in_a_Chinese_Hot_Pot_Restaurant.jpg/1920px-Meat_Birthday_Cake_in_a_Chinese_Hot_Pot_Restaurant.jpg'
+    gallery:[      'assets/img_eb584489df.jpg',
+      'assets/img_d0c290c6cf.jpg',
+      'assets/img_55a51fb644.jpg',
+      'assets/img_ad727adf97.jpg'
     ],
     items:[
       {id:'hp_maodu', name:'毛肚', emoji:'🥓', x:60, y:300, w:80, h:70, solid:false, desc:'七上八下，脆嫩爽口，火锅的灵魂。'},
@@ -2660,12 +2673,12 @@ const ROOMS = {
     name:'威海的海边', ico:'🌊', desc:'海风咸咸的，浪一层层推上来。大模型 第一次知道什么叫「水天一色」。',
     bg:'linear-gradient(160deg,#0e2433 0%,#1d4a5f 55%,#2e6b7d 100%)',
     fx:'star',
-    gallery:[      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Weihai_City.jpg/1920px-Weihai_City.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Baltic_Sea_view_from_Schmiedeberg_hill_in_Rerik%2C_2025-06-23.jpg/1920px-Baltic_Sea_view_from_Schmiedeberg_hill_in_Rerik%2C_2025-06-23.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%A8%81%E6%B5%B7%E6%B5%B7%E9%B2%9C.JPG',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%A8%81%E6%B5%B7%E9%BE%99%E8%99%BE.JPG',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%BA%A6%E5%81%87%E6%B5%B7%E8%BE%B9.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E6%B5%B7%E8%BE%B9%E9%A6%99%E6%A7%9F%E7%83%A4%E7%AB%A0%E9%B1%BC.jpeg',
+    gallery:[      'assets/img_9c75b5d3d8.jpg',
+      'assets/img_4fb46f81a0.jpg',
+      'photos/威海海鲜.JPG',
+      'photos/威海龙虾.JPG',
+      'photos/度假海边.jpeg',
+      'photos/海边香槟烤章鱼.jpeg',
     ],
     items:[
       {id:'wh_camera', name:'拍立得', emoji:'📷', x:60, y:300, w:80, h:70, solid:false, desc:'刚拍的照片还在显影，海浪、礁石和两个人的影子。'},
@@ -2689,11 +2702,11 @@ const ROOMS = {
     name:'国贸三里屯', ico:'🌆', desc:'从国贸到三里屯，北京的潮流心脏。陈深周末逛街、看球、喝酒的地方。',
     bg:'linear-gradient(160deg,#0d0f1e 0%,#1e2547 55%,#2e3a66 100%)',
     fx:'star',
-    gallery:[      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/SKP_Beijing_%2820180415180620%29.jpg/1920px-SKP_Beijing_%2820180415180620%29.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Sanlitun_SOHO_2.jpg/1920px-Sanlitun_SOHO_2.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Tomahawk_steaks_06.jpg/1920px-Tomahawk_steaks_06.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Sanlitun_SOHO_from_the_middle_%2820210425135503%29.jpg/1920px-Sanlitun_SOHO_from_the_middle_%2820210425135503%29.jpg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E4%B8%89%E9%87%8C%E5%B1%AF5-%E6%96%B0%E5%9B%BE.jpeg',
+    gallery:[      'assets/img_3003f325d6.jpg',
+      'assets/img_a72ad28383.jpg',
+      'assets/img_60ba11a6e5.jpg',
+      'assets/img_0cf9a8b672.jpg',
+      'photos/三里屯5-新图.jpeg',
     ],
     items:[
       {id:'sm_guomao', name:'国贸商城', emoji:'🛍️', x:60, y:300, w:90, h:70, solid:false, desc:'CBD 的心脏，逛一天也逛不完。'},
@@ -2720,10 +2733,10 @@ const ROOMS = {
     name:'花家怡园', ico:'🏮', desc:'京味儿十足的花家怡园，陈深第一次请客的地方。',
     bg:'linear-gradient(160deg,#241212 0%,#4a2418 55%,#6b3520 100%)',
     fx:'steam',
-    gallery:[      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%8A%B1%E5%AE%B6%E6%80%A1%E5%9B%AD%20%E5%A4%96%E6%99%AF.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%8A%B1%E5%AE%B6%E6%80%A1%E5%9B%AD%E7%83%A4%E9%B8%AD.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%8A%B1%E5%AE%B6%E6%80%A1%E5%9B%AD%E9%B8%AD%E6%96%B9.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E8%8A%B1%E5%AE%B6%E6%80%A1%E5%9B%AD%E9%B9%85%E8%82%9D.jpeg',
+    gallery:[      'photos/花家怡园 外景.jpeg',
+      'photos/花家怡园烤鸭.jpeg',
+      'photos/花家怡园鸭方.jpeg',
+      'photos/花家怡园鹅肝.jpeg',
     ],
     items:[
       {id:'hj_duck', name:'雍正烤鸭', emoji:'🦆', x:60, y:300, w:80, h:70, solid:false, desc:'花家招牌，一鸭三吃：鱼籽酱烤鸭、鸭皮一口酥、片皮卷饼。'},
@@ -2756,9 +2769,9 @@ const ROOMS = {
     bg:'linear-gradient(160deg,#1a1408 0%,#3a2a10 55%,#55381a 100%)',
     fx:'steam',
     gallery:[
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/%E5%95%A4%E5%95%A4%E7%8C%AB%E7%83%A7%E7%83%A4.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/IMG_3370.jpeg',
-      'https://cdn.jsdelivr.net/gh/380992846-tech/Project1@b3e585eb767d8abeed3d9aa6ed701d5923e0a41d/photos/IMG_9186.jpeg'
+      'photos/啤啤猫烧烤.jpeg',
+      'photos/IMG_3370.jpeg',
+      'photos/IMG_9186.jpeg'
     ],
     items:[
       {id:'pp_yangrou', name:'羊肉串', emoji:'🍢', x:60, y:300, w:80, h:70, solid:false, desc:'肥瘦相间，孜然辣椒面一撒。'},
@@ -2789,56 +2802,56 @@ const ROOMS = {
     name:'电影放映厅', ico:'🎬', desc:'陈深的私人放映厅。银幕亮起的瞬间，世界安静下来——只剩故事。',
     bg:'linear-gradient(160deg,#0a0a12 0%,#181026 55%,#241840 100%)',
     fx:'star',
-    gallery:[      'https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/1/11/2001_A_Space_Odyssey_%281968%29.png',
-      'https://upload.wikimedia.org/wikipedia/en/9/9f/Blade_Runner_%281982_poster%29.png',
-      'https://upload.wikimedia.org/wikipedia/en/9/9b/Blade_Runner_2049_poster.png',
-      'https://upload.wikimedia.org/wikipedia/en/4/4c/WALL-E_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/4/44/Her2013Poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/7/7f/Suzume_no_Tojimari_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/d/db/The_Matrix.png',
-      'https://upload.wikimedia.org/wikipedia/en/d/df/Arrival%2C_Movie_Poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/c/cd/The_Martian_film_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/a/af/Moon_%282009_film%29.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/d/db/Spirited_Away_Japanese_poster.png',
-      'https://upload.wikimedia.org/wikipedia/en/0/0b/Your_Name_poster.png',
-      'https://upload.wikimedia.org/wikipedia/en/6/67/Forrest_Gump_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/8/81/ShawshankRedemptionMoviePoster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/c/cd/Trumanshow.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/c/cc/AChineseOdyssey.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/0/00/KungFuHustleHKposter.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/c/c5/Farewell_My_Concubine_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/b/b3/Let_the_Bullets_Fly.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/9/98/Coco_%282017_film%29_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/3/39/Soul_%282020_film%29_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/0/05/Up_%282009_film%29.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/5/50/Leggenda_pianista.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/8/86/CinemaParadiso.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/a/ab/La_La_Land_%28film%29.png',
-      'https://upload.wikimedia.org/wikipedia/en/4/4b/Big_Hero_6_%28film%29_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/9/96/Zootopia_%28movie_poster%29.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/e/e7/Jurassic_Park_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/5/5e/Terminator_2-Judgment_Day.png',
-      'https://upload.wikimedia.org/wikipedia/en/4/43/Butterflyeffect_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/e/e1/17again.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/7/72/No_Man%27s_Land_2013_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/7/76/Dyingtosurvive.jpg',
-      'https://upload.wikimedia.org/wikipedia/zh/5/5c/%E9%A3%9E%E9%A9%B0%E4%BA%BA%E7%94%9F.PNG',
-      'https://upload.wikimedia.org/wikipedia/en/2/2e/Inception_%282010%29_theatrical_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/1/1b/The_Wandering_Earth_film_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/7/74/Ready_Player_One_%28film%29.png',
-      'https://upload.wikimedia.org/wikipedia/en/9/93/The_Intouchables.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/8/81/Poster-pursuithappyness.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/1/18/Titanic_%281997_film%29_poster.png',
-      'https://upload.wikimedia.org/wikipedia/en/5/5b/Green_Book_%282018_poster%29.png',
-      'https://upload.wikimedia.org/wikipedia/en/8/8e/Dune_%282021_film%29.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/e/e5/Source_Code_Poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/c/c7/Memento_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/zh/3/30/Johnny_Keep_Walking.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/5/5e/Infernal_Affairs_%282002_film%29_poster.jpg',
-      'https://upload.wikimedia.org/wikipedia/en/2/27/Crouching_Tiger%2C_Hidden_Dragon_%28Chinese_poster%29.png',
-      'https://upload.wikimedia.org/wikipedia/zh/f/f0/%E7%BD%97%E5%B0%8F%E9%BB%91%E6%88%98%E8%AE%B0_%E6%96%B0%E7%89%88%E6%B5%B7%E6%8A%A5.png',
-      'https://upload.wikimedia.org/wikipedia/zh/9/9c/HowlsMovingCastleEnglishPoster.jpg',
+    gallery:[      'assets/img_82b83fc56d.jpg',
+      'assets/img_4cf4d963ba.png',
+      'assets/img_b80b197a3f.png',
+      'assets/img_7cd9779dde.png',
+      'assets/img_bfb9c554a4.jpg',
+      'assets/img_414e5f89de.jpg',
+      'assets/img_e30d387209.jpg',
+      'assets/img_27be0b9cf0.png',
+      'assets/img_c4c56558c5.jpg',
+      'assets/img_bd9584be47.jpg',
+      'assets/img_59c163d8a1.jpg',
+      'assets/img_610c4c5aae.png',
+      'assets/img_0c90dfa498.png',
+      'assets/img_652c233fda.jpg',
+      'assets/img_b9b957e687.jpg',
+      'assets/img_af0e58ce33.jpg',
+      'assets/img_6b80d3e75e.jpg',
+      'assets/img_4488d39bca.jpg',
+      'assets/img_d68b28c1d2.jpg',
+      'assets/img_79dd19b96a.jpg',
+      'assets/img_dcda5874f9.jpg',
+      'assets/img_7e52d1039a.jpg',
+      'assets/img_9076bef269.jpg',
+      'assets/img_35b03595cb.jpg',
+      'assets/img_ee5efbe4c2.jpg',
+      'assets/img_f6fa205173.png',
+      'assets/img_85211dcf40.jpg',
+      'assets/img_f22ee7f839.jpg',
+      'assets/img_65c3659bb1.jpg',
+      'assets/img_8dd191c45b.png',
+      'assets/img_b4924098f9.jpg',
+      'assets/img_ada3e7cb66.jpg',
+      'assets/img_662ea5437b.jpg',
+      'assets/img_346c9a406b.jpg',
+      'assets/img_6e5efe9866.PNG',
+      'assets/img_701604570c.jpg',
+      'assets/img_96050ca63b.jpg',
+      'assets/img_21187247cf.png',
+      'assets/img_c65869e4f6.jpg',
+      'assets/img_689280135e.jpg',
+      'assets/img_417f3821ba.png',
+      'assets/img_db56a7dd40.png',
+      'assets/img_3721cf2a7a.jpg',
+      'assets/img_ab5127f359.jpg',
+      'assets/img_b61411c674.jpg',
+      'assets/img_f88026ce59.jpg',
+      'assets/img_832bd423ad.jpg',
+      'assets/img_42f6ca2812.png',
+      'assets/img_48e26591e5.png',
+      'assets/img_923132737c.jpg',
     ],
     items:[
       {id:'cm1', name:'《星际穿越》', emoji:'🌌', x:60, y:300, w:90, h:80, solid:false, desc:'五维空间的书架，和那句「不要温和地走进那个良夜」。'},
@@ -2953,6 +2966,7 @@ const ACHIEVEMENTS = [
   { id:'a_cat',   ico:'🐱', name:'猫猫的朋友', desc:'和猫猫说过话' },
   { id:'a_key',   ico:'🔑', name:'书架的秘密', desc:'找到金色钥匙（书架里的小惊喜）' },
   { id:'a_egg',   ico:'🥚', name:'彩蛋猎人',   desc:'集齐全部彩蛋' },
+  { id:'a_cross', ico:'🌍', name:'跨洲旅人',   desc:'集齐全部跨房间联动彩蛋' },
   { id:'a_galaxy',ico:'🌌', name:'宇宙漫游者', desc:'进入宇宙' },
   { id:'a_collector', ico:'📖', name:'收藏家', desc:'查看过所有物品' },
   { id:'a_final', ico:'💛', name:'我们在一起', desc:'完成全部成就' }
@@ -3049,6 +3063,23 @@ function allItems() {
 }
 function totalItems(){ return allItems().length; }
 function totalEggs(){ return allItems().filter(x=>x.item.isEgg).length; }
+
+/* ===== 跨房间彩蛋联动 ===== */
+function eggUnlocked(it){
+  return !it.requires || !it.requires.length || it.requires.every(r=>state.eggs[r]);
+}
+function eggReqMeta(req){
+  const all = allItems();
+  return (req||[]).map(r=>{
+    const hit = all.find(x=>x.item.id===r);
+    const got = !!state.eggs[r];
+    return {got, name: hit?hit.item.name:r, room: (hit && ROOMS[hit.room])?ROOMS[hit.room].name:(hit?hit.room:'未知')};
+  });
+}
+function allCrossCollected(){
+  const cross = allItems().filter(x=>x.item.isCross && x.item.isEgg);
+  return cross.length && cross.every(x=>state.eggs[x.item.id]);
+}
 function updateHud() {
   const viewedN = Object.keys(state.viewed).length, tot = totalItems();
   const roomsN = Object.keys(state.visited).length, roomTot = Object.keys(ROOMS).length;
@@ -3258,11 +3289,12 @@ function renderRoomList(room) {
     const clickable = !!(it.isEgg || it.speak || it.discover || it.special || it.modal);
     const row = document.createElement('div');
     row.className = 'il-row' + (clickable ? ' clickable' : '') + (it.isEgg && state.eggs[it.id] ? ' egg-open' : '');
+    const crossLocked = it.isEgg && it.requires && !eggUnlocked(it);
     const badge = it.isEgg
-      ? '<span class="il-badge">' + GOLDEN_EGG + (state.eggs[it.id] ? '已点亮' : '彩蛋') + '</span>'
+      ? '<span class="il-badge">' + (crossLocked ? '🔒 联动彩蛋' : GOLDEN_EGG + (state.eggs[it.id] ? '已点亮' : '彩蛋')) + '</span>'
       : (it.speak ? '<span class="il-badge">🔊 猫猫</span>' : '');
     let desc = it.desc || '';
-    if (it.isEgg) desc = state.eggs[it.id] ? (it.eggReveal || '彩蛋') : '✨ 点一下，看看里面写了什么';
+    if (it.isEgg) desc = crossLocked ? '🔒 跨房间彩蛋，先去别处集齐对应的彩蛋吧。' : (state.eggs[it.id] ? (it.eggReveal || '彩蛋') : '✨ 点一下，看看里面写了什么');
     if (it.speak) desc = '🐱 ' + it.speak;
     row.innerHTML = '<span class="il-ico">' + (it.emoji || '📦') + '</span><div class="il-main"><div class="il-name">' + it.name + badge + '</div><div class="il-desc">' + desc + '</div></div>';
     if (clickable) row.addEventListener('click', ()=>onItemClick(room, it));
@@ -3273,12 +3305,25 @@ function renderRoomList(room) {
 /* ===== 物品交互 ===== */
 function onItemClick(room, it) {
   if (it.isEgg) {
+    if (it.requires && !eggUnlocked(it)) {
+      const reqs = eggReqMeta(it.requires);
+      const need = reqs.filter(r=>!r.got).map(r=>'<b>「'+r.name+'」</b>（'+r.room+'）').join('、');
+      toast('🔒 跨房间联动彩蛋，尚未解锁');
+      emEmoji.textContent = it.emoji || '🧩';
+      emName.textContent = it.name;
+      emDesc.innerHTML = '🔒 这是一枚<b>跨房间的联动彩蛋</b>。<br>要先把别处的彩蛋集齐，它才会揭开真面目：<br><div style="text-align:left;margin-top:10px;color:#cbb8f0;line-height:2;">' + need + '</div><br>先去那些房间探探吧。';
+      eggModal.classList.add('active');
+      return;
+    }
     if (!state.eggs[it.id]) {
       state.eggs[it.id] = true;
       save(); updateHud();
       toast('✨ 找到彩蛋：' + it.name + '！ (' + Object.keys(state.eggs).length + '/' + totalEggs() + ')');
       if (Object.keys(state.eggs).length >= totalEggs() && !state.ach['a_egg']) {
         setTimeout(()=>achPop('a_egg'), 900);
+      }
+      if (allCrossCollected() && !state.ach['a_cross']) {
+        setTimeout(()=>achPop('a_cross'), 1300);
       }
       renderRoomList(room);
     }
@@ -3338,9 +3383,10 @@ function showEndDetail(n) {
   imName.textContent = e.t;
   imTag.textContent = '结局';
   if (n < lit) {
-    imDesc.innerHTML = '<div class="end-fancy-wrap"><div class="end-fancy-inner"><b style="color:#f7c948;font-size:14px;">' + e.i + ' ' + e.t + '</b><div style="font-size:12.5px;color:#cbb8f0;line-height:1.85;margin-top:6px;text-align:left;">' + e.d + '</div></div></div>';
+    imDesc.innerHTML = '<div class="end-fancy-wrap"><div class="end-fancy-inner"><b style="color:#f7c948;font-size:14px;">' + e.i + ' ' + e.t + '</b><div style="font-size:13.5px;color:#d4c6f0;line-height:1.9;margin-top:6px;text-align:left;">' + e.d + '</div></div></div>';
   } else {
-    imDesc.innerHTML = '🔒 <b>' + e.t + '</b><br><div style="font-size:12px;color:#6c5890;margin-top:8px;">达成此结局后解锁。继续收集彩蛋吧。</div>';
+    const need = Math.ceil(((n+0.5)*tot)/ENDS.length);
+    imDesc.innerHTML = '🔒 <b>' + e.t + '</b><br><div style="font-size:12px;color:#8fa0c0;margin-top:8px;line-height:1.8;">达成此结局需先点亮 <b style="color:#f7c948;">' + need + ' / ' + tot + '</b> 颗彩蛋（当前已点亮 <b style="color:#f7c948;">' + got + '</b>）。<br>继续去各地收集彩蛋吧。</div>';
   }
   itemModal.classList.add('active');
 }
@@ -3367,15 +3413,21 @@ function showItemModal(it) {
 
     const got = Object.keys(state.eggs).length, tot = totalEggs();
     const lit = Math.min(ENDS.length, tot ? Math.round(got/tot*ENDS.length) : 0);
+    const pct = tot ? Math.round(got/tot*100) : 0;
     imDesc.innerHTML = '<b>🏆 陈深的结局墙</b><br>每点亮一个彩蛋，就有一盏灯亮起。结局文字与《陈深的故事》完全一致。<br><br>' +
+      '<div style="background:rgba(30,22,55,.6);border-radius:12px;padding:10px 14px;margin-bottom:12px;border:1px solid rgba(160,120,255,.18);">' +
+        '<div style="font-size:12.5px;color:#d9caff;">已收集彩蛋 <b style="color:#f7c948;">' + got + ' / ' + tot + '</b> · 点亮结局 <b style="color:#f7c948;">' + lit + ' / ' + ENDS.length + '</b></div>' +
+        '<div style="height:9px;background:rgba(0,0,0,.42);border-radius:20px;margin-top:7px;overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#f7c948,#ff9d5c);border-radius:20px;transition:width .4s;"></div></div>' +
+      '</div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
       ENDS.map((e,i)=>{
         if (i < lit) {
           return '<div class="end-fancy-wrap ew-card" data-idx="' + i + '" style="margin-bottom:0;cursor:pointer;"><div class="end-fancy-inner" style="padding:8px 10px;"><b style="color:#f7c948;font-size:12px;">' + e.i + ' ' + e.t.replace('结局 · ','').replace('尾声 · ','') + '</b></div></div>';
         }
-        return '<div class="end-locked" style="margin-bottom:0;padding:8px 10px;">🔒 ' + e.t.replace('结局 · ','').replace('尾声 · ','') + '</div>';
+        const need = Math.ceil(((i+0.5)*tot)/ENDS.length);
+        return '<div class="end-locked" style="margin-bottom:0;padding:8px 10px;">🔒 ' + e.t.replace('结局 · ','').replace('尾声 · ','') + '<div style="font-size:10.5px;color:#8a78b8;margin-top:4px;">需 ≥' + need + ' 颗彩蛋</div></div>';
       }).join('') +
-      '</div><br>彩蛋点亮：' + lit + ' / ' + ENDS.length +
+      '</div>' +
       (lit>=ENDS.length ? '<br>✨ 全部结局已解锁——隐藏结局：功成名就，但你在' : '');
     const cards = imDesc.querySelectorAll('.ew-card');
     cards.forEach(c => c.addEventListener('click', () => showEndDetail(parseInt(c.dataset.idx, 10))));

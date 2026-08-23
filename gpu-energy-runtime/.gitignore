@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ML 模型（体积大，不入库）
+*.joblib
+*.pkl
+!models/.gitkeep
+
+# 运行时产物
+*.log
+software/lora_checkpoints/
+
+# 打包产物
+release/
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 别把羊排放进来
+*.mp4
