@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>《金融数学方法与应用》核心笔记 · 清华黑紫玻璃</title>
+  <style>
+    /* 全局重置 + 壁纸系统 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', 'PingFang SC', Roboto, system-ui, sans-serif;
+      color: #e8e0f0;
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 1rem;
+      background: #0b0710; /* fallback */
+      transition: background-image 0.6s ease;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    /* 壁纸层 — 5张可换壁纸 (通过JS切换body类) */
+    body.wall-1 { background-image: url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200&q=80'); }
+    body.wall-2 { background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80'); }
+    body.wall-3 { background-image: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1200&q=80'); }
+    body.wall-4 { background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80'); }
+    body.wall-5 { background-image: url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&q=80'); }
+
+    /* 半透明遮罩，强化玻璃感 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10, 5, 20, 0.55);
+      backdrop-filter: blur(3px) saturate(120%);
+      -webkit-backdrop-filter: blur(3px) saturate(120%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* 主容器 — 毛玻璃核心 */
+    .glass-container {
+      position: relative;
+      z-index: 2;
+      max-width: 1300px;
+      width: 100%;
+      background: rgba(20, 12, 38, 0.50);
+      backdrop-filter: blur(20px) saturate(190%);
+      -webkit-backdrop-filter: blur(20px) saturate(190%);
+      border-radius: 2.8rem;
+      padding: 2.8rem 2.5rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(180, 120, 255, 0.15) inset;
+      border: 1px solid rgba(180, 120, 255, 0.15);
+      transition: all 0.2s;
+    }
+
+    /* 壁纸切换器 — 浮在右上角 */
+    .wallpaper-switcher {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999;
+      display: flex;
+      gap: 10px;
+      background: rgba(10, 5, 25, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 10px 14px;
+      border-radius: 60px;
+      border: 1px solid rgba(180, 120, 255, 0.25);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    }
+
+    .wall-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 40px;
+      border: 2px solid rgba(200, 170, 255, 0.3);
+      cursor: pointer;
+      transition: 0.2s;
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .wall-btn:hover { transform: scale(1.15); border-color: #b080ff; }
+    .wall-btn.active { border-color: #c8a0ff; box-shadow: 0 0 18px #a06aff; }
+
+    .wall-btn:nth-child(1) { background-image: url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=100&q=80'); }
+    .wall-btn:nth-child(2) { background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=100&q=80'); }
+    .wall-btn:nth-child(3) { background-image: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=100&q=80'); }
+    .wall-btn:nth-child(4) { background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=100&q=80'); }
+    .wall-btn:nth-child(5) { background-image: url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=100&q=80'); }
+
+    /* 标题区 */
+    .title-block {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(160, 100, 255, 0.2);
+    }
+
+    .title-block h1 {
+      font-size: 3.6rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #d8b8ff 0%, #b080ff 45%, #8840ff 85%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.02em;
+      text-shadow: 0 0 40px rgba(120, 60, 255, 0.3);
+      margin-bottom: 0.5rem;
+    }
+
+    .title-block .sub {
+      font-size: 1.1rem;
+      color: #b8a0dd;
+      letter-spacing: 4px;
+      font-weight: 300;
+      background: rgba(60, 30, 130, 0.3);
+      display: inline-block;
+      padding: 0.3rem 2.2rem;
+      border-radius: 40px;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(180, 120, 255, 0.15);
+    }
+
+    /* 目录 */
+    .toc-glass {
+      background: rgba(30, 18, 55, 0.45);
+      backdrop-filter: blur(8px);
+      border-radius: 2rem;
+      padding: 2rem 2.2rem;
+      margin-bottom: 3rem;
+      border: 1px solid rgba(160, 100, 255, 0.15);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 0.5rem 1.5rem;
+      list-style: none;
+      padding: 0;
+    }
+
+    .toc-grid li {
+      font-size: 0.98rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px dashed rgba(180, 140, 255, 0.08);
+      color: #d4c8ec;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.15s;
+    }
+    .toc-grid li::before { content: "▹"; color: #b080ff; opacity: 0.7; }
+    .toc-grid li:hover { color: #f0e8ff; padding-left: 6px; border-color: rgba(180, 120, 255, 0.3); }
+
+    /* 章节卡片 */
+    .chapter {
+      background: rgba(22, 12, 40, 0.40);
+      backdrop-filter: blur(6px);
+      border-radius: 2rem;
+      padding: 2.2rem 2.2rem 1.8rem;
+      margin-bottom: 3rem;
+      border: 1px solid rgba(160, 100, 255, 0.12);
+      box-shadow: 0 10px 35px -8px rgba(0, 0, 0, 0.7);
+      transition: 0.2s;
+    }
+    .chapter:hover {
+      border-color: rgba(180, 120, 255, 0.3);
+      background: rgba(30, 18, 55, 0.50);
+    }
+
+    .chapter h2 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: #d8c8ff;
+      border-left: 6px solid #a06aff;
+      padding-left: 1.4rem;
+      margin-bottom: 1.8rem;
+      text-shadow: 0 0 15px rgba(130, 70, 255, 0.2);
+    }
+
+    .chapter h3 {
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: #c8b0f0;
+      margin-top: 2rem;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid rgba(160, 100, 255, 0.12);
+    }
+
+    .chapter h4 {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: #bca8e8;
+      margin-top: 1.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .chapter p {
+      margin-bottom: 1rem;
+      color: #d4cce8;
+      text-align: justify;
+      font-weight: 350;
+    }
+
+    .chapter ul, .chapter ol {
+      margin: 0.8rem 0 1.2rem 1.8rem;
+      color: #ccc0e8;
+    }
+    .chapter li { margin-bottom: 0.3rem; }
+
+    /* 代码块 */
+    pre, .code-block {
+      background: rgba(6, 2, 20, 0.7);
+      backdrop-filter: blur(4px);
+      border-radius: 1.4rem;
+      padding: 1.4rem 1.8rem;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.9rem;
+      border: 1px solid rgba(140, 80, 255, 0.2);
+      color: #d4d0f0;
+      margin: 1.2rem 0;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* 案例/提示框 */
+    .case-box {
+      background: rgba(50, 25, 90, 0.30);
+      backdrop-filter: blur(4px);
+      border-left: 6px solid #a06aff;
+      border-radius: 1rem 0.8rem 0.8rem 1rem;
+      padding: 1.4rem 1.8rem;
+      margin: 1.8rem 0;
+      border: 1px solid rgba(160, 100, 255, 0.15);
+      border-left-width: 6px;
+    }
+    .case-box strong { color: #d0b8ff; }
+
+    .math {
+      font-family: 'Times New Roman', 'STIX', serif;
+      color: #dac8ff;
+      background: rgba(20, 10, 40, 0.4);
+      padding: 0.1rem 0.6rem;
+      border-radius: 8px;
+      border: 1px solid rgba(160, 100, 255, 0.1);
+    }
+
+    .highlight { color: #d8b8ff; font-weight: 450; }
+
+    /* 底部 */
+    .footer-note {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #8a7aaa;
+      border-top: 1px solid rgba(160, 100, 255, 0.1);
+      padding-top: 2rem;
+    }
+    .footer-note a { color: #b080ff; text-decoration: none; border-bottom: 1px dotted rgba(160, 100, 255, 0.3); }
+    .footer-note a:hover { color: #d8c0ff; }
+
+    /* 响应式 */
+    @media (max-width: 780px) {
+      .glass-container { padding: 1.8rem 1.2rem; }
+      .title-block h1 { font-size: 2.4rem; }
+      .chapter h2 { font-size: 1.8rem; }
+      .chapter h3 { font-size: 1.35rem; }
+      .toc-grid { grid-template-columns: 1fr; }
+      .wallpaper-switcher { top: 10px; right: 10px; padding: 6px 10px; gap: 6px; }
+      .wall-btn { width: 30px; height: 30px; }
+    }
+
+    @media (max-width: 500px) {
+      .glass-container { padding: 1.2rem 0.8rem; }
+      .title-block h1 { font-size: 1.8rem; }
+      .chapter { padding: 1.2rem 1rem; }
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #1a1028; border-radius: 20px; }
+    ::-webkit-scrollbar-thumb { background: #7a4acf; border-radius: 20px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9a6aff; }
+  </style>
+</head>
+<body class="wall-1">
+
+  <!-- 壁纸切换器 -->
+  <div class="wallpaper-switcher">
+    <div class="wall-btn active" data-wall="wall-1" title="壁纸 1"></div>
+    <div class="wall-btn" data-wall="wall-2" title="壁纸 2"></div>
+    <div class="wall-btn" data-wall="wall-3" title="壁纸 3"></div>
+    <div class="wall-btn" data-wall="wall-4" title="壁纸 4"></div>
+    <div class="wall-btn" data-wall="wall-5" title="壁纸 5"></div>
+  </div>
+
+  <!-- 主玻璃容器 -->
+  <div class="glass-container">
+
+    <!-- 标题 -->
+    <div class="title-block">
+      <h1>📘 金融数学方法与应用</h1>
+      <div class="sub">核心笔记 · 清华黑紫玻璃 · 壁纸可换</div>
+      <div style="margin-top: 0.6rem; font-size: 0.95rem; color: #a890c0;">基于 Bilibili 专栏 · 夜神月GSK · 2026</div>
+    </div>
+
+    <!-- 目录 -->
+    <div class="toc-glass">
+      <div style="font-weight: 500; color: #c8b0f0; margin-bottom: 0.8rem; letter-spacing: 2px;">📌 目录 · 10 章</div>
+      <ul class="toc-grid">
+        <li>第1章 金融数学基础工具</li><li>第2章 随机过程与金融建模</li><li>第3章 随机微分方程与伊藤引理</li>
+        <li>第4章 衍生品定价理论</li><li>第5章 时间序列分析</li><li>第6章 数值方法与蒙特卡洛</li>
+        <li>第7章 金融优化与投资组合</li><li>第8章 机器学习与因果推断</li><li>第9章 高频数据与微观结构</li>
+        <li>第10章 高级风险管理与策略实践</li>
+      </ul>
+    </div>
+
+    <!-- ========== 正文：扩展三倍内容 ========== -->
+    <!-- 第1章 -->
+    <div class="chapter">
+      <h2>第1章 金融数学基础工具</h2>
+      <h3>1.1 数学工具回顾</h3>
+      <p><span class="highlight">微积分 · 线性代数 · 概率论</span> 是现代金融工程的三大支柱。微积分提供动态优化工具，梯度向量和Hessian矩阵用于投资组合优化；线性代数解构高维数据，特征值分解与PCA降维；概率论量化不确定性，矩、特征函数与常见分布（正态、对数正态、t分布）是建模基础。</p>
+      <h4>1.1.1 微积分：动态优化</h4>
+      <p>梯度向量指向函数上升最快方向，在投资组合优化中用于梯度下降。Hessian矩阵正定性确保局部极小值。链式法则是期权希腊字母（Delta, Vega）计算的理论基础。泰勒展开（Delta-Gamma近似）是VaR与动态对冲的核心。</p>
+      <p>在金融实务中，梯度向量不仅用于传统均值-方差优化，还广泛应用于机器学习驱动的投资策略——例如以夏普比率为目标函数，通过梯度上升动态调整资产权重。Hessian矩阵则用于计算投资组合在极端压力情景下的风险（Delta-Gamma VaR），其曲率信息帮助交易员判断当前最优解的稳定性。</p>
+      <h4>1.1.2 线性代数：高维世界的解构</h4>
+      <p>特征值/特征向量用于主成分分析（PCA），降维与因子构造。奇异值分解（SVD）识别共同因子。正定矩阵保证协方差矩阵有效，矩阵微分简化复杂优化推导。</p>
+      <p>在实务中，PCA常被用于从数百只股票的协方差矩阵中提取少数主成分风险因子，构建统计套利策略（例如交易对主成分的偏离）。SVD则更灵活，可用于处理时间序列×资产的面板数据，识别共同因子暴露。此外，保证协方差矩阵的正定性是资产配置的前提，常用Ledoit-Wolf收缩或随机矩阵滤波来修正样本协方差矩阵的病态问题。</p>
+      <h4>1.1.3 概率论：不确定性的语言</h4>
+      <p>随机变量与特征函数，傅里叶变换用于期权定价。矩（期望、方差、偏度、峰度）刻画分布形态。常见分布：正态、对数正态、t分布、泊松分布。极限定理（大数定律、中心极限定理）支撑统计推断与VaR估计。</p>
+      <p>特征函数在金融建模中极为重要，许多Lévy过程（如VG、NIG）没有显式密度但具有解析特征函数，使得傅里叶变换方法成为复杂期权定价的标准工具。偏度和峰度是检验收益率分布非正态性的关键指标，尤其在捕捉“黑天鹅”风险时不可或缺。</p>
+      <div class="case-box">
+        <strong>案例1：资产组合统计量估计</strong> 历史平均法估计期望收益面临时变性挑战；样本协方差矩阵高维问题，采用Ledoit-Wolf收缩、因子模型等改进。<br>
+        <strong>案例2：VaR估计与样本量</strong> 历史模拟法依赖大数定律，参数法依赖CLT，尾部估计需大量样本。例如估计99% VaR至少需要数百个数据点才能稳定。<br>
+        <strong>案例3：Python实现</strong> Ledoit-Wolf收缩、Mardia正态性检验、VaR收敛性模拟。这些工具帮助量化分析师在实际中评估估计误差和样本选择。
+      </div>
+    </div>
+
+    <!-- 第2章 -->
+    <div class="chapter">
+      <h2>第2章 随机过程与金融建模</h2>
+      <h3>2.1 基本随机过程理论</h3>
+      <p><span class="highlight">马尔可夫过程</span>（无记忆性）离散/连续状态，转移矩阵与生成元。布朗运动是随机游走连续极限，鞅性、二次变差不可微；几何布朗运动（GBM）是Black-Scholes基石，解析解与局限性。OU过程均值回归，Vasicek利率模型。</p>
+      <p>马尔可夫链在信用风险中应用广泛，例如标普评级迁移矩阵。连续时间马尔可夫链（CTMC）则用于违约强度建模。布朗运动的二次变差性质是伊藤微积分与经典微积分的根本区别，也是期权对冲中“Gamma”风险的数学来源。</p>
+      <h3>2.2 高级随机过程</h3>
+      <p>跳跃扩散过程（Merton模型）捕捉市场突变；CIR过程保证非负利率；Heston随机波动率模型（AJD仿射跳跃扩散）特征函数已知，傅里叶定价高效。OU过程常用于价差和波动率建模，其平稳正态分布便于参数估计。</p>
+      <h3>2.3 测度变换理论</h3>
+      <p>风险中性测度（EMM）与Girsanov定理，Radon-Nikodym导数；远期测度与计价单位变换，简化利率衍生品定价。测度变换是现代金融定价的核心，它允许我们通过改变概率测度来消除风险溢价，使得定价公式简化为无风险利率贴现下的期望。</p>
+      <div class="case-box">
+        <strong>应用1：股票价格动态建模与校准</strong> GBM、Heston、Bates模型比较，最小二乘法与MLE校准。校准过程通常需要同时拟合隐含波动率曲面和历史收益率统计量。<br>
+        <strong>应用2：配对交易策略</strong> 价差建模为OU过程，MLE估计参数，Z-score生成交易信号。策略的核心是捕捉价差的均值回归特性，并动态管理回归速度和波动率。
+      </div>
+    </div>
+
+    <!-- 第3章 -->
+    <div class="chapter">
+      <h2>第3章 随机微分方程与伊藤引理</h2>
+      <h3>3.1 随机积分基础</h3>
+      <p>伊藤积分构造（鞅性、零均值、伊藤等距）。SDE强解/弱解，存在唯一性条件（Lipschitz+线性增长）。线性SDE解析解（算术/几何布朗运动）。伊藤积分与黎曼积分的核心区别在于对布朗运动二次变差的处理，这直接导致了伊藤引理中的修正项。</p>
+      <h3>3.2 伊藤引理详解</h3>
+      <p>一维/多维伊藤引理，伊藤修正项（二次变差）。跳跃扩散扩展形式。金融应用：推导GBM解、Black-Scholes PDE。伊藤引理是随机微积分的链式法则，其修正项来源于(dW_t)^2 = dt，这一性质使得期权定价中的凸性（Gamma）得以量化。</p>
+      <h3>3.3 Girsanov定理</h3>
+      <p>测度变换核心，风险市场价格（θ=(μ−r)/σ）。多维扩展，Cameron-Martin定理。利率模型中的测度转换（T-远期测度）。Girsanov定理是连接现实世界与风险中性世界的桥梁，其本质是通过调整漂移项来吸收风险溢价。</p>
+      <h3>3.4 重要SDE模型求解</h3>
+      <p>解析求解：GBM、Vasicek、CIR条件分布。数值求解：欧拉-丸山、米尔斯坦方法。对于没有解析解的模型（如Heston），数值离散化是模拟路径的唯一途径，米尔斯坦方法通过增加二阶项提高了强收敛阶数。</p>
+      <div class="case-box">
+        <strong>应用1：Black-Scholes PDE完整推导</strong> 伊藤引理→Delta对冲→无套利原理→BS PDE。该推导过程完美展示了动态对冲如何消除风险，并得到不依赖投资者风险偏好的定价方程。<br>
+        <strong>应用2：利率模型校准（Vasicek）</strong> MLE、GMM、卡尔曼滤波Python实现。卡尔曼滤波特别适用于状态空间模型，能同时处理观测噪声和不可观测的利率状态变量。
+      </div>
+    </div>
+
+    <!-- 第4章 -->
+    <div class="chapter">
+      <h2>第4章 衍生品定价理论</h2>
+      <h3>4.1 Black-Scholes模型深入</h3>
+      <p>假设与局限（常数波动率、连续路径）。四种推导方法：PDE法、风险中性定价、鞅方法、热传导方程。希腊字母（Delta, Gamma, Vega, Theta等）与Delta-Gamma-Theta关系。BS模型虽然假设苛刻，但为后续所有复杂模型提供了基准和思想框架。</p>
+      <h3>4.2 风险中性定价框架</h3>
+      <p>基本定价公式（现金账户贴现）。计价单位变换（T-远期测度、股票测度）。Feynman-Kac公式连接PDE与期望。不完备市场（多测度区间）与多资产定价（Copula依赖）。在完备市场中，风险中性测度唯一；在不完备市场中，需要通过其他准则（如效用最大化）来选择测度。</p>
+      <h3>4.3 波动率建模</h3>
+      <p>隐含波动率微笑/偏斜；局部波动率（Dupire公式）；随机波动率（Heston, SABR, 3/2模型）。波动率是期权定价中最活跃的参数，其动态建模经历了从常数到时变、从确定到随机的演进。</p>
+      <h3>4.4 高级定价技术</h3>
+      <p>傅里叶变换（FFT, COS方法），解析近似（渐近展开、鞍点近似）。这些技术使得复杂模型（如Heston、Bates）的欧式期权定价能在毫秒级完成，是交易台日常报价的基础。</p>
+      <div class="case-box">
+        <strong>应用1：欧式期权定价比较</strong> BS解析公式 vs MC模拟 vs FFT/COS方法（Heston模型）。MC最灵活但慢，FFT/COS在特征函数已知时兼具速度和精度。<br>
+        <strong>应用2：波动率交易与动态对冲</strong> 垂直价差、蝶式、风险逆转；Delta-Gamma-Vega对冲回测。动态对冲需要频繁调整头寸，其成本与效果是波动率交易策略的核心。
+      </div>
+    </div>
+
+    <!-- 第5章 -->
+    <div class="chapter">
+      <h2>第5章 时间序列分析</h2>
+      <h3>5.1 时间序列基础</h3>
+      <p>平稳性（ADF/PP/KPSS检验），相关性（ACF/PACF, Ljung-Box），预处理（缺失插值、异常检测、Box-Cox变换）。平稳性是大多数时间序列模型的前提，单位根检验是区分趋势与均值回归的第一步。</p>
+      <h3>5.2 经典时间序列模型</h3>
+      <p>ARIMA（阶数识别、MLE估计）、SARIMA（季节性）、VAR（格兰杰因果、脉冲响应、方差分解）。VAR模型广泛应用于宏观预测和风险传导分析，脉冲响应函数能直观展示冲击的传播路径。</p>
+      <h3>5.3 协整与误差修正</h3>
+      <p>协整理论（EG两步法、Johansen检验），误差修正模型（ECM）。配对交易策略（价差建模、Z-score信号）。协整关系刻画了非平稳序列之间的长期均衡，是统计套利的基础。</p>
+      <h3>5.4 波动率建模</h3>
+      <p>ARCH/GARCH族（EGARCH, TGARCH）, 多元GARCH（BEKK, DCC）, 高频已实现波动率（RV, 跳跃分离）。GARCH模型能捕捉波动率聚类和杠杆效应，而高频数据则提供了更精确的波动率估计。</p>
+      <h3>5.5 状态空间模型</h3>
+      <p>卡尔曼滤波（预测-更新），时变Beta、隐含波动率因子提取。状态空间模型为处理不可观测变量（如时变波动率、经济周期）提供了统一框架，卡尔曼滤波是其在线估计的递归算法。</p>
+      <div class="case-box">
+        <strong>实战：</strong> 波动率预测评估（MSE/QLIKE），动态风险度量（时变Beta/CVaR），统计套利系统构建。这些应用将时间序列模型从理论推向实盘决策。
+      </div>
+    </div>
+
+    <!-- 第6章 -->
+    <div class="chapter">
+      <h2>第6章 数值方法与蒙特卡洛模拟</h2>
+      <h3>6.1 蒙特卡洛基础</h3>
+      <p>随机数生成（梅森旋转、Sobol序列），逆变换/接受-拒绝。期望估计收敛速度 O(1/√N)，CLT置信区间。低差异序列（Sobol、Halton）可显著提高高维积分的收敛效率。</p>
+      <h3>6.2 方差缩减技术</h3>
+      <p>对偶变量法、控制变量法、分层抽样（LHS）、重要性抽样（关键区域加大密度）。这些技术在不增加模拟次数的前提下降低估计方差，是高效蒙特卡洛模拟的必备工具。</p>
+      <h3>6.3 美式期权定价</h3>
+      <p>最小二乘蒙特卡洛（LSM）回归继续价值，对偶方法上下界，有限差分法（LCP）。LSM是美式期权定价的主流方法，通过横截面回归估计继续持有价值，但存在偏差-方差权衡。</p>
+      <h3>6.4 偏微分方程数值解</h3>
+      <p>有限差分（显式/隐式/Crank-Nicolson），ADI分裂，有限元/谱方法。对于低维问题，有限差分法精度高且稳定，是高维问题则面临维数灾难。</p>
+      <h3>6.5 傅里叶方法</h3>
+      <p>特征函数定价（Lévy过程），FFT（快速傅里叶），COS方法（指数收敛）。COS方法因其指数收敛速度，成为许多复杂模型定价的首选。</p>
+      <h3>6.6 数值积分</h3>
+      <p>高斯积分（Legendre/Hermite/Laguerre），准蒙特卡洛（QMC），自适应与奇异积分处理。数值积分是傅里叶方法和特征函数定价的基础。</p>
+      <div class="case-box">
+        <strong>实战：</strong> 路径依赖期权（亚式、障碍）定价，波动率曲面构建（Dupire/SABR），Python高效实现（向量化/并行/GPU）。这些实现将数值方法转化为可落地的量化工具。
+      </div>
+    </div>
+
+    <!-- 第7章 -->
+    <div class="chapter">
+      <h2>第7章 金融优化与投资组合理论</h2>
+      <h3>7.1 马科维茨均值-方差理论</h3>
+      <p>有效前沿、资本市场线（CML）、夏普比率。二次规划（QP）求解，局限性（输入敏感、高维估计误差）。均值-方差理论是投资组合优化的基石，但其对输入参数的极度敏感催生了后续的稳健优化和Black-Litterman模型。</p>
+      <h3>7.2 稳健优化</h3>
+      <p>不确定性集合（盒式/椭球/多面体），Min-Max鲁棒优化，转化为SOCP/SDP。鲁棒优化通过考虑最坏情况来增强组合的稳定性，特别适用于参数估计误差较大的场景。</p>
+      <h3>7.3 Black-Litterman模型</h3>
+      <p>先验均衡收益+主观观点（贝叶斯更新），后验收益与协方差，参数敏感性（τ）。Black-Litterman模型将市场均衡与投资者观点结合，有效缓解了均值-方差优化的极端权重问题。</p>
+      <h3>7.4 凸优化基础</h3>
+      <p>凸集/凸函数，对偶理论，内点法。CVXPY/CVXR建模工具。凸优化为许多金融优化问题提供了高效、可靠的求解框架。</p>
+      <h3>7.5 风险平价</h3>
+      <p>等风险贡献（ERC），层次风险平价（HRP），风险预算与约束。风险平价强调风险贡献的分散化，而非资金权重的分散，在宏观对冲和资产配置中广受欢迎。</p>
+      <h3>7.6 因子投资</h3>
+      <p>多因子模型（Fama-French），因子择时，动态暴露，组合优化实施。因子投资将收益分解为因子暴露和特异性收益，为绩效归因和策略构建提供了结构化视角。</p>
+      <div class="case-box">
+        <strong>实战：</strong> 最大夏普比率组合构建（二次规划），风险平价配置（协方差估计/再平衡），Python回测（PyPortfolioOpt）。这些实战案例将优化理论转化为可操作的量化策略。
+      </div>
+    </div>
+
+    <!-- 第8章 -->
+    <div class="chapter">
+      <h2>第8章 机器学习与因果推断</h2>
+      <h3>8.1 机器学习基础</h3>
+      <p>监督学习（回归/分类），过拟合与交叉验证。无监督学习（聚类/PCA），半监督学习（标签传播）。机器学习为金融预测提供了强大的非线性建模能力，但需警惕过拟合和数据窥探。</p>
+      <h3>8.2 经典机器学习算法</h3>
+      <p>决策树（CART）、集成学习（随机森林、XGBoost/LightGBM）、SVM（核方法）、KNN、朴素贝叶斯。集成学习因其高泛化能力和稳健性，成为量化竞赛和实务中的常胜将军。</p>
+      <h3>8.3 深度学习</h3>
+      <p>神经网络、激活函数/优化器、LSTM/GRU、Transformer（注意力机制）、CNN/GNN。深度学习在图像、文本和时序数据上表现出色，但需要大量数据和计算资源。</p>
+      <h3>8.4 模型可解释性</h3>
+      <p>特征重要性（排列）、PDP/ALE图、SHAP值（全局/局部）、LIME/反事实解释。可解释性在金融监管和风控中至关重要，SHAP值已成为解释黑盒模型的标准工具。</p>
+      <h3>8.5 因果推断基础</h3>
+      <p>因果图（DAG）、后门/前门准则、DID、工具变量（IV）、断点回归（RDD）、倾向得分匹配。因果推断帮助我们从观测数据中识别真正的因果关系，而非仅仅相关性，在政策评估和因子有效性检验中尤为重要。</p>
+      <div class="case-box">
+        <strong>实战：</strong> 股票收益预测（特征工程+时序CV），因子贡献SHAP解释，因果分析（政策评估DoWhy/EconML）。这些应用将机器学习和因果推断从学术研究推向实际投资决策。
+      </div>
+    </div>
+
+    <!-- 第9章 -->
+    <div class="chapter">
+      <h2>第9章 高频数据与微观结构</h2>
+      <h3>9.1 市场微观结构基础</h3>
+      <p>订单类型（市价/限价/止损/冰山），限价订单簿（LOB）动态，买卖价差与市场深度，流动性/波动率/价格发现。微观结构是高频交易的基础，理解订单簿动态是构建高频策略的前提。</p>
+      <h3>9.2 高频统计</h3>
+      <p>点过程（Hawkes自激过程），生存分析（Kaplan-Meier/Cox模型），已实现测度（RV、跳跃检测、微观结构噪声校正）。Hawkes过程能刻画订单流的聚集效应，已实现波动率是高频风险度量的核心。</p>
+      <h3>9.3 执行算法</h3>
+      <p>TWAP/VWAP，实现差异（IS），暗池/游击算法，智能订单路由（SOR），Almgren-Chriss交易成本模型。执行算法在控制市场冲击和时机风险之间寻求最优平衡。</p>
+      <h3>9.4 高频预测</h3>
+      <p>订单流预测（GBM/LSTM），价格预测（订单不平衡/流动性），市场状态识别（HMM/聚类）。高频预测依赖于微观结构信号的即时响应，模型需兼顾速度和准确性。</p>
+      <h3>9.5 市场监管</h3>
+      <p>市场操纵检测（欺骗/拉高出货），高频风险管理（实时监控/止损），市场质量监控（RegTech）。监管科技利用大数据和AI维护市场公平，是高频交易生态的重要一环。</p>
+      <div class="case-box">
+        <strong>实战：</strong> 滑点成本估计与优化，统计套利执行优化（订单拆分/时机选择），高频回测系统（数据清洗/延迟模拟/成交模拟）。这些实战将微观结构理论转化为可执行的交易优化方案。
+      </div>
+    </div>
+
+    <!-- 第10章 -->
+    <div class="chapter">
+      <h2>第10章 高级风险管理与量化策略实践</h2>
+      <h3>10.1 风险度量</h3>
+      <p>方差/VaR/CVaR（一致性风险度量），谱风险度量，流动性风险（LVaR/流动性黑洞）。CVaR因其满足一致性公理，在监管和内部风险模型中逐渐取代VaR。</p>
+      <h3>10.2 压力测试</h3>
+      <p>历史/假设情景，最坏情景/反向压力测试，因子模型与非线性效应（Gamma/Vega），资本充足性评估。压力测试是极端事件下的风险“体检”，反向压力测试则从损失出发反推触发情景。</p>
+      <h3>10.3 模型风险</h3>
+      <p>来源（设定/参数/实施/使用误差），验证（回测/基准/敏感性），模型风险管理框架（治理/清单/独立验证）。模型风险是金融创新的副产品，需贯穿模型生命周期的全流程管理。</p>
+      <h3>10.4 策略开发流程</h3>
+      <p>研究（理念/数据/特征），回测（样本划分/参数优化/稳健性），部署（模拟/小规模/监控迭代）。一个严谨的策略开发流程是防范过拟合和实现长期盈利的关键。</p>
+      <h3>10.5 策略评估</h3>
+      <p>绩效指标（夏普/索提诺/卡玛），统计检验（t检验/Bootstrap/Newey-West），归因分析（Brinson/因子归因）。多维度评估能全面揭示策略的风险收益特征和收益来源。</p>
+      <h3>10.6 过拟合防范</h3>
+      <p>交叉验证（时序），正则化（L1/L2/早停），模型平均，稳健性检验（前向检验/敏感性/压力测试）。过拟合是量化策略失效的头号杀手，需从数据、模型和验证多个环节加以防范。</p>
+      <h3>10.7 在线学习</h3>
+      <p>增量学习（OGD/AdaGrad/Adam），概念漂移检测（滑动窗口/分布检验），强化学习（MDP/策略梯度）。在线学习使模型能适应市场变化，强化学习则在复杂决策环境中展现出巨大潜力。</p>
+      <div class="case-box">
+        <strong>实战：</strong> VaR计算与模型比较，样本外交叉验证，策略生命周期管理，Python端到端案例。这些实战涵盖了从风险度量到策略落地的完整链条。
+      </div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="footer-note">
+      <span style="display: inline-block; background: rgba(80, 40, 160, 0.2); padding: 0.2rem 1.4rem; border-radius: 30px;">
+        ✦ 清华黑紫玻璃 · 壁纸可换 · 内容扩展三倍 ✦
+      </span><br>
+      内容整理自 <a href="https://www.bilibili.com/opus/1194477860160536598" target="_blank">Bilibili 专栏</a> · 夜神月GSK · 仅供学习参考
+    </div>
+
+  </div>
+  <!-- 结束 glass-container -->
+
+  <script>
+    (function() {
+      const buttons = document.querySelectorAll('.wall-btn');
+      const body = document.body;
+
+      // 移除所有壁纸类，添加目标类
+      function setWallpaper(wallClass) {
+        body.className = body.className
+          .split(' ')
+          .filter(cls => !cls.startsWith('wall-'))
+          .join(' ');
+        body.classList.add(wallClass);
+        // 更新激活状态
+        buttons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.wall === wallClass);
+        });
+      }
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          const wall = this.dataset.wall;
+          if (wall) setWallpaper(wall);
+        });
+      });
+
+      // 默认激活 wall-1 (已在body上)
+      // 确保初始状态与按钮匹配
+      const currentWall = Array.from(body.classList).find(cls => cls.startsWith('wall-'));
+      if (currentWall) {
+        buttons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.wall === currentWall);
+        });
+      } else {
+        // fallback: 如果body没有wall类，默认wall-1
+        setWallpaper('wall-1');
+      }
+    })();
+  </script>
+</body>
+</html>

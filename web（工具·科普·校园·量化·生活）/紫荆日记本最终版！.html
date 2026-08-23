@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>紫清日记 · 清华826考研</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'PingFang SC', Roboto, system-ui, sans-serif; }
+        body {
+            min-height: 100vh;
+            background: #0b0710;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 30px 20px;
+        }
+        .glass-card {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(15, 8, 25, 0.70);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 48px;
+            padding: 28px 28px 18px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(160, 100, 220, 0.25), inset 0 0 60px rgba(140, 70, 200, 0.10);
+            border: 1px solid rgba(180, 120, 230, 0.15);
+            background-image: radial-gradient(circle at 20% 30%, rgba(160, 80, 220, 0.08) 0%, transparent 60%),
+                              radial-gradient(circle at 80% 70%, rgba(200, 130, 255, 0.06) 0%, transparent 50%);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            color: #f0e6ff;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+            gap: 12px;
+        }
+        .title-group { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+        .title-group h1 {
+            font-weight: 600; font-size: 2.0rem; letter-spacing: 2px;
+            background: linear-gradient(135deg, #e4d0ff, #ffffff, #d6b3ff);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            text-shadow: 0 0 30px rgba(160, 100, 220, 0.3);
+        }
+        .title-group .sub { font-size: 0.95rem; font-weight: 300; opacity: 0.7; letter-spacing: 1px; color: #c9b0e6; }
+        .right-header { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+
+        .countdown-box {
+            background: rgba(0, 0, 0, 0.5); padding: 6px 18px 6px 16px; border-radius: 60px;
+            border: 1px solid rgba(180, 120, 230, 0.2); backdrop-filter: blur(6px);
+            display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #f0e6ff;
+        }
+        .countdown-box i { color: #b288d9; }
+        .countdown-box .num { font-weight: 700; font-size: 1.3rem; color: #e4d0ff; min-width: 40px; text-align: center; }
+
+        .date-picker-wrapper {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(0, 0, 0, 0.45); padding: 5px 16px 5px 12px; border-radius: 60px;
+            border: 1px solid rgba(180, 120, 230, 0.2);
+        }
+        .date-picker-wrapper input[type="date"] {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(180,120,230,0.15);
+            color: #f0e6ff; padding: 5px 10px; border-radius: 40px; font-size: 0.8rem; outline: none; cursor: pointer;
+        }
+        .date-picker-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8) sepia(1) saturate(3) hue-rotate(230deg); cursor: pointer;
+        }
+        .date-picker-wrapper button {
+            background: rgba(160,100,220,0.15); border: none; color: #d4bff0; padding: 4px 12px;
+            border-radius: 40px; font-size: 0.75rem; cursor: pointer; border: 1px solid rgba(160,100,220,0.1);
+            transition: 0.15s; display: flex; align-items: center; gap: 4px;
+        }
+        .date-picker-wrapper button:hover { background: rgba(160,100,220,0.25); color: white; }
+
+        /* 两列布局 */
+        .diary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin: 16px 0 16px;
+        }
+        @media (max-width: 780px) { .diary-grid { grid-template-columns: 1fr; } }
+
+        .diary-card {
+            background: rgba(20, 10, 35, 0.55);
+            backdrop-filter: blur(6px);
+            border-radius: 28px;
+            padding: 16px 18px 18px;
+            border: 1px solid rgba(160, 100, 220, 0.12);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(200, 150, 255, 0.05);
+            transition: all 0.2s;
+        }
+        .diary-card:hover {
+            background: rgba(30, 15, 50, 0.7);
+            border-color: rgba(180, 120, 230, 0.25);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 30px rgba(120, 50, 200, 0.05);
+        }
+        .card-title {
+            font-size: 1.0rem; font-weight: 600; color: #f0e2ff;
+            border-bottom: 2px solid rgba(180, 120, 230, 0.12);
+            padding-bottom: 8px; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px;
+        }
+        .card-title i { color: #b288d9; font-size: 0.9rem; }
+
+        /* 时间块 */
+        .time-block { margin-bottom: 12px; }
+        .time-block-title {
+            font-size: 0.7rem; color: #b89ed9; letter-spacing: 1px; margin-bottom: 4px;
+            display: flex; align-items: center; gap: 6px; border-left: 2px solid #9b6fc9; padding-left: 8px;
+        }
+        .time-slot {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.03); border-radius: 40px;
+            padding: 3px 12px 3px 8px; margin-bottom: 4px;
+            border-left: 3px solid #7a5aad;
+        }
+        .time-label { font-size: 0.7rem; color: #b89ed9; min-width: 52px; font-weight: 400; }
+        .time-slot input {
+            background: transparent; border: none;
+            border-bottom: 1px dotted rgba(180,120,230,0.1);
+            color: #f0e6ff; font-size: 0.78rem; padding: 4px 2px; width: 100%; outline: none;
+            transition: 0.15s;
+        }
+        .time-slot input::placeholder { color: #7a5d99; font-weight: 300; font-size: 0.7rem; opacity: 0.6; }
+        .time-slot input:focus { border-bottom-color: #b288d9; }
+
+        .quick-field {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 8px;
+        }
+        .quick-field label { font-size: 0.75rem; color: #c9b0e6; display: flex; align-items: center; gap: 5px; }
+        .quick-field input, .quick-field select {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(160,100,220,0.12);
+            color: #f0e6ff; padding: 3px 10px; border-radius: 40px; font-size: 0.75rem;
+            outline: none; transition: 0.15s; width: auto; min-width: 60px;
+        }
+        .quick-field input:focus, .quick-field select:focus { border-color: #b288d9; background: rgba(160,100,220,0.08); }
+        .quick-field select option { background: #1f0f33; color: #f0e6ff; }
+
+        /* 计划 */
+        .plan-area textarea {
+            width: 100%; background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(160,100,220,0.10); border-radius: 20px;
+            color: #f0e6ff; padding: 10px 14px; font-size: 0.8rem;
+            resize: vertical; min-height: 56px; outline: none; transition: 0.15s;
+            font-family: inherit;
+        }
+        .plan-area textarea:focus { border-color: #b288d9; background: rgba(160,100,220,0.05); }
+        .plan-area textarea::placeholder { color: #7a5d99; font-weight: 300; }
+
+        /* 番茄钟 */
+        .pomodoro-box {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(160,100,220,0.08);
+        }
+        .pomodoro-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .pomodoro-timer {
+            font-size: 2.0rem;
+            font-weight: 600;
+            color: #f0e6ff;
+            letter-spacing: 2px;
+            font-variant-numeric: tabular-nums;
+            min-width: 90px;
+        }
+        .pomodoro-controls {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .pomodoro-controls button {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(160,100,220,0.15);
+            color: #d4bff0;
+            padding: 3px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .pomodoro-controls button:hover {
+            background: rgba(160,100,220,0.15);
+            border-color: #b288d9;
+            color: white;
+        }
+        .pomodoro-controls .btn-primary {
+            background: rgba(160,100,220,0.2);
+            border-color: rgba(160,100,220,0.3);
+        }
+        .pomodoro-controls .btn-primary:hover { background: rgba(160,100,220,0.35); }
+        .pomodoro-status {
+            font-size: 0.65rem;
+            color: #b89ed9;
+            margin-top: 3px;
+        }
+        .pomodoro-session-count {
+            font-size: 0.7rem;
+            color: #b89ed9;
+        }
+        .pomodoro-quick {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+        .pomodoro-quick button {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(160,100,220,0.08);
+            color: #b89ed9;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .pomodoro-quick button:hover {
+            background: rgba(160,100,220,0.1);
+            border-color: #b288d9;
+        }
+
+        /* ---------- 知识卡片 ---------- */
+        .knowledge-wrapper {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(160,100,220,0.08);
+        }
+        .knowledge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .knowledge-header span {
+            font-size: 0.7rem;
+            color: #b89ed9;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .knowledge-nav {
+            display: flex;
+            gap: 6px;
+        }
+        .knowledge-nav button {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(160,100,220,0.12);
+            color: #d4bff0;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .knowledge-nav button:hover {
+            background: rgba(160,100,220,0.15);
+            border-color: #b288d9;
+            color: white;
+        }
+        .knowledge-card {
+            background: rgba(0,0,0,0.25);
+            border-radius: 16px;
+            padding: 10px 14px;
+            min-height: 80px;
+            border-left: 3px solid #9b6fc9;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .knowledge-card .k-question {
+            font-size: 0.78rem;
+            color: #f0e6ff;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        .knowledge-card .k-answer {
+            font-size: 0.72rem;
+            color: #c9b0e6;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+        .knowledge-card .k-tag {
+            font-size: 0.55rem;
+            color: #b288d9;
+            background: rgba(160,100,220,0.12);
+            padding: 1px 10px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-top: 4px;
+            align-self: flex-start;
+        }
+        .knowledge-progress {
+            text-align: center;
+            font-size: 0.55rem;
+            color: #7a5d99;
+            margin-top: 3px;
+        }
+
+        /* 大题区域 */
+        .big-question-wrapper {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(160,100,220,0.08);
+        }
+        .big-q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .big-q-header span {
+            font-size: 0.7rem;
+            color: #b89ed9;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .big-q-nav {
+            display: flex;
+            gap: 6px;
+        }
+        .big-q-nav button {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(160,100,220,0.12);
+            color: #d4bff0;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .big-q-nav button:hover {
+            background: rgba(160,100,220,0.15);
+            border-color: #b288d9;
+            color: white;
+        }
+        .big-q-card {
+            background: rgba(0,0,0,0.25);
+            border-radius: 16px;
+            padding: 10px 14px;
+            min-height: 100px;
+            border-left: 3px solid #d4a06a;
+            transition: 0.2s;
+        }
+        .big-q-card .bq-title {
+            font-size: 0.72rem;
+            color: #f0e6ff;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        .big-q-card .bq-body {
+            font-size: 0.68rem;
+            color: #c9b0e6;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .big-q-card .bq-answer {
+            font-size: 0.72rem;
+            color: #a8d9a8;
+            margin-top: 4px;
+            border-top: 1px dashed rgba(160,200,160,0.15);
+            padding-top: 4px;
+        }
+        .big-q-progress {
+            text-align: center;
+            font-size: 0.55rem;
+            color: #7a5d99;
+            margin-top: 3px;
+        }
+
+        .action-bar {
+            display: flex; flex-wrap: wrap; align-items: center;
+            justify-content: space-between; margin: 14px 0 8px; gap: 10px; padding: 6px 2px;
+        }
+        .action-left { display: flex; gap: 6px; flex-wrap: wrap; }
+        .action-bar button {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(160,100,220,0.12);
+            color: #d4bff0; padding: 5px 14px; border-radius: 40px; font-size: 0.7rem;
+            cursor: pointer; backdrop-filter: blur(4px); transition: 0.15s;
+            display: flex; align-items: center; gap: 5px; font-weight: 400;
+        }
+        .action-bar button:hover { background: rgba(160,100,220,0.15); border-color: #b288d9; color: white; transform: scale(1.02); }
+        .action-bar .btn-primary { background: rgba(160,100,220,0.15); border-color: rgba(160,100,220,0.25); }
+        .action-bar .btn-primary:hover { background: rgba(160,100,220,0.30); }
+
+        .history-list {
+            margin-top: 8px; background: rgba(0,0,0,0.2); border-radius: 28px;
+            padding: 10px 14px; max-height: 160px; overflow-y: auto;
+            border: 1px solid rgba(160,100,220,0.06);
+        }
+        .history-list::-webkit-scrollbar { width: 4px; }
+        .history-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .history-list::-webkit-scrollbar-thumb { background: #9b6fc9; border-radius: 10px; }
+
+        .history-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 4px 6px; border-bottom: 1px solid rgba(160,100,220,0.05);
+            font-size: 0.7rem; color: #e0d0f5; cursor: pointer; border-radius: 20px;
+            transition: 0.1s;
+        }
+        .history-item:hover { background: rgba(160,100,220,0.08); }
+        .history-item .hdate { color: #b288d9; font-weight: 500; }
+        .history-item .hpreview { opacity: 0.7; font-size: 0.65rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+        .history-item .hdel { color: #a06a8a; background: transparent; border: none; cursor: pointer; font-size: 0.7rem; padding: 0 4px; }
+        .history-item .hdel:hover { color: #e07a9a; }
+        .empty-history { color: #7a5d99; font-size: 0.75rem; text-align: center; padding: 10px 0; }
+
+        .powered { text-align: right; font-size: 0.6rem; margin-top: 10px; color: #7a5d99; letter-spacing: 1px; opacity: 0.5; }
+
+        @media (max-width: 600px) {
+            .glass-card { padding: 14px; }
+            .header { flex-direction: column; align-items: stretch; }
+            .right-header { flex-direction: column; align-items: stretch; }
+            .date-picker-wrapper { align-self: flex-start; flex-wrap: wrap; }
+            .action-bar { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+<div class="glass-card">
+    <!-- 头部 -->
+    <div class="header">
+        <div class="title-group">
+            <h1><i class="fas fa-book-open" style="margin-right: 10px;"></i>紫清日记</h1>
+            <span class="sub">清华计算机 · 826考研</span>
+        </div>
+        <div class="right-header">
+            <div class="countdown-box" id="countdownBox">
+                <i class="fas fa-hourglass-half"></i>
+                <span>倒计时</span>
+                <span class="num" id="countdownNum">--</span>
+                <span style="font-size:0.7rem; opacity:0.6;">天</span>
+            </div>
+            <div class="date-picker-wrapper">
+                <i class="fas fa-calendar-alt" style="color: #b288d9;"></i>
+                <input type="date" id="diaryDate" value="2026-06-20">
+                <button id="todayBtn"><i class="fas fa-sync-alt"></i> 今天</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 两列 -->
+    <div class="diary-grid">
+        <!-- 列1: 日记日程 -->
+        <div class="diary-card">
+            <div class="card-title"><i class="fas fa-clock"></i> 日程</div>
+            <div class="time-block">
+                <div class="time-block-title"><i class="fas fa-sun"></i> 06:00 – 11:00</div>
+                <div id="slot-morning" class="timeline-container"></div>
+            </div>
+            <div class="time-block">
+                <div class="time-block-title"><i class="fas fa-cloud-sun"></i> 12:00 – 17:00</div>
+                <div id="slot-afternoon" class="timeline-container"></div>
+            </div>
+            <div class="time-block">
+                <div class="time-block-title"><i class="fas fa-moon"></i> 18:00 – 24:00</div>
+                <div id="slot-evening" class="timeline-container"></div>
+            </div>
+            <div class="quick-field">
+                <label><i class="far fa-smile"></i> 心情 <select id="moodSelect"><option value="😊">😊</option><option value="😐">😐</option><option value="😢">😢</option><option value="😡">😡</option><option value="🤩">🤩</option><option value="😴">😴</option></select></label>
+                <label><i class="fas fa-weight"></i> 体重 <input type="text" id="weightInput" placeholder="kg" style="width:60px;"></label>
+                <label><i class="fas fa-utensils"></i> 饮食 <input type="text" id="foodInput" placeholder="早/午/晚" style="width:100px;"></label>
+            </div>
+        </div>
+
+        <!-- 列2: 计划 + 番茄 + 知识点 + 大题 -->
+        <div class="diary-card">
+            <div class="card-title"><i class="fas fa-list-ul"></i> 计划</div>
+            <div class="plan-area">
+                <textarea id="tomorrowPlan" placeholder="📌 明日计划..."></textarea>
+                <textarea id="weekPlan" placeholder="📌 本周计划..." style="min-height:50px; margin-top:6px;"></textarea>
+                <textarea id="monthPlan" placeholder="📌 本月计划..." style="min-height:50px; margin-top:6px;"></textarea>
+            </div>
+
+            <!-- 番茄钟 -->
+            <div class="pomodoro-box">
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:4px;">
+                    <span style="font-size:0.75rem; color:#b89ed9;"><i class="fas fa-clock"></i> 番茄钟</span>
+                    <span class="pomodoro-session-count" id="pomodoroSessionCount">🍅 今日: 0</span>
+                </div>
+                <div class="pomodoro-row">
+                    <span class="pomodoro-timer" id="pomodoroTimer">25:00</span>
+                    <div class="pomodoro-controls">
+                        <button id="pomodoroStart" class="btn-primary"><i class="fas fa-play"></i></button>
+                        <button id="pomodoroPause"><i class="fas fa-pause"></i></button>
+                        <button id="pomodoroReset"><i class="fas fa-stop"></i></button>
+                    </div>
+                </div>
+                <div class="pomodoro-status" id="pomodoroStatus">⏳ 专注中 (25min)</div>
+                <div class="pomodoro-quick">
+                    <button id="pomodoroShortBreak">短休 5min</button>
+                    <button id="pomodoroLongBreak">长休 15min</button>
+                    <button id="pomodoroFocus">专注 25min</button>
+                </div>
+            </div>
+
+            <!-- 知识点卡片 50个 -->
+            <div class="knowledge-wrapper">
+                <div class="knowledge-header">
+                    <span><i class="fas fa-brain"></i> 826 高频知识点</span>
+                    <div class="knowledge-nav">
+                        <button id="kPrev"><i class="fas fa-chevron-left"></i></button>
+                        <button id="kNext"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="knowledge-card" id="knowledgeCard">
+                    <div class="k-question" id="kQuestion">加载中...</div>
+                    <div class="k-tag" id="kTag">数据结构</div>
+                </div>
+                <div class="knowledge-progress" id="kProgress">1 / 50</div>
+            </div>
+
+            <!-- 大题 + 解答 20道 -->
+            <div class="big-question-wrapper">
+                <div class="big-q-header">
+                    <span><i class="fas fa-pencil-alt"></i> 典型大题 · 含解答</span>
+                    <div class="big-q-nav">
+                        <button id="bqPrev"><i class="fas fa-chevron-left"></i></button>
+                        <button id="bqNext"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="big-q-card" id="bigQuestionCard">
+                    <div class="bq-title" id="bqTitle">加载中...</div>
+                    <div class="bq-body" id="bqBody"></div>
+                    <div class="bq-answer" id="bqAnswer">📝 解答：</div>
+                </div>
+                <div class="big-q-progress" id="bqProgress">1 / 20</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作栏 -->
+    <div class="action-bar">
+        <div class="action-left">
+            <button id="saveDiaryBtn" class="btn-primary"><i class="fas fa-save"></i> 保存日记</button>
+            <button id="loadDiaryBtn"><i class="fas fa-upload"></i> 加载当前</button>
+            <button id="clearDiaryBtn"><i class="fas fa-eraser"></i> 清空</button>
+        </div>
+        <div>
+            <button id="exportHistoryBtn"><i class="fas fa-file-export"></i> 导出所有</button>
+            <button id="clearHistoryBtn" style="color:#b07a8a;"><i class="fas fa-trash-alt"></i> 清空历史</button>
+        </div>
+    </div>
+
+    <!-- 历史记录 -->
+    <div style="margin-top: 4px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; color: #b89ed9; font-size:0.8rem; padding:0 4px;">
+            <span><i class="fas fa-history"></i> 历史日记</span>
+            <span style="font-size:0.6rem; opacity:0.5;">点击条目加载</span>
+        </div>
+        <div class="history-list" id="historyList">
+            <div class="empty-history">暂无记录，写一篇日记吧 ✨</div>
+        </div>
+    </div>
+
+    <div class="powered">
+        <i class="fas fa-microchip"></i> 紫清日记 · 清华计算机科学与技术系 826考研 · 番茄专注 · 50知识点 + 20大题
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 倒计时 ----------
+        function updateCountdown() {
+            const target = new Date('2026-12-26T00:00:00');
+            const now = new Date();
+            const diff = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+            document.getElementById('countdownNum').textContent = diff >= 0 ? diff : '0';
+        }
+        updateCountdown();
+        setInterval(updateCountdown, 60000);
+
+        // ---------- 工具 ----------
+        const getDate = () => document.getElementById('diaryDate').value;
+        const todayStr = () => new Date().toISOString().slice(0,10);
+
+        // ---------- 渲染时间线 ----------
+        function renderTimeSlots() {
+            const containers = {
+                'slot-morning': { start: 6, end: 11 },
+                'slot-afternoon': { start: 12, end: 17 },
+                'slot-evening': { start: 18, end: 24 }
+            };
+            for (const [id, range] of Object.entries(containers)) {
+                const container = document.getElementById(id);
+                container.innerHTML = '';
+                for (let h = range.start; h <= range.end; h++) {
+                    const label = String(h).padStart(2,'0') + ':00';
+                    const div = document.createElement('div');
+                    div.className = 'time-slot';
+                    div.innerHTML = `<span class="time-label">${label}</span><input type="text" placeholder="日程..." data-time="${label}" class="timeline-input" data-slot="${id}">`;
+                    container.appendChild(div);
+                }
+            }
+        }
+        renderTimeSlots();
+
+        function getTimelineValues() {
+            const inputs = document.querySelectorAll('.timeline-input');
+            const obj = {};
+            inputs.forEach(inp => { obj[inp.dataset.time] = inp.value; });
+            return obj;
+        }
+        function setTimelineValues(data) {
+            const inputs = document.querySelectorAll('.timeline-input');
+            inputs.forEach(inp => {
+                inp.value = (data && data[inp.dataset.time] !== undefined) ? data[inp.dataset.time] : '';
+            });
+        }
+
+        // ---------- 日记数据 ----------
+        function getDiaryData(date) {
+            const raw = localStorage.getItem('diary_' + date);
+            try { return raw ? JSON.parse(raw) : null; } catch(e) { return null; }
+        }
+        function setDiaryData(date, data) {
+            localStorage.setItem('diary_' + date, JSON.stringify(data));
+        }
+        function getAllDiaryKeys() {
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith('diary_')) keys.push(k);
+            }
+            return keys.sort();
+        }
+
+        function loadDiaryByDate(date) {
+            const data = getDiaryData(date);
+            if (!data) {
+                setTimelineValues({});
+                document.getElementById('moodSelect').value = '😊';
+                document.getElementById('weightInput').value = '';
+                document.getElementById('foodInput').value = '';
+                document.getElementById('tomorrowPlan').value = '';
+                document.getElementById('weekPlan').value = '';
+                document.getElementById('monthPlan').value = '';
+                return;
+            }
+            if (data.timeline) setTimelineValues(data.timeline);
+            if (data.mood) document.getElementById('moodSelect').value = data.mood;
+            if (data.weight) document.getElementById('weightInput').value = data.weight;
+            if (data.food) document.getElementById('foodInput').value = data.food;
+            if (data.tomorrow) document.getElementById('tomorrowPlan').value = data.tomorrow;
+            if (data.week) document.getElementById('weekPlan').value = data.week;
+            if (data.month) document.getElementById('monthPlan').value = data.month;
+        }
+
+        function saveCurrentDiary() {
+            const date = getDate();
+            const data = {
+                timeline: getTimelineValues(),
+                mood: document.getElementById('moodSelect').value,
+                weight: document.getElementById('weightInput').value,
+                food: document.getElementById('foodInput').value,
+                tomorrow: document.getElementById('tomorrowPlan').value,
+                week: document.getElementById('weekPlan').value,
+                month: document.getElementById('monthPlan').value
+            };
+            setDiaryData(date, data);
+            renderHistory();
+            const btn = document.getElementById('saveDiaryBtn');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> 已保存';
+            setTimeout(() => { btn.innerHTML = orig; }, 1200);
+        }
+
+        function clearCurrentDiary() {
+            if (!confirm('清空当前日期的所有内容？')) return;
+            localStorage.removeItem('diary_' + getDate());
+            loadDiaryByDate(getDate());
+            renderHistory();
+        }
+
+        // ---------- 历史 ----------
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            const keys = getAllDiaryKeys();
+            if (keys.length === 0) {
+                list.innerHTML = '<div class="empty-history">暂无记录，写一篇日记吧 ✨</div>';
+                return;
+            }
+            let html = '';
+            keys.forEach(key => {
+                const date = key.replace('diary_', '');
+                const data = getDiaryData(date);
+                let preview = '';
+                if (data && data.timeline) {
+                    const vals = Object.values(data.timeline).filter(v => v.trim() !== '');
+                    preview = vals.length ? vals.join(' · ') : '📭 无日程';
+                } else { preview = '📭 空'; }
+                html += `<div class="history-item" data-date="${date}">
+                    <span class="hdate">${date}</span>
+                    <span class="hpreview">${preview.substring(0, 30)}</span>
+                    <button class="hdel" data-date="${date}"><i class="fas fa-times-circle"></i></button>
+                </div>`;
+            });
+            list.innerHTML = html;
+            list.querySelectorAll('.history-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (e.target.closest('.hdel')) return;
+                    const date = this.dataset.date;
+                    document.getElementById('diaryDate').value = date;
+                    loadDiaryByDate(date);
+                });
+            });
+            list.querySelectorAll('.hdel').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const date = this.dataset.date;
+                    if (confirm(`删除 ${date} 的日记？`)) {
+                        localStorage.removeItem('diary_' + date);
+                        renderHistory();
+                        if (getDate() === date) loadDiaryByDate(date);
+                    }
+                });
+            });
+        }
+
+        function exportAllHistory() {
+            const keys = getAllDiaryKeys();
+            if (!keys.length) { alert('没有历史记录'); return; }
+            const obj = {};
+            keys.forEach(k => { obj[k.replace('diary_','')] = getDiaryData(k.replace('diary_','')); });
+            const blob = new Blob([JSON.stringify(obj, null, 2)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'diary_export_' + todayStr() + '.json';
+            a.click();
+        }
+        function clearAllHistory() {
+            if (!confirm('删除所有日记历史？')) return;
+            getAllDiaryKeys().forEach(k => localStorage.removeItem(k));
+            renderHistory();
+            loadDiaryByDate(getDate());
+        }
+
+        // ---------- 番茄钟 ----------
+        let pomodoroState = {
+            mode: 'focus',
+            secondsLeft: 25 * 60,
+            isRunning: false,
+            timerId: null,
+            todaySessions: 0,
+        };
+
+        function loadPomodoroStats() {
+            try {
+                const raw = localStorage.getItem('pomodoro_today');
+                if (raw) {
+                    const s = JSON.parse(raw);
+                    if (s.date === todayStr()) {
+                        pomodoroState.todaySessions = s.count || 0;
+                    } else {
+                        pomodoroState.todaySessions = 0;
+                        savePomodoroStats();
+                    }
+                }
+            } catch(e) { pomodoroState.todaySessions = 0; }
+            updatePomodoroUI();
+        }
+
+        function savePomodoroStats() {
+            localStorage.setItem('pomodoro_today', JSON.stringify({
+                date: todayStr(),
+                count: pomodoroState.todaySessions
+            }));
+        }
+
+        function updatePomodoroUI() {
+            document.getElementById('pomodoroSessionCount').textContent = `🍅 今日: ${pomodoroState.todaySessions}`;
+            const mins = Math.floor(pomodoroState.secondsLeft / 60);
+            const secs = pomodoroState.secondsLeft % 60;
+            document.getElementById('pomodoroTimer').textContent =
+                String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+            const statusEl = document.getElementById('pomodoroStatus');
+            if (pomodoroState.mode === 'focus') statusEl.textContent = '⏳ 专注中 (25min)';
+            else if (pomodoroState.mode === 'shortBreak') statusEl.textContent = '☕ 短休息 (5min)';
+            else if (pomodoroState.mode === 'longBreak') statusEl.textContent = '🌿 长休息 (15min)';
+        }
+
+        function tickPomodoro() {
+            if (!pomodoroState.isRunning) return;
+            if (pomodoroState.secondsLeft <= 0) {
+                if (pomodoroState.mode === 'focus') {
+                    pomodoroState.todaySessions += 1;
+                    savePomodoroStats();
+                    updatePomodoroUI();
+                    pomodoroState.mode = 'shortBreak';
+                    pomodoroState.secondsLeft = 5 * 60;
+                    pomodoroState.isRunning = false;
+                    if (pomodoroState.timerId) { clearInterval(pomodoroState.timerId); pomodoroState.timerId = null; }
+                    document.getElementById('pomodoroStatus').textContent = '✅ 专注完成！点击"开始"休息';
+                    updatePomodoroUI();
+                    return;
+                } else {
+                    pomodoroState.isRunning = false;
+                    if (pomodoroState.timerId) { clearInterval(pomodoroState.timerId); pomodoroState.timerId = null; }
+                    document.getElementById('pomodoroStatus').textContent = '⏰ 休息结束';
+                    updatePomodoroUI();
+                    return;
+                }
+            }
+            pomodoroState.secondsLeft--;
+            updatePomodoroUI();
+        }
+
+        function startPomodoro() {
+            if (pomodoroState.isRunning) return;
+            if (pomodoroState.secondsLeft <= 0) {
+                if (pomodoroState.mode === 'focus') pomodoroState.secondsLeft = 25 * 60;
+                else if (pomodoroState.mode === 'shortBreak') pomodoroState.secondsLeft = 5 * 60;
+                else if (pomodoroState.mode === 'longBreak') pomodoroState.secondsLeft = 15 * 60;
+            }
+            pomodoroState.isRunning = true;
+            if (pomodoroState.timerId) clearInterval(pomodoroState.timerId);
+            pomodoroState.timerId = setInterval(tickPomodoro, 1000);
+            updatePomodoroUI();
+            document.getElementById('pomodoroStatus').textContent =
+                pomodoroState.mode === 'focus' ? '⏳ 专注中...' : '☕ 休息中...';
+        }
+
+        function pausePomodoro() {
+            if (!pomodoroState.isRunning) return;
+            pomodoroState.isRunning = false;
+            if (pomodoroState.timerId) { clearInterval(pomodoroState.timerId); pomodoroState.timerId = null; }
+            document.getElementById('pomodoroStatus').textContent = '⏸️ 已暂停';
+        }
+
+        function resetPomodoro() {
+            pausePomodoro();
+            pomodoroState.mode = 'focus';
+            pomodoroState.secondsLeft = 25 * 60;
+            updatePomodoroUI();
+            document.getElementById('pomodoroStatus').textContent = '⏳ 专注中 (25min)';
+        }
+
+        function setPomodoroMode(mode, seconds) {
+            pausePomodoro();
+            pomodoroState.mode = mode;
+            pomodoroState.secondsLeft = seconds;
+            updatePomodoroUI();
+            const statusEl = document.getElementById('pomodoroStatus');
+            if (mode === 'focus') statusEl.textContent = '⏳ 专注中 (25min)';
+            else if (mode === 'shortBreak') statusEl.textContent = '☕ 短休息 (5min)';
+            else if (mode === 'longBreak') statusEl.textContent = '🌿 长休息 (15min)';
+        }
+
+        // ---------- 50个纯粹知识点 ----------
+        const knowledgeData = [
+            // 数据结构
+            { q: 'O记号表示渐近上界，忽略常数因子和低阶项。', tag: '数据结构·绪论' },
+            { q: '主定理用于求解形如 T(n)=aT(n/b)+f(n) 的递推式。', tag: '数据结构·绪论' },
+            { q: '就地算法是指空间复杂度为 O(1) 的算法。', tag: '数据结构·绪论' },
+            { q: 'Catalan数 C_n = (2n)!/(n!(n+1)!)，用于计数栈混洗、二叉搜索树等。', tag: '数据结构·栈与队列' },
+            { q: '逆波兰表达式（RPN）无需括号和优先级，用栈求值。', tag: '数据结构·栈与队列' },
+            { q: '二叉树的先序、中序、后序遍历是递归遍历的三种基本方式。', tag: '数据结构·树与二叉树' },
+            { q: '哈夫曼编码是可变长前缀码，带权路径长度最短。', tag: '数据结构·树与二叉树' },
+            { q: 'AVL树是平衡二叉搜索树，任意节点左右子树高度差不超过1。', tag: '数据结构·搜索树' },
+            { q: '伸展树（Splay Tree）通过旋转将访问节点移到根，分摊 O(log n)。', tag: '数据结构·高级搜索树' },
+            { q: 'B树是多路平衡搜索树，广泛用于数据库索引。', tag: '数据结构·高级搜索树' },
+            { q: '红黑树是近似平衡的二叉搜索树，黑高度平衡。', tag: '数据结构·高级搜索树' },
+            { q: '散列表支持平均 O(1) 的查找、插入、删除。', tag: '数据结构·散列' },
+            { q: '跳转表（Skip List）是概率平衡的数据结构，期望 O(log n)。', tag: '数据结构·跳转表' },
+            { q: 'BFS使用队列，DFS使用栈，可分别用于最短路径和拓扑排序。', tag: '数据结构·图' },
+            { q: 'Dijkstra算法解决单源正权最短路，贪心策略。', tag: '数据结构·图' },
+            { q: 'Prim和Kruskal算法构造最小生成树，分别适用于稠密图和稀疏图。', tag: '数据结构·图' },
+            { q: '完全二叉堆支持 O(log n) 插入和删除，Floyd建堆 O(n)。', tag: '数据结构·优先级队列' },
+            { q: '败者树是锦标赛树的改进，常系数更优。', tag: '数据结构·优先级队列' },
+            { q: '左式堆支持 O(log n) 合并操作，满足堆序和左倾性质。', tag: '数据结构·优先级队列' },
+            { q: 'KMP算法利用前缀函数实现 O(n+m) 字符串匹配。', tag: '数据结构·串' },
+            { q: 'BM算法从右向左匹配，坏字符和好后缀两个启发策略。', tag: '数据结构·串' },
+            { q: '快速排序平均 O(n log n)，最坏 O(n²)。', tag: '数据结构·排序' },
+            { q: '归并排序稳定，时间复杂度 O(n log n)，空间 O(n)。', tag: '数据结构·排序' },
+            { q: '堆排序不稳定，时间复杂度 O(n log n)，原地排序。', tag: '数据结构·排序' },
+            { q: '希尔排序是不稳定的插入排序改进，增量序列决定复杂度。', tag: '数据结构·排序' },
+            // 组成原理
+            { q: '冯诺依曼机核心：存储程序，指令和数据统一编址。', tag: '组成原理·绪论' },
+            { q: 'CPI = 时钟周期数/指令数，CPU时间 = 指令数 × CPI × 时钟周期。', tag: '组成原理·绪论' },
+            { q: '补码能表示 -2^{n-1} 到 2^{n-1}-1，多一个负数。', tag: '组成原理·数据表示' },
+            { q: 'IEEE754单精度浮点数：1位符号位，8位阶码，23位尾数。', tag: '组成原理·数据表示' },
+            { q: 'UTF-8是变长编码，兼容ASCII，用于Unicode。', tag: '组成原理·数据表示' },
+            { q: '海明码通过添加校验位实现单纠错、双检错。', tag: '组成原理·数据表示' },
+            { q: 'RISC指令集格式规整，采用LOAD/STORE架构。', tag: '组成原理·指令系统' },
+            { q: '流水线冲突分为结构冲突、数据冲突、控制冲突三类。', tag: '组成原理·控制器设计' },
+            { q: '数据转发（旁路）可以减少RAW冲突带来的气泡。', tag: '组成原理·控制器设计' },
+            { q: '分支预测（静态/动态）用于解决控制冲突。', tag: '组成原理·控制器设计' },
+            { q: 'Cache利用时间局部性和空间局部性提高访存速度。', tag: '组成原理·层次存储器' },
+            { q: '全相联、组相联、直接映射是三种Cache映射方式。', tag: '组成原理·层次存储器' },
+            { q: 'TLB是快表，缓存虚拟地址到物理地址的映射。', tag: '组成原理·层次存储器' },
+            { q: '虚拟内存允许逻辑地址空间大于物理地址空间。', tag: '组成原理·层次存储器' },
+            { q: 'RAID0无冗余，RAID1镜像，RAID5奇偶校验。', tag: '组成原理·IO总线' },
+            { q: 'DMA方式无需CPU干预即可完成数据块传输。', tag: '组成原理·IO总线' },
+            // 操作系统
+            { q: '进程是资源分配的基本单位，线程是CPU调度的基本单位。', tag: '操作系统·绪论' },
+            { q: '系统调用是用户程序请求内核服务的接口。', tag: '操作系统·绪论' },
+            { q: '微内核将大部分系统服务移出内核，提高模块化。', tag: '操作系统·绪论' },
+            { q: '分页存储管理将地址空间划分为等大小的页和页框。', tag: '操作系统·内存管理' },
+            { q: '页面置换算法：FIFO、LRU、Clock、OPT等。', tag: '操作系统·内存管理' },
+            { q: '信号量是同步互斥机制，P操作减1，V操作加1。', tag: '操作系统·进程管理' },
+            { q: '死锁四个必要条件：互斥、持有等待、非剥夺、循环等待。', tag: '操作系统·进程管理' },
+            { q: '银行家算法是避免死锁的著名算法。', tag: '操作系统·进程管理' },
+            { q: '文件系统提供持久化存储，inode是文件元数据。', tag: '操作系统·文件管理' },
+            { q: '硬链接共享同一个inode，软链接是路径别名。', tag: '操作系统·文件管理' },
+        ];
+
+        let currentK = 0;
+        function updateKnowledge(index) {
+            const item = knowledgeData[index % knowledgeData.length];
+            document.getElementById('kQuestion').textContent = item.q;
+            document.getElementById('kTag').textContent = item.tag;
+            document.getElementById('kProgress').textContent = `${index+1} / ${knowledgeData.length}`;
+        }
+        function nextKnowledge() { currentK = (currentK + 1) % knowledgeData.length; updateKnowledge(currentK); }
+        function prevKnowledge() { currentK = (currentK - 1 + knowledgeData.length) % knowledgeData.length; updateKnowledge(currentK); }
+
+        // ---------- 20道大题+解答 ----------
+        const bigQuestions = [
+            { title: '1. 连续子序列最大和', body: '给定整数数组 A[0..n-1]，求最大的连续子序列和（至少包含一个元素）。', answer: 'Kadane算法：dp[i] = max(A[i], dp[i-1]+A[i])，维护全局最大值。时间复杂度 O(n)，空间 O(1)。' },
+            { title: '2. 单峰向量查找峰值', body: '向量 A[0..n-1] 先严格递增后严格递减（单峰），在 O(log n) 内找到峰值索引。', answer: '二分查找：比较 mid 和 mid+1，若 A[mid] < A[mid+1] 则峰在右半，否则在左半。' },
+            { title: '3. KMP 算法 next 数组构造', body: '给出模式串 P，构造 next[] 和改进的 next[] 表。', answer: 'next[i] 表示 P[0..i-1] 的最长相等前后缀长度。改进 next 考虑 P[i] 与 P[next[i]] 是否相等，相等则进一步前移。' },
+            { title: '4. 快速排序的时间复杂度分析', body: '分析快速排序在最好、平均、最坏情况下的时间复杂度。', answer: '最好 O(n log n)，平均 O(n log n)，最坏 O(n²)（已有序或逆序）。' },
+            { title: '5. AVL 树插入后的旋转调整', body: '在 AVL 树中插入一个节点导致失衡，如何通过旋转恢复平衡？', answer: '找到最低失衡节点 g，根据 p 和 v 的位置执行 LL、RR、LR、RL 旋转，共 4 种模式。' },
+            { title: '6. 红黑树的五大性质', body: '请写出红黑树的五个基本性质。', answer: '1）节点红或黑；2）根黑；3）叶（NIL）黑；4）红节点的子节点黑；5）从任一节点到其叶子的所有路径包含相同黑节点数。' },
+            { title: '7. B 树插入与分裂', body: '描述 B 树插入节点时的分裂过程。', answer: '若节点已满，则分裂为两个节点，中间关键码上升至父节点，递归调整。' },
+            { title: '8. Dijkstra 算法正确性证明', body: '证明 Dijkstra 算法在非负权图中的正确性。', answer: '归纳法：每次从集合 S 中选 dist 最小的 u，其 dist 已是最短路径，否则有更短路径会经过 S 外节点，矛盾。' },
+            { title: '9. 哈夫曼编码的构造', body: '给定字符频率，画出哈夫曼树并给出编码。', answer: '每次选两个最小频率节点合并，重复直到生成一棵树，左0右1得到前缀码。' },
+            { title: '10. 栈混洗的计数', body: 'n 个元素入栈，出栈序列有多少种？', answer: 'Catalan 数 C_n = 1/(n+1) * C(2n, n)。' },
+            { title: '11. IEEE754 浮点数表示', body: '将十进制数 -27.625 表示为 IEEE754 单精度浮点数（十六进制）。', answer: '符号位1，阶码 = 127+4=131=10000011，尾数为 1011101... 最终 0xC1DD0000。' },
+            { title: '12. Cache 命中率计算', body: '分析循环访问二维数组时的 Cache 命中率。', answer: '需考虑 Cache 行大小、映射方式、访问模式。按行访问能利用空间局部性，命中率更高。' },
+            { title: '13. 流水线数据冲突与转发', body: 'MIPS 五级流水线，指令序列 lw, add, sub，分析数据冲突及转发消除。', answer: 'lw 后接 add 有 RAW 冲突，可通过转发从 EX/MEM 或 MEM/WB 旁路到 ALU 输入。' },
+            { title: '14. 缺页中断处理流程', body: '描述虚存缺页中断从发生到恢复的完整过程。', answer: '硬件保存 PC 和状态，跳转到缺页处理程序；软件检查地址合法性、分配物理页框、读入页面、更新页表、恢复上下文、重新执行。' },
+            { title: '15. 信号量的 P/V 操作', body: '用信号量实现生产者-消费者问题的同步与互斥。', answer: '使用 mutex 保护缓冲区，empty 记录空槽，full 记录满槽。生产者 P(empty) 后 V(full)，消费者 P(full) 后 V(empty)。' },
+            { title: '16. 死锁的银行家算法', body: '简述银行家算法的核心思想。', answer: '在分配资源前先检查分配后系统是否处于安全状态，若安全则分配，否则等待，从而避免死锁。' },
+            { title: '17. TCP 拥塞控制算法', body: '简述 Reno 算法的慢启动、拥塞避免、快速重传、快速恢复。', answer: '慢启动指数增长，拥塞避免线性增长，3个重复ACK触发快速重传，快速恢复将阈值设为 cwnd/2 并重传。' },
+            { title: '18. RIP 距离向量路由', body: '描述 RIP 路由协议的工作原理。', answer: '基于距离向量算法，每30秒交换路由表，以跳数作为度量，最大跳数15，利用毒性反转和水平分割防止路由环路。' },
+            { title: '19. OSPF 链路状态路由', body: '描述 OSPF 的工作原理。', answer: '基于链路状态算法，各路由器通过 LSA 交换链路状态，构建网络拓扑图，运行 Dijkstra 计算最短路径树。' },
+            { title: '20. DNS 递归查询过程', body: '描述 DNS 递归查询和迭代查询的区别。', answer: '递归查询：DNS 服务器代为向其他服务器查询，返回最终结果。迭代查询：DNS 服务器返回下一步应查询的服务器地址，由客户端自行跟踪。' },
+        ];
+
+        let currentBQ = 0;
+        function updateBigQ(index) {
+            const item = bigQuestions[index % bigQuestions.length];
+            document.getElementById('bqTitle').textContent = item.title;
+            document.getElementById('bqBody').textContent = item.body;
+            document.getElementById('bqAnswer').textContent = '📝 解答：' + item.answer;
+            document.getElementById('bqProgress').textContent = `${index+1} / ${bigQuestions.length}`;
+        }
+        function nextBigQ() { currentBQ = (currentBQ + 1) % bigQuestions.length; updateBigQ(currentBQ); }
+        function prevBigQ() { currentBQ = (currentBQ - 1 + bigQuestions.length) % bigQuestions.length; updateBigQ(currentBQ); }
+
+        // ---------- 初始化 ----------
+        function init() {
+            document.getElementById('diaryDate').value = todayStr();
+            loadDiaryByDate(todayStr());
+            renderHistory();
+            loadPomodoroStats();
+            updateKnowledge(0);
+            updateBigQ(0);
+
+            document.getElementById('diaryDate').addEventListener('change', function() {
+                loadDiaryByDate(this.value);
+            });
+            document.getElementById('todayBtn').addEventListener('click', function() {
+                const t = todayStr();
+                document.getElementById('diaryDate').value = t;
+                loadDiaryByDate(t);
+            });
+            document.getElementById('saveDiaryBtn').addEventListener('click', saveCurrentDiary);
+            document.getElementById('loadDiaryBtn').addEventListener('click', function() {
+                loadDiaryByDate(getDate());
+            });
+            document.getElementById('clearDiaryBtn').addEventListener('click', clearCurrentDiary);
+            document.getElementById('exportHistoryBtn').addEventListener('click', exportAllHistory);
+            document.getElementById('clearHistoryBtn').addEventListener('click', clearAllHistory);
+
+            // 番茄
+            document.getElementById('pomodoroStart').addEventListener('click', startPomodoro);
+            document.getElementById('pomodoroPause').addEventListener('click', pausePomodoro);
+            document.getElementById('pomodoroReset').addEventListener('click', resetPomodoro);
+            document.getElementById('pomodoroShortBreak').addEventListener('click', function() {
+                setPomodoroMode('shortBreak', 5 * 60);
+            });
+            document.getElementById('pomodoroLongBreak').addEventListener('click', function() {
+                setPomodoroMode('longBreak', 15 * 60);
+            });
+            document.getElementById('pomodoroFocus').addEventListener('click', function() {
+                setPomodoroMode('focus', 25 * 60);
+            });
+
+            // 知识点导航
+            document.getElementById('kNext').addEventListener('click', nextKnowledge);
+            document.getElementById('kPrev').addEventListener('click', prevKnowledge);
+
+            // 大题导航
+            document.getElementById('bqNext').addEventListener('click', nextBigQ);
+            document.getElementById('bqPrev').addEventListener('click', prevBigQ);
+
+            updatePomodoroUI();
+        }
+
+        init();
+        console.log('🟣 紫清日记 · 50知识点 + 20大题');
+    })();
+</script>
+</body>
+</html>

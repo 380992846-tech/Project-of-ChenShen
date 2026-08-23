@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清云 · 纪念日 & 倒计时</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background-color: #0b0710;
+            color: #e6e0f0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .app-container {
+            width: 1440px;
+            max-width: 100%;
+            height: 920px;
+            max-height: 98vh;
+            background: rgba(22, 16, 35, 0.45);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(160, 120, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-image 0.5s ease;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+        .app-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 6, 20, 0.25);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .app-container>* {
+            position: relative;
+            z-index: 1;
+        }
+        /* ===== 顶部导航 ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 24px;
+            border-bottom: 1px solid rgba(180, 140, 255, 0.15);
+            background: rgba(12, 8, 22, 0.25);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            background: linear-gradient(145deg, #b28aff, #7a4bff);
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #f0ecff;
+            box-shadow: 0 6px 14px rgba(90, 40, 200, 0.6);
+        }
+        .logo-text {
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 1px;
+            background: linear-gradient(to right, #d9caff, #b28aff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo-text small {
+            font-weight: 400;
+            font-size: 11px;
+            color: #9480c0;
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            margin-left: 4px;
+        }
+        .nav-center {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .wallpaper-selector {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(30, 20, 55, 0.4);
+            padding: 3px 10px 3px 12px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.15);
+            flex-wrap: wrap;
+            max-width: 500px;
+        }
+        .wallpaper-selector span {
+            font-size: 11px;
+            color: #b3a1d4;
+        }
+        .wallpaper-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid rgba(200, 180, 255, 0.3);
+            cursor: pointer;
+            transition: 0.2s;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+        .wallpaper-dot:hover {
+            transform: scale(1.12);
+            border-color: #b28aff;
+        }
+        .wallpaper-dot.active {
+            border-color: #b28aff;
+            box-shadow: 0 0 12px rgba(130, 70, 255, 0.4);
+        }
+        .upload-btn {
+            background: rgba(130, 70, 255, 0.2);
+            border: 1px solid rgba(160, 120, 255, 0.3);
+            border-radius: 30px;
+            padding: 1px 8px;
+            font-size: 10px;
+            color: #cbb8f0;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .upload-btn:hover {
+            background: rgba(130, 70, 255, 0.35);
+            border-color: #b28aff;
+        }
+        #wallpaperUpload { display: none; }
+        .nav-clock-weather {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(30, 20, 55, 0.3);
+            padding: 3px 12px 3px 10px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.08);
+        }
+        .nav-clock {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+        .nav-clock .time {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f0eaff;
+        }
+        .nav-clock .date {
+            font-size: 10px;
+            color: #b3a1d4;
+        }
+        .nav-weather {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            padding-left: 8px;
+            border-left: 1px solid rgba(160, 120, 255, 0.15);
+        }
+        .nav-weather .temp {
+            font-size: 15px;
+            font-weight: 500;
+            color: #f0eaff;
+        }
+        .nav-weather .desc {
+            font-size: 10px;
+            color: #b3a1d4;
+        }
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .nav-actions i {
+            font-size: 15px;
+            color: #b8a8e0;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .nav-actions i:hover {
+            color: #d4c0ff;
+            transform: scale(1.05);
+        }
+        .avatar {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #6d44d0, #371b7a);
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 11px;
+            color: #e8dcff;
+            border: 1px solid #a47eff;
+        }
+        /* ===== 主体 ===== */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
+        .note-sidebar {
+            width: 280px;
+            background: rgba(16, 10, 30, 0.3);
+            backdrop-filter: blur(4px);
+            border-right: 1px solid rgba(160, 120, 255, 0.1);
+            padding: 14px 10px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 0 2px;
+        }
+        .sidebar-header h3 {
+            font-weight: 500;
+            font-size: 13px;
+            color: #cbb8f0;
+        }
+        .sidebar-header i {
+            color: #a07aff;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .sidebar-header i:hover {
+            color: #c9b0ff;
+        }
+        .search-box {
+            background: rgba(40, 28, 70, 0.4);
+            border-radius: 40px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(150, 110, 255, 0.1);
+            transition: 0.2s;
+        }
+        .search-box i {
+            color: #8b75b5;
+            font-size: 11px;
+        }
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #e6def5;
+            font-size: 12px;
+            width: 100%;
+        }
+        .search-box input::placeholder {
+            color: #6f5b96;
+        }
+        .search-box:focus-within {
+            border-color: #9f7aff;
+            box-shadow: 0 0 12px rgba(130, 70, 255, 0.1);
+        }
+        .note-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-right: 2px;
+        }
+        .note-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        .note-list::-webkit-scrollbar-thumb {
+            background: #4e3a78;
+            border-radius: 10px;
+        }
+        .note-item {
+            background: rgba(33, 22, 58, 0.3);
+            border-radius: 12px;
+            padding: 10px 12px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            cursor: pointer;
+            position: relative;
+        }
+        .note-item:hover {
+            background: rgba(55, 38, 90, 0.45);
+            border-color: #6a47b0;
+            transform: translateX(3px);
+        }
+        .note-item.active {
+            background: rgba(88, 55, 170, 0.25);
+            border-color: #9b77f0;
+        }
+        .note-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: #ede6ff;
+            margin-bottom: 2px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .note-title i {
+            color: #8d71c7;
+            font-size: 10px;
+        }
+        .note-preview {
+            font-size: 11px;
+            color: #b3a1d4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 3px;
+        }
+        .note-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #6c5890;
+        }
+        .note-meta i {
+            margin-right: 2px;
+            font-size: 9px;
+        }
+        .pin-icon {
+            color: #f7c948;
+            margin-right: 6px;
+            font-size: 10px;
+        }
+        .todo-badge {
+            background: rgba(247, 201, 72, 0.15);
+            color: #f7c948;
+            font-size: 9px;
+            padding: 0 8px;
+            border-radius: 12px;
+            margin-left: 6px;
+        }
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 20px 14px 20px;
+            overflow-y: auto;
+            gap: 10px;
+        }
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(10, 6, 20, 0.2);
+            backdrop-filter: blur(4px);
+            border-radius: 20px;
+            padding: 14px 18px 12px 18px;
+            border: 1px solid rgba(160, 120, 255, 0.08);
+            min-height: 200px;
+        }
+        .editor-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+            color: #9a83c7;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .editor-actions i,
+        .editor-actions button {
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: none;
+            border: none;
+            color: #9a83c7;
+        }
+        .editor-actions i:hover,
+        .editor-actions button:hover {
+            color: #cbb4ff;
+        }
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(160, 120, 255, 0.15);
+            border-radius: 30px;
+            padding: 4px 14px;
+            font-size: 12px;
+            color: #cbb8f0;
+            cursor: pointer;
+            transition: 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+        }
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #b28aff;
+            box-shadow: 0 4px 20px rgba(130, 70, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        .glass-btn i {
+            font-size: 12px;
+        }
+        .editor-title-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(160, 120, 255, 0.12);
+            padding: 4px 4px 6px 0;
+            font-size: 20px;
+            font-weight: 500;
+            color: #f0eaff;
+            outline: none;
+            transition: 0.2s;
+            margin-bottom: 6px;
+        }
+        .editor-title-input:focus {
+            border-bottom-color: #a981ff;
+        }
+        .editor-textarea {
+            flex: 1;
+            background: rgba(20, 12, 38, 0.12);
+            border: 1px solid rgba(130, 90, 210, 0.08);
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: #ddd2f0;
+            font-size: 14px;
+            line-height: 1.7;
+            resize: none;
+            outline: none;
+            transition: 0.2s;
+            min-height: 150px;
+        }
+        .editor-textarea:focus {
+            border-color: #9e7aff;
+            box-shadow: 0 0 16px rgba(110, 60, 220, 0.06);
+        }
+        .editor-footer {
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            color: #7f6aac;
+            font-size: 10px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .editor-footer a {
+            color: #7f6aac;
+            text-decoration: none;
+            transition: 0.2s;
+            font-size: 10px;
+        }
+        .editor-footer a:hover {
+            color: #b28aff;
+            text-decoration: underline;
+        }
+        .fixed-actions {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        .fixed-actions .glass-btn {
+            background: rgba(30, 18, 50, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(160, 120, 255, 0.12);
+            padding: 8px 16px;
+            font-size: 13px;
+            color: #c8b0e0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            min-width: 110px;
+            border-color: rgba(120, 80, 160, 0.25);
+        }
+        .fixed-actions .glass-btn:hover {
+            background: rgba(50, 30, 80, 0.8);
+            border-color: #9a7acc;
+            color: #f0eaff;
+        }
+        .fixed-actions .glass-btn i {
+            font-size: 14px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 20, 60, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 10px 26px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.2);
+            color: #e6def5;
+            font-size: 13px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: rgba(22, 16, 40, 0.95);
+            border-radius: 28px;
+            padding: 30px 36px;
+            max-width: 560px;
+            width: 90%;
+            border: 1px solid rgba(160, 120, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-box h3 {
+            color: #f0eaff;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        .modal-box p {
+            color: #b3a1d4;
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .modal-box input, .modal-box textarea {
+            width: 100%;
+            background: rgba(10, 6, 20, 0.4);
+            border: 1px solid rgba(160, 120, 255, 0.1);
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: #ddd2f0;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 12px;
+        }
+        .modal-box textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .modal-box input:focus, .modal-box textarea:focus {
+            border-color: #9e7aff;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .modal-actions button {
+            background: rgba(130, 70, 255, 0.2);
+            border: 1px solid rgba(160, 120, 255, 0.15);
+            border-radius: 40px;
+            padding: 8px 22px;
+            color: #cbb8f0;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-actions button:hover {
+            background: rgba(130, 70, 255, 0.4);
+        }
+        .modal-actions button.primary {
+            background: rgba(130, 70, 255, 0.4);
+            border-color: #7a4bff;
+        }
+        .modal-actions button.primary:hover {
+            background: rgba(130, 70, 255, 0.6);
+        }
+        .tomato-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(30, 20, 55, 0.3);
+            padding: 2px 12px 2px 8px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.08);
+        }
+        .tomato-bar span {
+            font-size: 14px;
+            font-weight: 500;
+            color: #f0eaff;
+            min-width: 44px;
+        }
+        .tomato-bar i {
+            color: #b28aff;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tomato-bar i:hover {
+            color: #d4c0ff;
+            transform: scale(1.1);
+        }
+        /* 纪念日卡片 */
+        .anniversary-card {
+            background: rgba(33, 22, 58, 0.25);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-left: 3px solid #b28aff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+        .anniversary-card:hover {
+            background: rgba(55, 38, 90, 0.3);
+        }
+        .anniversary-card .info {
+            display: flex;
+            flex-direction: column;
+        }
+        .anniversary-card .info .name {
+            font-weight: 600;
+            font-size: 13px;
+            color: #ede6ff;
+        }
+        .anniversary-card .info .date {
+            font-size: 11px;
+            color: #b3a1d4;
+        }
+        .anniversary-card .countdown {
+            font-size: 14px;
+            font-weight: 500;
+            color: #f7c948;
+            background: rgba(247, 201, 72, 0.1);
+            padding: 2px 12px;
+            border-radius: 30px;
+        }
+        .anniversary-card .delete-anniv {
+            color: #b07a9a;
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        .anniversary-card .delete-anniv:hover {
+            color: #e08a9a;
+        }
+        @media (max-width: 820px) {
+            .navbar { flex-direction: column; align-items: stretch; gap: 4px; padding: 8px 12px; }
+            .nav-center { justify-content: center; }
+            .nav-actions { justify-content: center; }
+            .main-layout { flex-direction: column; }
+            .note-sidebar { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid rgba(160, 120, 255, 0.1); }
+            .right-panel { padding: 10px 12px; }
+            .app-container { height: 98vh; border-radius: 24px; }
+            .editor-toolbar { flex-direction: column; align-items: stretch; gap: 4px; }
+            .fixed-actions { bottom: 16px; right: 16px; gap: 8px; }
+            .fixed-actions .glass-btn { padding: 6px 12px; font-size: 12px; min-width: 80px; }
+            .wallpaper-selector { max-width: 100%; }
+        }
+        @media (max-width: 480px) {
+            .wallpaper-selector { flex-wrap: wrap; gap: 3px; padding: 3px 6px; }
+            .wallpaper-dot { width: 14px; height: 14px; }
+            .nav-clock-weather { flex-wrap: wrap; gap: 4px; padding: 3px 8px; }
+            .nav-clock .date { display: none; }
+            .nav-weather .desc { display: none; }
+            .modal-box { padding: 20px; }
+            .fixed-actions { bottom: 12px; right: 12px; gap: 6px; }
+            .fixed-actions .glass-btn { padding: 4px 10px; font-size: 11px; min-width: 60px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="appContainer">
+        <header class="navbar">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="logo-text">清云·纪念日 <small>倒计时</small></div>
+            </div>
+            <div class="nav-center">
+                <div class="wallpaper-selector" id="wallpaperSelector">
+                    <span><i class="fas fa-image"></i></span>
+                    <div class="wallpaper-dot active" data-wallpaper="default" style="background: linear-gradient(135deg, #1a1030, #2a1a4a);" title="默认黑紫"></div>
+                    <div class="wallpaper-dot" data-wallpaper="maldives" style="background-image: url('https://picsum.photos/seed/maldives/200/200');" title="马尔代夫"></div>
+                    <div class="wallpaper-dot" data-wallpaper="california" style="background-image: url('https://picsum.photos/seed/california/200/200');" title="加州阳光"></div>
+                    <div class="wallpaper-dot" data-wallpaper="beijing" style="background-image: url('https://picsum.photos/seed/beijing/200/200');" title="北京故宫"></div>
+                    <div class="wallpaper-dot" data-wallpaper="shanghai" style="background-image: url('https://picsum.photos/seed/shanghai/200/200');" title="上海陆家嘴"></div>
+                    <div class="wallpaper-dot" data-wallpaper="london" style="background-image: url('https://picsum.photos/seed/london/200/200');" title="伦敦金丝雀码头"></div>
+                    <div class="wallpaper-dot" data-wallpaper="tsinghua" style="background-image: url('https://picsum.photos/seed/tsinghua/200/200');" title="清华二校门"></div>
+                    <div class="wallpaper-dot" data-wallpaper="aurora" style="background-image: url('https://picsum.photos/seed/aurora/200/200');" title="极光"></div>
+                    <div class="wallpaper-dot" data-wallpaper="milkyway" style="background-image: url('https://picsum.photos/seed/milkyway/200/200');" title="银河"></div>
+                    <div class="wallpaper-dot" data-wallpaper="sakura" style="background-image: url('https://picsum.photos/seed/sakura/200/200');" title="樱花"></div>
+                    <div class="wallpaper-dot" data-wallpaper="nightcity" style="background-image: url('https://picsum.photos/seed/nightcity/200/200');" title="城市夜景"></div>
+                    <div class="wallpaper-dot" data-wallpaper="snow" style="background-image: url('https://picsum.photos/seed/snow/200/200');" title="雪景"></div>
+                    <div class="wallpaper-dot" data-wallpaper="sunset" style="background-image: url('https://picsum.photos/seed/purplemeteor/200/200');" title="紫色流星"></div>
+                    <div class="wallpaper-dot" data-wallpaper="rose" style="background-image: url('https://picsum.photos/seed/rose/200/200');" title="玫瑰花"></div>
+                    <label class="upload-btn" for="wallpaperUpload"><i class="fas fa-upload"></i> 上传</label>
+                    <input type="file" id="wallpaperUpload" accept="image/*">
+                </div>
+                <div class="nav-clock-weather">
+                    <div class="nav-clock"><span class="time" id="navClockTime">--:--:--</span><span class="date" id="navClockDate">--/--</span></div>
+                    <div class="nav-weather"><span class="temp" id="navWeatherTemp">--°C</span><span class="desc" id="navWeatherDesc">--</span></div>
+                </div>
+                <div class="tomato-bar" id="tomatoBar">
+                    <i class="fas fa-stopwatch" id="tomatoToggle"></i>
+                    <span id="tomatoDisplay">25:00</span>
+                    <i class="fas fa-redo-alt" id="tomatoReset"></i>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <i class="fas fa-plus-circle" id="addAnnivBtn" title="添加纪念日"></i>
+                <i class="fas fa-bell"></i>
+                <i class="fas fa-th-large"></i>
+                <div class="avatar">TH</div>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <aside class="note-sidebar">
+                <div class="sidebar-header">
+                    <h3><i class="fas fa-heart" style="margin-right:4px;"></i> 纪念日列表</h3>
+                    <i class="fas fa-plus-circle" id="addAnnivSidebarBtn"></i>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchAnniv" placeholder="搜索纪念日...">
+                </div>
+                <div class="note-list" id="annivListContainer"></div>
+                <!-- 倒计时快速预览 -->
+                <div style="margin-top: 10px; border-top: 1px solid rgba(160,120,255,0.08); padding-top: 8px;">
+                    <div style="font-size: 11px; color: #b3a1d4; display: flex; justify-content: space-between;">
+                        <span><i class="fas fa-hourglass-half"></i> 即将到来</span>
+                        <span id="nextAnnivPreview">--</span>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="right-panel">
+                <div class="editor-panel">
+                    <div class="editor-toolbar">
+                        <div class="editor-actions">
+                            <span style="font-size:12px; color:#7f6aac;"><i class="fas fa-calendar-alt"></i> 纪念日详情</span>
+                            <i class="fas fa-star" id="starBtn"></i>
+                            <i class="fas fa-trash-alt" id="deleteAnnivBtn" style="color:#b07a9a;"></i>
+                        </div>
+                        <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                            <button class="glass-btn" id="exportAnnivBtn"><i class="fas fa-file-alt"></i> 导出</button>
+                            <button class="glass-btn" id="importAnnivBtn"><i class="fas fa-upload"></i> 导入</button>
+                        </div>
+                    </div>
+                    <input class="editor-title-input" id="annivTitleInput" type="text" placeholder="纪念日名称">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
+                        <input type="date" id="annivDateInput" style="background:rgba(10,6,20,0.3); border:1px solid rgba(160,120,255,0.1); border-radius:12px; padding:6px 12px; color:#ddd2f0; outline:none;">
+                        <input type="color" id="annivColorInput" value="#b28aff" style="width:40px; height:34px; background:transparent; border:none; border-radius:12px; cursor:pointer;">
+                    </div>
+                    <div style="position:relative; flex:1; display:flex; flex-direction:column;">
+                        <textarea class="editor-textarea" id="annivDesc" placeholder="备注或心愿……"></textarea>
+                    </div>
+                    <div class="editor-footer">
+                        <span id="annivCountdownDisplay"><i class="far fa-clock"></i> 倒计时: --</span>
+                        <span>
+                            <i class="fas fa-cloud-upload-alt"></i> 已同步
+                            <a href="#" style="margin-left:12px;"><i class="fas fa-heart"></i> 珍藏</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed-actions">
+        <button class="glass-btn" id="saveDataBtn"><i class="fas fa-save"></i> 保存</button>
+        <button class="glass-btn" id="randomQuoteBtn"><i class="fas fa-quote-right"></i> 随机寄语</button>
+        <button class="glass-btn" id="weatherForecastBtn"><i class="fas fa-cloud-sun"></i> 天气</button>
+        <button class="glass-btn" id="timerReminderBtn"><i class="fas fa-bell"></i> 提醒</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- 添加/编辑纪念日模态框 -->
+    <div class="modal-overlay" id="annivModal">
+        <div class="modal-box">
+            <h3><i class="fas fa-gift" style="color:#b28aff;"></i> 添加纪念日</h3>
+            <p>记录每一个值得记住的日子</p>
+            <input type="text" id="modalAnnivName" placeholder="名称 (例如: 相识纪念日)">
+            <input type="date" id="modalAnnivDate">
+            <input type="color" id="modalAnnivColor" value="#b28aff">
+            <textarea id="modalAnnivDesc" placeholder="备注……"></textarea>
+            <div class="modal-actions">
+                <button id="modalAnnivClose">取消</button>
+                <button class="primary" id="modalAnnivSave"><i class="fas fa-check"></i> 保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 随机寄语模态框 -->
+    <div class="modal-overlay" id="quoteModal">
+        <div class="modal-box">
+            <h3><i class="fas fa-quote-left" style="color:#b28aff;"></i> 每日寄语</h3>
+            <p id="quoteContent" style="font-size:16px; line-height:1.8;">✨ 每一个纪念日都是时光的礼物。</p>
+            <div class="modal-actions">
+                <button id="quoteModalClose">关闭</button>
+                <button class="primary" id="quoteRefresh"><i class="fas fa-sync-alt"></i> 换一句</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ===== 数据 =====
+            let anniversaries = [
+                { id: '1', name: '清华校庆', date: '2026-04-26', color: '#7a4bff', desc: '清华大学建校115周年' },
+                { id: '2', name: '毕业典礼', date: '2026-06-30', color: '#f7c948', desc: '硕士毕业典礼' },
+                { id: '3', name: '项目上线', date: '2026-08-15', color: '#4cd9b2', desc: '清云笔记正式版发布' },
+            ];
+            let currentAnnivId = '1';
+            let nextId = 4;
+            let currentWallpaper = localStorage.getItem('lastWallpaper') || 'default';
+
+            const appContainer = document.getElementById('appContainer');
+            const annivListEl = document.getElementById('annivListContainer');
+            const annivTitleInput = document.getElementById('annivTitleInput');
+            const annivDateInput = document.getElementById('annivDateInput');
+            const annivColorInput = document.getElementById('annivColorInput');
+            const annivDesc = document.getElementById('annivDesc');
+            const annivCountdownDisplay = document.getElementById('annivCountdownDisplay');
+            const searchAnniv = document.getElementById('searchAnniv');
+            const addAnnivBtn = document.getElementById('addAnnivBtn');
+            const addAnnivSidebarBtn = document.getElementById('addAnnivSidebarBtn');
+            const deleteAnnivBtn = document.getElementById('deleteAnnivBtn');
+            const starBtn = document.getElementById('starBtn');
+            const toastEl = document.getElementById('toast');
+            const nextAnnivPreview = document.getElementById('nextAnnivPreview');
+
+            // 模态框
+            const annivModal = document.getElementById('annivModal');
+            const modalAnnivName = document.getElementById('modalAnnivName');
+            const modalAnnivDate = document.getElementById('modalAnnivDate');
+            const modalAnnivColor = document.getElementById('modalAnnivColor');
+            const modalAnnivDesc = document.getElementById('modalAnnivDesc');
+            const modalAnnivSave = document.getElementById('modalAnnivSave');
+            const modalAnnivClose = document.getElementById('modalAnnivClose');
+
+            // 寄语
+            const quoteModal = document.getElementById('quoteModal');
+            const quoteContent = document.getElementById('quoteContent');
+            const quoteModalClose = document.getElementById('quoteModalClose');
+            const quoteRefresh = document.getElementById('quoteRefresh');
+
+            const quotes = [
+                "✨ 每一个纪念日都是时光的礼物。",
+                "🌸 日子像花瓣，每一片都值得珍藏。",
+                "🌟 倒计时是心跳的节奏，期待是最好的祝福。",
+                "📅 今天是你余生中最年轻的一天。",
+                "💫 所有美好都值得被标记。",
+                "🌙 纪念日不是为了回忆，而是为了继续热爱。",
+                "🎈 愿你未来的每一天都值得庆祝。"
+            ];
+
+            function showToast(msg) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2500);
+            }
+            let toastTimer = null;
+
+            // ===== 壁纸 =====
+            const wallpapers = [
+                { id: 'default', name: '默认黑紫' },
+                { id: 'maldives', name: '马尔代夫', url: 'https://picsum.photos/seed/maldives/1200/800' },
+                { id: 'california', name: '加州阳光', url: 'https://picsum.photos/seed/california/1200/800' },
+                { id: 'beijing', name: '北京故宫', url: 'https://picsum.photos/seed/beijing/1200/800' },
+                { id: 'shanghai', name: '上海陆家嘴', url: 'https://picsum.photos/seed/shanghai/1200/800' },
+                { id: 'london', name: '伦敦金丝雀码头', url: 'https://picsum.photos/seed/london/1200/800' },
+                { id: 'tsinghua', name: '清华二校门', url: 'https://picsum.photos/seed/tsinghua/1200/800' },
+                { id: 'aurora', name: '极光', url: 'https://picsum.photos/seed/aurora/1200/800' },
+                { id: 'milkyway', name: '银河', url: 'https://picsum.photos/seed/milkyway/1200/800' },
+                { id: 'sakura', name: '樱花', url: 'https://picsum.photos/seed/sakura/1200/800' },
+                { id: 'nightcity', name: '城市夜景', url: 'https://picsum.photos/seed/nightcity/1200/800' },
+                { id: 'snow', name: '雪景', url: 'https://picsum.photos/seed/snow/1200/800' },
+                { id: 'sunset', name: '紫色流星', url: 'https://picsum.photos/seed/purplemeteor/1200/800' },
+                { id: 'rose', name: '玫瑰花', url: 'https://picsum.photos/seed/rose/1200/800' }
+            ];
+
+            function setWallpaper(id, customUrl = null) {
+                currentWallpaper = id;
+                localStorage.setItem('lastWallpaper', id);
+                if (id === 'default') {
+                    appContainer.style.backgroundImage = '';
+                    appContainer.style.backgroundColor = 'rgba(22, 16, 35, 0.45)';
+                } else if (customUrl) {
+                    appContainer.style.backgroundImage = `url('${customUrl}')`;
+                    appContainer.style.backgroundColor = 'transparent';
+                } else {
+                    const wp = wallpapers.find(w => w.id === id);
+                    if (wp && wp.url) {
+                        appContainer.style.backgroundImage = `url('${wp.url}')`;
+                        appContainer.style.backgroundColor = 'transparent';
+                    }
+                }
+                document.querySelectorAll('.wallpaper-dot').forEach(d => d.classList.toggle('active', d.dataset.wallpaper === id));
+            }
+
+            document.querySelectorAll('.wallpaper-dot').forEach(d => {
+                d.addEventListener('click', function() { setWallpaper(this.dataset.wallpaper); });
+            });
+
+            document.getElementById('wallpaperUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const url = ev.target.result;
+                    appContainer.style.backgroundImage = `url('${url}')`;
+                    appContainer.style.backgroundColor = 'transparent';
+                    const customId = 'custom_' + Date.now();
+                    localStorage.setItem('lastWallpaper', customId);
+                    currentWallpaper = customId;
+                    document.querySelectorAll('.wallpaper-dot').forEach(d => d.classList.remove('active'));
+                    showToast('✅ 自定义壁纸已应用');
+                };
+                reader.readAsDataURL(file);
+                this.value = '';
+            });
+
+            // ===== 时钟天气 =====
+            const navClockTime = document.getElementById('navClockTime');
+            const navClockDate = document.getElementById('navClockDate');
+            const navWeatherTemp = document.getElementById('navWeatherTemp');
+            const navWeatherDesc = document.getElementById('navWeatherDesc');
+
+            function updateClock() {
+                const now = new Date();
+                navClockTime.textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
+                navClockDate.textContent = now.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            const weathers = ['晴', '多云', '小雨', '阴', '晴', '多云'];
+            let weatherIdx = 0;
+            function updateWeather() {
+                const w = weathers[weatherIdx % weathers.length];
+                weatherIdx++;
+                navWeatherDesc.textContent = w;
+                const temp = Math.floor(Math.random() * 12) + 20;
+                navWeatherTemp.textContent = temp + '°C';
+            }
+            updateWeather();
+            setInterval(updateWeather, 35000);
+
+            // ===== 番茄钟 =====
+            const tomatoDisplay = document.getElementById('tomatoDisplay');
+            const tomatoToggle = document.getElementById('tomatoToggle');
+            const tomatoReset = document.getElementById('tomatoReset');
+            let tomatoSeconds = 25 * 60;
+            let tomatoInterval = null;
+            let tomatoRunning = false;
+
+            function updateTomatoDisplay() {
+                const m = Math.floor(tomatoSeconds / 60);
+                const s = tomatoSeconds % 60;
+                tomatoDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            }
+            tomatoToggle.addEventListener('click', function() {
+                if (tomatoRunning) {
+                    clearInterval(tomatoInterval);
+                    tomatoRunning = false;
+                    tomatoToggle.className = 'fas fa-play';
+                } else {
+                    if (tomatoSeconds <= 0) tomatoSeconds = 25 * 60;
+                    tomatoRunning = true;
+                    tomatoToggle.className = 'fas fa-pause';
+                    tomatoInterval = setInterval(() => {
+                        tomatoSeconds--;
+                        updateTomatoDisplay();
+                        if (tomatoSeconds <= 0) {
+                            clearInterval(tomatoInterval);
+                            tomatoRunning = false;
+                            tomatoToggle.className = 'fas fa-play';
+                            showToast('⏰ 番茄钟结束！');
+                        }
+                    }, 1000);
+                }
+            });
+            tomatoReset.addEventListener('click', function() {
+                clearInterval(tomatoInterval);
+                tomatoRunning = false;
+                tomatoToggle.className = 'fas fa-play';
+                tomatoSeconds = 25 * 60;
+                updateTomatoDisplay();
+            });
+            updateTomatoDisplay();
+
+            // ===== 核心功能 =====
+            function getDaysDiff(dateStr) {
+                const target = new Date(dateStr);
+                const now = new Date();
+                now.setHours(0,0,0,0);
+                target.setHours(0,0,0,0);
+                const diff = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+                return diff;
+            }
+
+            function renderAnnivList(filter = '') {
+                let filtered = anniversaries.filter(a => a.name.includes(filter) || a.desc.includes(filter));
+                filtered.sort((a,b) => getDaysDiff(a.date) - getDaysDiff(b.date));
+                if (filtered.length === 0) {
+                    annivListEl.innerHTML = `<div style="color:#6c5890;text-align:center;padding:14px 0;font-size:12px;">还没有纪念日 🎈</div>`;
+                    return;
+                }
+                let html = '';
+                filtered.forEach(a => {
+                    const activeClass = (a.id === currentAnnivId) ? 'active' : '';
+                    const diff = getDaysDiff(a.date);
+                    let status = diff > 0 ? `⏳ ${diff}天` : (diff === 0 ? '🎉 今天' : `✨ 已过${-diff}天`);
+                    html += `
+                        <div class="note-item ${activeClass}" data-id="${a.id}" style="border-left: 3px solid ${a.color};">
+                            <div class="note-title"><span>${a.name}</span><i class="fas fa-heart" style="color:${a.color};"></i></div>
+                            <div class="note-preview">${a.date} · ${status}</div>
+                            <div class="note-meta"><span>${a.desc || '无备注'}</span></div>
+                        </div>
+                    `;
+                });
+                annivListEl.innerHTML = html;
+                annivListEl.querySelectorAll('.note-item').forEach(item => {
+                    item.addEventListener('click', function() { loadAnnivById(this.dataset.id); });
+                });
+                updateNextPreview();
+            }
+
+            function loadAnnivById(id) {
+                const anniv = anniversaries.find(a => a.id === id);
+                if (!anniv) return;
+                currentAnnivId = id;
+                annivTitleInput.value = anniv.name;
+                annivDateInput.value = anniv.date;
+                annivColorInput.value = anniv.color;
+                annivDesc.value = anniv.desc || '';
+                updateCountdownDisplay(anniv.date);
+                renderAnnivList(searchAnniv.value.trim());
+                document.querySelectorAll('.note-item').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+                localStorage.setItem('qingyun_current_anniv', JSON.stringify(anniv));
+            }
+
+            function updateCountdownDisplay(dateStr) {
+                const diff = getDaysDiff(dateStr);
+                if (diff > 0) annivCountdownDisplay.innerHTML = `<i class="far fa-clock"></i> 倒计时: ${diff} 天`;
+                else if (diff === 0) annivCountdownDisplay.innerHTML = `<i class="fas fa-gift"></i> 就是今天！🎉`;
+                else annivCountdownDisplay.innerHTML = `<i class="fas fa-history"></i> 已过去 ${-diff} 天`;
+            }
+
+            function updateNextPreview() {
+                const sorted = [...anniversaries].sort((a,b) => getDaysDiff(a.date) - getDaysDiff(b.date));
+                const next = sorted.find(a => getDaysDiff(a.date) >= 0);
+                if (next) {
+                    const diff = getDaysDiff(next.date);
+                    nextAnnivPreview.textContent = `${next.name} ${diff}天`;
+                } else {
+                    nextAnnivPreview.textContent = '🎉 全部已过';
+                }
+            }
+
+            function saveAllData() {
+                const data = { anniversaries, currentAnnivId, nextId };
+                localStorage.setItem('qingyun_anniv_data', JSON.stringify(data));
+                showToast('💾 数据已保存');
+            }
+
+            function loadAllData() {
+                const raw = localStorage.getItem('qingyun_anniv_data');
+                if (raw) {
+                    try {
+                        const data = JSON.parse(raw);
+                        anniversaries = data.anniversaries || anniversaries;
+                        currentAnnivId = data.currentAnnivId || anniversaries[0]?.id || '1';
+                        nextId = data.nextId || 4;
+                        return true;
+                    } catch(e) { return false; }
+                }
+                return false;
+            }
+
+            function addNewAnniv(name, date, color, desc) {
+                const newAnniv = {
+                    id: String(nextId++),
+                    name: name.trim() || '未命名纪念日',
+                    date: date || new Date().toISOString().slice(0,10),
+                    color: color || '#b28aff',
+                    desc: desc || ''
+                };
+                anniversaries.push(newAnniv);
+                currentAnnivId = newAnniv.id;
+                renderAnnivList(searchAnniv.value.trim());
+                loadAnnivById(currentAnnivId);
+                saveAllData();
+                showToast('🎉 纪念日已添加');
+            }
+
+            function deleteCurrentAnniv() {
+                if (anniversaries.length <= 1) { showToast('⚠️ 至少保留一个纪念日'); return; }
+                const index = anniversaries.findIndex(a => a.id === currentAnnivId);
+                if (index === -1) return;
+                anniversaries.splice(index, 1);
+                currentAnnivId = anniversaries[0].id;
+                renderAnnivList(searchAnniv.value.trim());
+                loadAnnivById(currentAnnivId);
+                saveAllData();
+                showToast('🗑️ 已删除');
+            }
+
+            function saveCurrentAnniv() {
+                const anniv = anniversaries.find(a => a.id === currentAnnivId);
+                if (!anniv) return;
+                anniv.name = annivTitleInput.value.trim() || '未命名';
+                anniv.date = annivDateInput.value;
+                anniv.color = annivColorInput.value;
+                anniv.desc = annivDesc.value.trim();
+                updateCountdownDisplay(anniv.date);
+                renderAnnivList(searchAnniv.value.trim());
+                saveAllData();
+                showToast('✅ 已更新');
+            }
+
+            // ===== 事件绑定 =====
+            addAnnivBtn.addEventListener('click', function() {
+                modalAnnivName.value = '';
+                modalAnnivDate.value = new Date().toISOString().slice(0,10);
+                modalAnnivColor.value = '#b28aff';
+                modalAnnivDesc.value = '';
+                annivModal.classList.add('active');
+            });
+            addAnnivSidebarBtn.addEventListener('click', function() {
+                addAnnivBtn.click();
+            });
+
+            modalAnnivClose.addEventListener('click', function() { annivModal.classList.remove('active'); });
+            annivModal.addEventListener('click', function(e) { if (e.target === this) annivModal.classList.remove('active'); });
+
+            modalAnnivSave.addEventListener('click', function() {
+                const name = modalAnnivName.value.trim();
+                const date = modalAnnivDate.value;
+                const color = modalAnnivColor.value;
+                const desc = modalAnnivDesc.value.trim();
+                if (!date) { showToast('⚠️ 请选择日期'); return; }
+                addNewAnniv(name, date, color, desc);
+                annivModal.classList.remove('active');
+            });
+
+            deleteAnnivBtn.addEventListener('click', deleteCurrentAnniv);
+
+            annivTitleInput.addEventListener('input', saveCurrentAnniv);
+            annivDateInput.addEventListener('input', function() {
+                saveCurrentAnniv();
+                updateCountdownDisplay(this.value);
+            });
+            annivColorInput.addEventListener('input', saveCurrentAnniv);
+            annivDesc.addEventListener('input', saveCurrentAnniv);
+
+            searchAnniv.addEventListener('input', function(e) {
+                renderAnnivList(e.target.value.trim());
+                const first = annivListEl.querySelector('.note-item');
+                if (first) loadAnnivById(first.dataset.id);
+            });
+
+            // 导出导入
+            document.getElementById('exportAnnivBtn').addEventListener('click', function() {
+                const data = JSON.stringify(anniversaries, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `纪念日_${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('📦 导出成功');
+            });
+
+            document.getElementById('importAnnivBtn').addEventListener('click', function() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        try {
+                            const data = JSON.parse(ev.target.result);
+                            if (Array.isArray(data)) {
+                                anniversaries = data;
+                                currentAnnivId = anniversaries[0]?.id || '1';
+                                nextId = Math.max(...anniversaries.map(a => parseInt(a.id) || 0)) + 1;
+                                renderAnnivList('');
+                                loadAnnivById(currentAnnivId);
+                                saveAllData();
+                                showToast('✅ 导入成功');
+                            } else {
+                                showToast('❌ 无效数据');
+                            }
+                        } catch(err) {
+                            showToast('❌ 解析失败');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            });
+
+            // 固定按钮
+            document.getElementById('saveDataBtn').addEventListener('click', saveAllData);
+
+            document.getElementById('randomQuoteBtn').addEventListener('click', function() {
+                const idx = Math.floor(Math.random() * quotes.length);
+                quoteContent.textContent = quotes[idx];
+                quoteModal.classList.add('active');
+            });
+            quoteModalClose.addEventListener('click', function() { quoteModal.classList.remove('active'); });
+            quoteRefresh.addEventListener('click', function() {
+                const idx = Math.floor(Math.random() * quotes.length);
+                quoteContent.textContent = quotes[idx];
+            });
+            quoteModal.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+
+            document.getElementById('weatherForecastBtn').addEventListener('click', function() {
+                showToast(`🌤️ 当前天气: ${navWeatherDesc.textContent} ${navWeatherTemp.textContent}`);
+            });
+
+            document.getElementById('timerReminderBtn').addEventListener('click', function() {
+                const msg = prompt('⏰ 输入提醒内容（例如：15分钟后开会）');
+                if (msg) {
+                    const mins = parseInt(prompt('⏱️ 多少分钟后提醒？ (数字)') || '5');
+                    if (!isNaN(mins) && mins > 0) {
+                        setTimeout(() => {
+                            showToast(`🔔 提醒: ${msg}`);
+                        }, mins * 60 * 1000);
+                        showToast(`✅ 已设置 ${mins} 分钟后提醒`);
+                    }
+                }
+            });
+
+            // 收藏按钮
+            starBtn.addEventListener('click', function() {
+                this.classList.toggle('fas');
+                this.classList.toggle('far');
+                this.style.color = this.classList.contains('fas') ? '#f7c948' : '#9a83c7';
+                showToast(this.classList.contains('fas') ? '❤️ 已收藏' : '♡ 取消收藏');
+            });
+
+            // ===== 初始化 =====
+            const loaded = loadAllData();
+            renderAnnivList('');
+            if (anniversaries.length > 0) loadAnnivById(currentAnnivId);
+            else {
+                // 默认示例
+                anniversaries = [
+                    { id: '1', name: '清华校庆', date: '2026-04-26', color: '#7a4bff', desc: '清华大学建校115周年' },
+                    { id: '2', name: '毕业典礼', date: '2026-06-30', color: '#f7c948', desc: '硕士毕业典礼' },
+                    { id: '3', name: '项目上线', date: '2026-08-15', color: '#4cd9b2', desc: '清云笔记正式版发布' },
+                ];
+                nextId = 4;
+                currentAnnivId = '1';
+                renderAnnivList('');
+                loadAnnivById('1');
+                saveAllData();
+            }
+            starBtn.classList.add('far');
+            starBtn.style.color = '#9a83c7';
+
+            const lastWp = localStorage.getItem('lastWallpaper');
+            if (lastWp && lastWp.startsWith('custom_')) {
+                setWallpaper('default');
+            } else {
+                setWallpaper(lastWp || 'default');
+            }
+            showToast('📅 欢迎使用纪念日 & 倒计时');
+            setInterval(() => {
+                saveAllData();
+                updateCountdownDisplay(annivDateInput.value);
+                updateNextPreview();
+            }, 30000);
+
+            // 快捷键 Ctrl+S 保存
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    saveAllData();
+                    showToast('💾 已保存');
+                }
+            });
+
+            window.annivData = anniversaries;
+        })();
+    </script>
+</body>
+</html>

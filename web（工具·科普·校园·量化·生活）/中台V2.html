@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>投行中台 · 清华黑紫 · 细颗粒</title>
+  <!-- Font Awesome 6 (免费) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <!-- Google Font Inter (现代大厂字体) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0b0710;
+      color: #e6e0f0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .app-container {
+      width: 1440px;
+      max-width: 100%;
+      height: 940px;
+      max-height: 98vh;
+      background: rgba(22, 16, 35, 0.45);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 40px;
+      box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(160, 120, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      background-image: url('https://picsum.photos/seed/ibwall/1400/1000');
+    }
+
+    .app-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 6, 20, 0.25);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-container>* {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ===== 顶部导航 (清华黑紫 + 大厂感) ===== */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 24px;
+      border-bottom: 1px solid rgba(180, 140, 255, 0.15);
+      background: rgba(12, 8, 22, 0.25);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      background: linear-gradient(145deg, #b28aff, #7a4bff);
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #f0ecff;
+      box-shadow: 0 6px 14px rgba(90, 40, 200, 0.6);
+    }
+
+    .logo-text {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 1px;
+      background: linear-gradient(to right, #d9caff, #b28aff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .logo-text small {
+      font-weight: 400;
+      font-size: 11px;
+      color: #9480c0;
+      background: none;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      margin-left: 4px;
+    }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .wallpaper-selector {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(30, 20, 55, 0.4);
+      padding: 3px 10px 3px 12px;
+      border-radius: 40px;
+      border: 1px solid rgba(160, 120, 255, 0.15);
+      flex-wrap: wrap;
+    }
+
+    .wallpaper-selector span {
+      font-size: 11px;
+      color: #b3a1d4;
+    }
+
+    .wallpaper-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(200, 180, 255, 0.3);
+      cursor: pointer;
+      transition: 0.2s;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+
+    .wallpaper-dot:hover {
+      transform: scale(1.12);
+      border-color: #b28aff;
+    }
+
+    .wallpaper-dot.active {
+      border-color: #b28aff;
+      box-shadow: 0 0 12px rgba(130, 70, 255, 0.4);
+    }
+
+    .upload-btn {
+      background: rgba(130, 70, 255, 0.2);
+      border: 1px solid rgba(160, 120, 255, 0.3);
+      border-radius: 30px;
+      padding: 1px 8px;
+      font-size: 10px;
+      color: #cbb8f0;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .upload-btn:hover {
+      background: rgba(130, 70, 255, 0.35);
+      border-color: #b28aff;
+    }
+
+    #wallpaperUpload {
+      display: none;
+    }
+
+    .nav-clock-weather {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(30, 20, 55, 0.3);
+      padding: 3px 12px 3px 10px;
+      border-radius: 40px;
+      border: 1px solid rgba(160, 120, 255, 0.08);
+    }
+
+    .nav-clock {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .nav-clock .time {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f0eaff;
+    }
+
+    .nav-clock .date {
+      font-size: 10px;
+      color: #b3a1d4;
+    }
+
+    .nav-weather {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      padding-left: 8px;
+      border-left: 1px solid rgba(160, 120, 255, 0.15);
+    }
+
+    .nav-weather .temp {
+      font-size: 15px;
+      font-weight: 500;
+      color: #f0eaff;
+    }
+
+    .nav-weather .desc {
+      font-size: 10px;
+      color: #b3a1d4;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-actions i {
+      font-size: 15px;
+      color: #b8a8e0;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .nav-actions i:hover {
+      color: #d4c0ff;
+      transform: scale(1.05);
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, #6d44d0, #371b7a);
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 11px;
+      color: #e8dcff;
+      border: 1px solid #a47eff;
+    }
+
+    /* ===== 主布局 ===== */
+    .main-layout {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ===== 左侧边栏 (投行中台侧) ===== */
+    .note-sidebar {
+      width: 260px;
+      background: rgba(16, 10, 30, 0.3);
+      backdrop-filter: blur(4px);
+      border-right: 1px solid rgba(160, 120, 255, 0.1);
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 0 2px;
+    }
+
+    .sidebar-header h3 {
+      font-weight: 500;
+      font-size: 13px;
+      color: #cbb8f0;
+    }
+
+    .sidebar-header i {
+      color: #a07aff;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .sidebar-header i:hover {
+      color: #c9b0ff;
+    }
+
+    .search-box {
+      background: rgba(40, 28, 70, 0.4);
+      border-radius: 40px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(150, 110, 255, 0.1);
+      transition: 0.2s;
+    }
+
+    .search-box i {
+      color: #8b75b5;
+      font-size: 11px;
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #e6def5;
+      font-size: 12px;
+      width: 100%;
+    }
+
+    .search-box input::placeholder {
+      color: #6f5b96;
+    }
+
+    .search-box:focus-within {
+      border-color: #9f7aff;
+      box-shadow: 0 0 12px rgba(130, 70, 255, 0.1);
+    }
+
+    /* 投资组合列表 (颗粒度细化) */
+    .note-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-right: 2px;
+    }
+
+    .note-list::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .note-list::-webkit-scrollbar-thumb {
+      background: #4e3a78;
+      border-radius: 10px;
+    }
+
+    .note-item {
+      background: rgba(33, 22, 58, 0.3);
+      border-radius: 12px;
+      padding: 10px 12px;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .note-item:hover {
+      background: rgba(55, 38, 90, 0.45);
+      border-color: #6a47b0;
+      transform: translateX(3px);
+    }
+
+    .note-item.active {
+      background: rgba(88, 55, 170, 0.25);
+      border-color: #9b77f0;
+    }
+
+    .note-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: #ede6ff;
+      margin-bottom: 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .note-title i {
+      color: #8d71c7;
+      font-size: 10px;
+    }
+
+    .note-preview {
+      font-size: 11px;
+      color: #b3a1d4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 3px;
+    }
+
+    .note-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: #6c5890;
+    }
+
+    .note-meta i {
+      margin-right: 2px;
+      font-size: 9px;
+    }
+
+    .pin-icon {
+      color: #f7c948;
+      margin-right: 6px;
+      font-size: 10px;
+    }
+
+    .todo-badge {
+      background: rgba(247, 201, 72, 0.15);
+      color: #f7c948;
+      font-size: 9px;
+      padding: 0 8px;
+      border-radius: 12px;
+      margin-left: 6px;
+    }
+
+    /* ===== 右侧面板 (主工作区) ===== */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 20px 14px 20px;
+      overflow-y: auto;
+      gap: 10px;
+    }
+
+    /* KPI 微卡片 (细颗粒) */
+    .kpi-micro-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .kpi-micro {
+      background: rgba(16, 10, 30, 0.25);
+      backdrop-filter: blur(4px);
+      border-radius: 16px;
+      padding: 10px 12px;
+      border: 1px solid rgba(160, 120, 255, 0.08);
+    }
+
+    .kpi-micro .label {
+      font-size: 10px;
+      color: #b3a1d4;
+      letter-spacing: 0.3px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .kpi-micro .value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f0eaff;
+      margin-top: 2px;
+    }
+
+    .kpi-micro .change {
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .kpi-micro .change.up {
+      color: #7bc9b0;
+    }
+
+    .kpi-micro .change.down {
+      color: #e07a8a;
+    }
+
+    /* 图表+表格混合区 (细颗粒) */
+    .insight-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .card {
+      background: rgba(16, 10, 30, 0.2);
+      backdrop-filter: blur(4px);
+      border-radius: 20px;
+      padding: 14px 16px 16px 16px;
+      border: 1px solid rgba(160, 120, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .card-header h3 {
+      font-size: 13px;
+      font-weight: 500;
+      color: #cbb8f0;
+      letter-spacing: 0.2px;
+    }
+
+    .card-header .action-link {
+      font-size: 10px;
+      color: #b28aff;
+      background: rgba(130, 70, 255, 0.15);
+      padding: 2px 10px;
+      border-radius: 20px;
+      cursor: default;
+    }
+
+    /* 条形图 (细颗粒) */
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .bar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar-label {
+      width: 48px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #b3a1d4;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(60, 40, 100, 0.3);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #7a4bff, #b28aff);
+      width: 0%;
+    }
+
+    .bar-fill.orange {
+      background: linear-gradient(90deg, #b45f2b, #d97d3a);
+    }
+    .bar-fill.teal {
+      background: linear-gradient(90deg, #1b6f6b, #2a9d8f);
+    }
+    .bar-fill.purple {
+      background: linear-gradient(90deg, #5e3a7a, #8b5ba8);
+    }
+    .bar-fill.gold {
+      background: linear-gradient(90deg, #b28a2b, #d4b83a);
+    }
+    .bar-fill.pink {
+      background: linear-gradient(90deg, #8a3a6b, #c45a9a);
+    }
+
+    .bar-value {
+      width: 32px;
+      text-align: right;
+      font-size: 11px;
+      font-weight: 600;
+      color: #d0c4e8;
+    }
+
+    /* 交易列表 (细颗粒) */
+    .trade-list {
+      list-style: none;
+      margin-top: 2px;
+      flex: 1;
+    }
+
+    .trade-item {
+      display: flex;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(160, 120, 255, 0.06);
+    }
+
+    .trade-item:last-child {
+      border-bottom: none;
+    }
+
+    .trade-icon {
+      width: 24px;
+      height: 24px;
+      background: rgba(130, 70, 255, 0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #b28aff;
+      margin-right: 10px;
+    }
+
+    .trade-info {
+      flex: 1;
+    }
+
+    .trade-info .name {
+      font-size: 12px;
+      font-weight: 500;
+      color: #ede6ff;
+    }
+
+    .trade-info .meta {
+      font-size: 9px;
+      color: #8b75b5;
+      display: flex;
+      gap: 8px;
+      margin-top: 1px;
+    }
+
+    .trade-amount {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e6e0f0;
+      margin-right: 8px;
+    }
+
+    .trade-status {
+      font-size: 9px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(130, 70, 255, 0.15);
+      color: #b28aff;
+    }
+
+    .trade-status.executed {
+      background: rgba(60, 200, 140, 0.15);
+      color: #7bc9b0;
+    }
+    .trade-status.pending {
+      background: rgba(247, 201, 72, 0.12);
+      color: #f7c948;
+    }
+    .trade-status.review {
+      background: rgba(180, 100, 200, 0.15);
+      color: #c48ac8;
+    }
+
+    /* 底部数据表格 (细颗粒) */
+    .data-table-wrapper {
+      background: rgba(16, 10, 30, 0.2);
+      backdrop-filter: blur(4px);
+      border-radius: 20px;
+      padding: 12px 16px 10px 16px;
+      border: 1px solid rgba(160, 120, 255, 0.06);
+      margin-top: 2px;
+    }
+
+    .data-table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .data-table-header h3 {
+      font-size: 13px;
+      font-weight: 500;
+      color: #cbb8f0;
+    }
+
+    .data-table-header .filter-tabs {
+      display: flex;
+      gap: 6px;
+    }
+
+    .data-table-header .filter-tabs span {
+      font-size: 10px;
+      padding: 2px 10px;
+      border-radius: 20px;
+      background: rgba(30, 20, 55, 0.3);
+      color: #b3a1d4;
+      cursor: default;
+    }
+
+    .data-table-header .filter-tabs .active {
+      background: rgba(130, 70, 255, 0.2);
+      color: #d4c0ff;
+      border: 1px solid rgba(160, 120, 255, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th {
+      text-align: left;
+      padding: 6px 4px 6px 4px;
+      color: #8b75b5;
+      font-weight: 500;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(160, 120, 255, 0.08);
+    }
+
+    td {
+      padding: 8px 4px;
+      border-bottom: 1px solid rgba(160, 120, 255, 0.04);
+      color: #ddd2f0;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 500;
+      background: rgba(130, 70, 255, 0.15);
+      color: #b28aff;
+    }
+
+    .status-badge.success {
+      background: rgba(60, 200, 140, 0.15);
+      color: #7bc9b0;
+    }
+
+    .status-badge.warning {
+      background: rgba(247, 201, 72, 0.12);
+      color: #f7c948;
+    }
+
+    .status-badge.secondary {
+      background: rgba(160, 120, 255, 0.08);
+      color: #9a83c7;
+    }
+
+    .amount {
+      font-weight: 600;
+      color: #e6e0f0;
+    }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 1024px) {
+      .insight-grid {
+        grid-template-columns: 1fr;
+      }
+      .kpi-micro-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 820px) {
+      .navbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+        padding: 8px 12px;
+      }
+      .nav-center {
+        justify-content: center;
+      }
+      .nav-actions {
+        justify-content: center;
+      }
+      .main-layout {
+        flex-direction: column;
+      }
+      .note-sidebar {
+        width: 100%;
+        max-height: 180px;
+        border-right: none;
+        border-bottom: 1px solid rgba(160, 120, 255, 0.1);
+      }
+      .right-panel {
+        padding: 10px 12px;
+      }
+      .app-container {
+        height: 98vh;
+        border-radius: 24px;
+      }
+      .kpi-micro-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .wallpaper-selector {
+        flex-wrap: wrap;
+        gap: 3px;
+        padding: 3px 6px;
+      }
+      .wallpaper-dot {
+        width: 14px;
+        height: 14px;
+      }
+      .nav-clock-weather {
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 3px 8px;
+      }
+      .nav-clock .date {
+        display: none;
+      }
+      .nav-weather .desc {
+        display: none;
+      }
+      .kpi-micro-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .kpi-micro .value {
+        font-size: 15px;
+      }
+    }
+
+    /* 辅助 */
+    .text-muted {
+      color: #6c5890;
+    }
+    .mt-1 {
+      margin-top: 4px;
+    }
+    .fs-12 {
+      font-size: 12px;
+    }
+    .flex {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container" id="appContainer">
+    <!-- 导航 -->
+    <header class="navbar">
+      <div class="logo-area">
+        <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="logo-text">投行中台 <small>· 清华黑紫</small></div>
+      </div>
+      <div class="nav-center">
+        <div class="wallpaper-selector" id="wallpaperSelector">
+          <span><i class="fas fa-image"></i></span>
+          <div class="wallpaper-dot active" data-wallpaper="default" style="background: linear-gradient(135deg, #1a1030, #2a1a4a);" title="默认黑紫"></div>
+          <div class="wallpaper-dot" data-wallpaper="maldives" style="background-image: url('https://picsum.photos/seed/maldives/200/200');" title="马尔代夫"></div>
+          <div class="wallpaper-dot" data-wallpaper="california" style="background-image: url('https://picsum.photos/seed/california/200/200');" title="加州"></div>
+          <div class="wallpaper-dot" data-wallpaper="beijing" style="background-image: url('https://picsum.photos/seed/beijing/200/200');" title="故宫"></div>
+          <div class="wallpaper-dot" data-wallpaper="london" style="background-image: url('https://picsum.photos/seed/london/200/200');" title="伦敦"></div>
+          <div class="wallpaper-dot" data-wallpaper="tsinghua" style="background-image: url('https://picsum.photos/seed/tsinghua/200/200');" title="清华"></div>
+          <div class="wallpaper-dot" data-wallpaper="ocean" style="background-image: url('https://picsum.photos/seed/ocean/200/200');" title="海洋"></div>
+          <div class="wallpaper-dot" data-wallpaper="aurora" style="background-image: url('https://picsum.photos/seed/aurora/200/200');" title="极光"></div>
+          <div class="wallpaper-dot" data-wallpaper="milkyway" style="background-image: url('https://picsum.photos/seed/milkyway/200/200');" title="银河"></div>
+          <div class="wallpaper-dot" data-wallpaper="sakura" style="background-image: url('https://picsum.photos/seed/sakura/200/200');" title="樱花"></div>
+          <div class="wallpaper-dot" data-wallpaper="nightcity" style="background-image: url('https://picsum.photos/seed/nightcity/200/200');" title="夜景"></div>
+          <label class="upload-btn" for="wallpaperUpload"><i class="fas fa-upload"></i> 上传</label>
+          <input type="file" id="wallpaperUpload" accept="image/*">
+        </div>
+        <div class="nav-clock-weather">
+          <div class="nav-clock"><span class="time" id="navClockTime">--:--:--</span><span class="date" id="navClockDate">--/--</span></div>
+          <div class="nav-weather"><span class="temp" id="navWeatherTemp">--°C</span><span class="desc" id="navWeatherDesc">--</span></div>
+        </div>
+        <div style="background:rgba(30,20,55,0.3);border-radius:40px;padding:2px 12px;border:1px solid rgba(160,120,255,0.08);font-size:11px;color:#b3a1d4;">
+          <i class="fas fa-circle" style="color:#7bc9b0;font-size:8px;"></i> 实时
+        </div>
+      </div>
+      <div class="nav-actions">
+        <i class="fas fa-search"></i>
+        <i class="fas fa-bell"></i>
+        <i class="fas fa-th-large"></i>
+        <div class="avatar">IB</div>
+      </div>
+    </header>
+
+    <!-- 主体 -->
+    <div class="main-layout">
+      <!-- 左侧: 投资组合/项目列表 (颗粒度细化) -->
+      <aside class="note-sidebar">
+        <div class="sidebar-header">
+          <h3><i class="fas fa-briefcase" style="margin-right:4px;"></i> 投资组合</h3>
+          <i class="fas fa-plus-circle" id="addPortfolioBtn"></i>
+        </div>
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="搜索标的、行业...">
+        </div>
+        <div class="note-list" id="noteListContainer">
+          <!-- 动态渲染 -->
+        </div>
+        <!-- 侧边待办/警示 -->
+        <div style="margin-top:8px;border-top:1px solid rgba(160,120,255,0.06);padding-top:6px;">
+          <div style="font-size:10px;color:#8b75b5;"><i class="fas fa-exclamation-triangle" style="color:#f7c948;"></i> 待处理警示</div>
+          <div style="font-size:10px;color:#b3a1d4;padding:2px 0;"><i class="fas fa-circle" style="color:#e07a8a;font-size:6px;"></i> 对手方风险: 2项</div>
+          <div style="font-size:10px;color:#b3a1d4;padding:2px 0;"><i class="fas fa-circle" style="color:#f7c948;font-size:6px;"></i> 待审批交易: 5笔</div>
+        </div>
+      </aside>
+
+      <!-- 右侧主工作区 (细颗粒) -->
+      <div class="right-panel">
+        <!-- KPI 微卡片 (细颗粒) -->
+        <div class="kpi-micro-grid">
+          <div class="kpi-micro">
+            <div class="label"><span>在管资产 (AUM)</span> <i class="far fa-building" style="color:#6c5890;"></i></div>
+            <div class="value">$24.8B</div>
+            <div class="change up"><i class="fas fa-arrow-up"></i> +12.3%</div>
+          </div>
+          <div class="kpi-micro">
+            <div class="label"><span>活跃交易</span> <i class="far fa-clock" style="color:#6c5890;"></i></div>
+            <div class="value">147</div>
+            <div class="change up"><i class="fas fa-arrow-up"></i> +8</div>
+          </div>
+          <div class="kpi-micro">
+            <div class="label"><span>待审批</span> <i class="fas fa-clipboard-list" style="color:#6c5890;"></i></div>
+            <div class="value">23</div>
+            <div class="change down"><i class="fas fa-arrow-down"></i> -4</div>
+          </div>
+          <div class="kpi-micro">
+            <div class="label"><span>风险敞口</span> <i class="fas fa-shield-alt" style="color:#6c5890;"></i></div>
+            <div class="value">中</div>
+            <div class="change" style="color:#f7c948;"><i class="fas fa-minus-circle"></i> 稳定</div>
+          </div>
+        </div>
+
+        <!-- 洞察网格: 资产配置 + 交易流 (细颗粒) -->
+        <div class="insight-grid">
+          <!-- 资产配置 (条形图) -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-chart-pie" style="margin-right:6px;color:#b28aff;"></i>资产配置 (细颗粒)</h3>
+              <span class="action-link">详情 <i class="fas fa-arrow-right"></i></span>
+            </div>
+            <div class="bar-chart">
+              <div class="bar-item"><span class="bar-label">固收</span><div class="bar-track"><div class="bar-fill" style="width:68%"></div></div><span class="bar-value">68%</span></div>
+              <div class="bar-item"><span class="bar-label">权益</span><div class="bar-track"><div class="bar-fill orange" style="width:42%"></div></div><span class="bar-value">42%</span></div>
+              <div class="bar-item"><span class="bar-label">私募</span><div class="bar-track"><div class="bar-fill teal" style="width:27%"></div></div><span class="bar-value">27%</span></div>
+              <div class="bar-item"><span class="bar-label">另类</span><div class="bar-track"><div class="bar-fill purple" style="width:15%"></div></div><span class="bar-value">15%</span></div>
+              <div class="bar-item"><span class="bar-label">现金</span><div class="bar-track"><div class="bar-fill gold" style="width:8%"></div></div><span class="bar-value">8%</span></div>
+            </div>
+            <div style="display:flex;gap:14px;margin-top:8px;font-size:9px;color:#8b75b5;border-top:1px solid rgba(160,120,255,0.06);padding-top:6px;">
+              <span><i class="fas fa-circle" style="color:#b28aff;font-size:8px;"></i> 久期 4.2y</span>
+              <span><i class="fas fa-circle" style="color:#d97d3a;font-size:8px;"></i> 夏普 1.8</span>
+              <span><i class="fas fa-circle" style="color:#2a9d8f;font-size:8px;"></i> 波动 12.4%</span>
+            </div>
+          </div>
+
+          <!-- 交易流 (列表) -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-exchange-alt" style="margin-right:6px;color:#b28aff;"></i>实时交易流</h3>
+              <span class="action-link">全部 <i class="fas fa-chevron-right"></i></span>
+            </div>
+            <ul class="trade-list">
+              <li class="trade-item">
+                <div class="trade-icon"><i class="fas fa-file-invoice"></i></div>
+                <div class="trade-info"><div class="name">#TXN-8742 · BlackRock</div><div class="meta"><span>固收</span><span>12:30</span></div></div>
+                <div class="trade-amount">$4.2M</div>
+                <span class="trade-status executed">已执行</span>
+              </li>
+              <li class="trade-item">
+                <div class="trade-icon"><i class="fas fa-file-invoice"></i></div>
+                <div class="trade-info"><div class="name">#TXN-9103 · Goldman</div><div class="meta"><span>权益</span><span>11:15</span></div></div>
+                <div class="trade-amount">$12.8M</div>
+                <span class="trade-status pending">审批中</span>
+              </li>
+              <li class="trade-item">
+                <div class="trade-icon"><i class="fas fa-file-invoice"></i></div>
+                <div class="trade-info"><div class="name">#TXN-1024 · J.P. Morgan</div><div class="meta"><span>私募</span><span>10:45</span></div></div>
+                <div class="trade-amount">$7.5M</div>
+                <span class="trade-status review">待结算</span>
+              </li>
+              <li class="trade-item">
+                <div class="trade-icon"><i class="fas fa-file-invoice"></i></div>
+                <div class="trade-info"><div class="name">#TXN-1167 · Morgan Stanley</div><div class="meta"><span>衍生品</span><span>09:20</span></div></div>
+                <div class="trade-amount">$2.3M</div>
+                <span class="trade-status executed">已执行</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 底部数据表格 (细颗粒) -->
+        <div class="data-table-wrapper">
+          <div class="data-table-header">
+            <h3><i class="fas fa-table" style="margin-right:6px;color:#b28aff;"></i>交易流水 · 细颗粒</h3>
+            <div class="filter-tabs">
+              <span class="active">全部</span>
+              <span>固收</span>
+              <span>权益</span>
+              <span>衍生品</span>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>交易ID</th><th>对手方</th><th>资产类别</th><th>名义金额</th><th>状态</th><th>期限</th></tr></thead>
+            <tbody>
+              <tr><td><span style="font-weight:500;">#TXN-8742</span></td><td>BlackRock</td><td>固收</td><td class="amount">$4.2M</td><td><span class="status-badge success">已执行</span></td><td>2.3y</td></tr>
+              <tr><td><span style="font-weight:500;">#TXN-9103</span></td><td>Goldman Sachs</td><td>权益</td><td class="amount">$12.8M</td><td><span class="status-badge warning">审批中</span></td><td>—</td></tr>
+              <tr><td><span style="font-weight:500;">#TXN-1024</span></td><td>J.P. Morgan</td><td>私募</td><td class="amount">$7.5M</td><td><span class="status-badge secondary">待结算</span></td><td>5.0y</td></tr>
+              <tr><td><span style="font-weight:500;">#TXN-1167</span></td><td>Morgan Stanley</td><td>衍生品</td><td class="amount">$2.3M</td><td><span class="status-badge success">已执行</span></td><td>0.8y</td></tr>
+              <tr><td><span style="font-weight:500;">#TXN-1205</span></td><td>Citadel</td><td>固收</td><td class="amount">$9.1M</td><td><span class="status-badge secondary">待复核</span></td><td>3.1y</td></tr>
+            </tbody>
+          </table>
+          <div style="display:flex;justify-content:flex-end;padding:6px 4px 0;font-size:9px;color:#6c5890;border-top:1px solid rgba(160,120,255,0.04);margin-top:4px;">
+            <span><i class="fas fa-sync-alt" style="margin-right:6px;"></i> 更新: 14:28</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ===== 模拟数据 (投行中台细颗粒) =====
+      const portfolioItems = [
+        { id: 'p1', title: '全球宏观对冲', preview: '固收+权益 · 久期 4.2', category: '宏观', updated: '14:20', alerts: 2 },
+        { id: 'p2', title: '新兴市场信贷', preview: '私募债 · 高收益', category: '信贷', updated: '13:45', alerts: 1 },
+        { id: 'p3', title: '科技成长权益', preview: '美股科技 · 波动 18%', category: '权益', updated: '12:10', alerts: 0 },
+        { id: 'p4', title: '大宗商品CTA', preview: '能源+金属 · 趋势跟踪', category: '商品', updated: '11:30', alerts: 0 },
+        { id: 'p5', title: '房地产私募', preview: '物流+住宅 · 杠杆 2.5x', category: '地产', updated: '10:50', alerts: 1 },
+      ];
+
+      let currentId = 'p1';
+      const noteListEl = document.getElementById('noteListContainer');
+      const searchInput = document.getElementById('searchInput');
+
+      function renderList(filter = '') {
+        let filtered = portfolioItems.filter(p => p.title.includes(filter) || p.category.includes(filter) || p.preview
+        .includes(filter));
+        if (filtered.length === 0) {
+          noteListEl.innerHTML = `<div style="color:#6c5890;text-align:center;padding:14px 0;font-size:11px;">没有匹配的组合</div>`;
+          return;
+        }
+        let html = '';
+        filtered.forEach(p => {
+          const activeClass = (p.id === currentId) ? 'active' : '';
+          const alertBadge = p.alerts > 0 ? `<span class="todo-badge" style="background:rgba(224,122,138,0.2);color:#e07a8a;">${p.alerts}⚠</span>` :
+            '';
+          html += `
+                <div class="note-item ${activeClass}" data-id="${p.id}">
+                  <div class="note-title"><span>📊 ${p.title} ${alertBadge}</span><i class="fas fa-chevron-right"></i></div>
+                  <div class="note-preview">${p.preview}</div>
+                  <div class="note-meta"><span><i class="far fa-clock"></i> ${p.updated}</span><span><i class="far fa-folder"></i> ${p.category}</span></div>
+                </div>
+              `;
+        });
+        noteListEl.innerHTML = html;
+        noteListEl.querySelectorAll('.note-item').forEach(el => {
+          el.addEventListener('click', function() {
+            currentId = this.dataset.id;
+            renderList(searchInput.value.trim());
+            // 模拟加载详情
+            const item = portfolioItems.find(p => p.id === currentId);
+            if (item) {
+              document.querySelector('.kpi-micro .value').textContent = '$' + (Math.random() * 30 + 10).toFixed(1) +
+                'B';
+              showToast('📊 加载组合: ' + item.title);
+            }
+          });
+        });
+      }
+
+      // 简易toast
+      function showToast(msg) {
+        const old = document.querySelector('.toast-ib');
+        if (old) old.remove();
+        const div = document.createElement('div');
+        div.className = 'toast-ib';
+        div.style.cssText =
+          'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(22,16,40,0.9);backdrop-filter:blur(10px);padding:8px 24px;border-radius:40px;border:1px solid rgba(160,120,255,0.2);color:#e6def5;font-size:13px;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,0.5);transition:opacity 0.3s;';
+        div.textContent = msg;
+        document.body.appendChild(div);
+        setTimeout(() => { div.style.opacity = '0';
+          setTimeout(() => div.remove(), 400); }, 2000);
+      }
+
+      // 添加组合按钮
+      document.getElementById('addPortfolioBtn').addEventListener('click', function() {
+        const newId = 'p' + Date.now();
+        portfolioItems.unshift({ id: newId, title: '新策略组合', preview: '待配置 · 点击编辑', category: '新建',
+          updated: '刚刚', alerts: 0 });
+        currentId = newId;
+        renderList(searchInput.value.trim());
+        showToast('📈 新建投资组合');
+      });
+
+      // 搜索
+      searchInput.addEventListener('input', function(e) {
+        renderList(e.target.value.trim());
+      });
+
+      // ===== 壁纸 =====
+      const appContainer = document.getElementById('appContainer');
+      document.querySelectorAll('.wallpaper-dot').forEach(d => {
+        d.addEventListener('click', function() {
+          const id = this.dataset.wallpaper;
+          if (id === 'default') {
+            appContainer.style.backgroundImage = '';
+            appContainer.style.backgroundColor = 'rgba(22, 16, 35, 0.45)';
+          } else {
+            appContainer.style.backgroundImage = `url('https://picsum.photos/seed/${id}/1400/1000')`;
+            appContainer.style.backgroundColor = 'transparent';
+          }
+          document.querySelectorAll('.wallpaper-dot').forEach(dd => dd.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+
+      document.getElementById('wallpaperUpload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          appContainer.style.backgroundImage = `url('${ev.target.result}')`;
+          appContainer.style.backgroundColor = 'transparent';
+          document.querySelectorAll('.wallpaper-dot').forEach(d => d.classList.remove('active'));
+          showToast('✅ 壁纸已更新');
+        };
+        reader.readAsDataURL(file);
+        this.value = '';
+      });
+
+      // ===== 时钟天气 =====
+      const clockTime = document.getElementById('navClockTime');
+      const clockDate = document.getElementById('navClockDate');
+      const weatherTemp = document.getElementById('navWeatherTemp');
+      const weatherDesc = document.getElementById('navWeatherDesc');
+
+      function updateClock() {
+        const now = new Date();
+        clockTime.textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
+        clockDate.textContent = now.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+
+      const weathers = ['晴', '多云', '小雨', '阴', '晴', '多云'];
+      let wi = 0;
+
+      function updateWeather() {
+        const w = weathers[wi % weathers.length];
+        wi++;
+        weatherDesc.textContent = w;
+        weatherTemp.textContent = (Math.floor(Math.random() * 10) + 22) + '°C';
+      }
+      updateWeather();
+      setInterval(updateWeather, 30000);
+
+      // ===== 初始化渲染 =====
+      renderList('');
+      showToast('📊 投行中台 · 细颗粒模式');
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab · 自然语言处理 (NLP)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0b0719;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            background-image: radial-gradient(circle at 20% 30%, rgba(120, 80, 255, 0.08) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 70%, rgba(200, 130, 255, 0.06) 0%, transparent 50%);
+        }
+
+        .glass-container {
+            max-width: 1400px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 48px;
+            padding: 2.8rem 3.2rem;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7),
+                        0 0 0 1px rgba(180, 130, 255, 0.12) inset,
+                        0 0 0 1px rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(180, 130, 255, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #9b4dff 0%, #c084fc 40%, #a855f7 75%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .badge-glow {
+            background: rgba(160, 120, 255, 0.12);
+            padding: 0.25rem 1.2rem;
+            border-radius: 60px;
+            border: 1px solid rgba(200, 160, 255, 0.15);
+            backdrop-filter: blur(4px);
+            color: #d8ccff;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2.8rem;
+            padding-bottom: 1.8rem;
+            border-bottom: 1px solid rgba(160, 120, 255, 0.1);
+        }
+
+        .brand h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            color: #f0ecff;
+        }
+        .brand .sub {
+            font-size: 1rem;
+            color: rgba(200, 185, 255, 0.6);
+            margin-top: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .logo-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logo-links a {
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.4rem 1.4rem;
+            border-radius: 60px;
+            transition: all 0.25s ease;
+            background: rgba(255, 255, 255, 0.04);
+            color: #d0c6ec;
+            border: 1px solid rgba(200, 170, 255, 0.06);
+        }
+        .logo-links a:hover {
+            background: rgba(160, 120, 255, 0.15);
+            color: white;
+            border-color: rgba(160, 120, 255, 0.25);
+            box-shadow: 0 0 20px rgba(120, 80, 255, 0.05);
+        }
+        .logo-links a i {
+            margin-right: 6px;
+        }
+
+        .stat-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.8rem 3rem;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(8px);
+            border-radius: 30px;
+            padding: 1.4rem 2.6rem;
+            margin: 0.8rem 0 1.8rem;
+            border: 1px solid rgba(160, 120, 255, 0.06);
+        }
+        .stat-item {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #c8b4ff;
+        }
+        .stat-label {
+            color: rgba(200, 185, 255, 0.55);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.8rem;
+            margin: 1.8rem 0 2.2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 1.8rem 2rem;
+            border: 1px solid rgba(200, 170, 255, 0.06);
+            box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.4);
+            transition: all 0.25s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(200, 160, 255, 0.15);
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 16px 36px -10px rgba(80, 40, 200, 0.15);
+        }
+        .card .icon {
+            font-size: 1.6rem;
+            color: #b48aff;
+            margin-bottom: 0.4rem;
+            filter: drop-shadow(0 0 10px rgba(160, 120, 255, 0.1));
+        }
+        .card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            color: #f0ecff;
+            letter-spacing: -0.2px;
+        }
+        .card p, .card li {
+            color: rgba(220, 210, 255, 0.8);
+            font-weight: 400;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        .card ul, .card ol {
+            padding-left: 1.2rem;
+            margin-top: 0.2rem;
+        }
+        .card li {
+            margin-bottom: 0.2rem;
+        }
+        .card .highlight {
+            background: rgba(160, 120, 255, 0.06);
+            padding: 0.1rem 0.6rem;
+            border-radius: 20px;
+            font-weight: 500;
+            color: #d4c0ff;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 0.6rem 0 0.2rem;
+        }
+        .tag {
+            background: rgba(160, 120, 255, 0.06);
+            padding: 0.1rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #c7b5ff;
+            border: 1px solid rgba(180, 150, 255, 0.04);
+        }
+        .tag i {
+            margin-right: 4px;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 14px;
+            padding: 0.8rem 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #d4c8ff;
+            border-left: 3px solid #9b6bff;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 0.6rem 0;
+        }
+
+        .quote-block {
+            background: rgba(160, 120, 255, 0.04);
+            border-radius: 16px;
+            padding: 1rem 1.8rem;
+            border-left: 4px solid #a06aff;
+            margin: 0.8rem 0 0.6rem;
+            font-style: italic;
+            color: rgba(220, 210, 255, 0.75);
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .footer-links {
+            margin-top: 2.8rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(160, 120, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .footer-links a {
+            color: rgba(200, 185, 255, 0.5);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover {
+            color: #c8b4ff;
+        }
+        .footer-note {
+            margin-top: 1.8rem;
+            font-size: 0.75rem;
+            color: rgba(200, 185, 255, 0.2);
+            text-align: center;
+            padding-top: 1.2rem;
+            border-top: 1px solid rgba(160, 120, 255, 0.03);
+        }
+
+        @media (max-width: 900px) {
+            .glass-container { padding: 2rem 1.8rem; }
+            .grid-2 { grid-template-columns: 1fr; gap: 1.2rem; }
+            .header { flex-direction: column; }
+            .brand h1 { font-size: 2.2rem; }
+        }
+        @media (max-width: 600px) {
+            .glass-container { padding: 1.5rem 1rem; border-radius: 28px; }
+            .stat-row { flex-direction: column; gap: 0.6rem; padding: 1.2rem 1.5rem; }
+            .logo-links { flex-wrap: wrap; }
+            .footer-links { flex-direction: column; align-items: flex-start; }
+            .brand h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="glass-container">
+
+    <!-- 头部 -->
+    <div class="header">
+        <div class="brand">
+            <h1>
+                <span class="gradient-text">AI Lab</span>
+                <span style="font-weight: 300; color: rgba(200, 185, 255, 0.4);">· 自然语言处理</span>
+            </h1>
+            <div class="sub">
+                <span>从语言理解到生成 · NLP 全栈知识体系</span>
+                <span class="badge-glow"><i class="fas fa-flask"></i> 清华 AI 实验室</span>
+            </div>
+        </div>
+        <div class="logo-links">
+            <a href="https://huggingface.co" target="_blank"><i class="fas fa-robot"></i> Hugging Face</a>
+            <a href="https://pytorch.org" target="_blank"><i class="fas fa-fire"></i> PyTorch</a>
+            <a href="https://www.aclweb.org" target="_blank"><i class="fas fa-book"></i> ACL</a>
+        </div>
+    </div>
+
+    <!-- 数据横幅 -->
+    <div class="stat-row">
+        <div class="stat-item"><span class="stat-number">175B</span><span class="stat-label">GPT-3 参数量</span></div>
+        <div class="stat-item"><span class="stat-number">1.8T</span><span class="stat-label">Switch Transformer</span></div>
+        <div class="stat-item"><span class="stat-number">100+</span><span class="stat-label">预训练模型</span></div>
+        <div class="stat-item"><span class="stat-number">BERT</span><span class="stat-label">里程碑模型</span></div>
+        <div class="stat-item"><span class="stat-number">LLaMA</span><span class="stat-label">开源标杆</span></div>
+    </div>
+
+    <!-- 网格卡片 -->
+    <div class="grid-2">
+
+        <!-- 1. NLP 核心任务 -->
+        <div class="card">
+            <div class="icon"><i class="fas fa-tasks"></i></div>
+            <h3>核心任务 · 语言理解</h3>
+            <p><strong style="color:#d8c8ff;">NLP</strong> 旨在让计算机理解、生成和处理人类语言，主要任务包括：</p>
+            <ul>
+                <li><strong style="color:#d0bcff;">文本分类</strong>：情感分析、主题识别、垃圾邮件检测。</li>
+                <li><strong style="color:#d0bcff;">序列标注</strong>：命名实体识别 (NER)、词性标注 (POS)。</li>
+                <li><strong style="color:#d0bcff;">问答系统</strong>：抽取式/生成式问答，阅读理解。</li>
+                <li><strong style="color:#d0bcff;">机器翻译</strong>：神经机器翻译 (NMT)，多语言互译。</li>
+                <li><strong style="color:#d0bcff;">文本生成</strong>：摘要、对话、创意写作。</li>
+            </ul>
+            <div class="tag-group">
+                <span class="tag"><i class="fas fa-tag"></i> 分类</span>
+                <span class="tag"><i class="fas fa-pen"></i> 标注</span>
+                <span class="tag"><i class="fas fa-comments"></i> 问答</span>
+                <span class="tag"><i class="fas fa-language"></i> 翻译</span>
+            </div>
+        </div>
+
+        <!-- 2. 里程碑模型 -->
+        <div class="card">
+            <div class="icon"><i class="fas fa-history"></i></div>
+            <h3>里程碑模型 · 演进</h3>
+            <ul>
+                <li><strong style="color:#d0bcff;">Word2Vec (2013)</strong>：词向量表示，开启深度学习时代。</li>
+                <li><strong style="color:#d0bcff;">Seq2Seq (2014)</strong>：序列到序列模型，机器翻译基石。</li>
+                <li><strong style="color:#d0bcff;">Attention (2015)</strong>：注意力机制，长距离依赖建模。</li>
+                <li><strong style="color:#d0bcff;">BERT (2018)</strong>：双向编码器，预训练+微调范式。</li>
+                <li><strong style="color:#d0bcff;">GPT (2018-2023)</strong>：生成式预训练，大语言模型革命。</li>
+            </ul>
+            <div class="code-block">
+                # BERT 预训练目标<br>
+                loss = MLM + NSP  # 掩码语言模型 + 下一句预测
+            </div>
+            <div class="tag-group">
+                <span class="tag"><i class="fas fa-brain"></i> Attention</span>
+                <span class="tag"><i class="fas fa-arrow-left"></i> BERT</span>
+                <span class="tag"><i class="fas fa-arrow-right"></i> GPT</span>
+            </div>
+        </div>
+
+        <!-- 3. 预训练与微调 -->
+        <div class="card">
+            <div class="icon"><i class="fas fa-microchip"></i></div>
+            <h3>预训练 · 微调</h3>
+            <p><strong style="color:#d0bcff;">预训练 (Pre-training)</strong> 在大规模无标注文本上学习通用语言知识，<strong style="color:#d0bcff;">微调 (Fine-tuning)</strong> 在特定任务上调整模型。</p>
+            <ul>
+                <li><strong style="color:#d0bcff;">自监督学习</strong>：MLM、自回归、对比学习。</li>
+                <li><strong style="color:#d0bcff;">数据规模</strong>：预训练需 TB 级文本 (CommonCrawl, Wikipedia)。</li>
+                <li><strong style="color:#d0bcff;">微调策略</strong>：全量微调、LoRA、Prompt Tuning。</li>
+                <li><strong style="color:#d0bcff;">评估指标</strong>：Perplexity, BLEU, ROUGE, F1, Accuracy。</li>
+            </ul>
+            <div class="tag-group">
+                <span class="tag"><i class="fas fa-database"></i> 海量数据</span>
+                <span class="tag"><i class="fas fa-sliders-h"></i> LoRA</span>
+                <span class="tag"><i class="fas fa-chart-line"></i> 评估指标</span>
+            </div>
+        </div>
+
+        <!-- 4. 工具与框架 -->
+        <div class="card">
+            <div class="icon"><i class="fas fa-toolbox"></i></div>
+            <h3>工具链 · 框架</h3>
+            <ul>
+                <li><strong style="color:#d0bcff;">Hugging Face Transformers</strong>：预训练模型库，支持 BERT/GPT/T5。</li>
+                <li><strong style="color:#d0bcff;">PyTorch / TensorFlow</strong>：深度学习框架，动态图/静态图。</li>
+                <li><strong style="color:#d0bcff;">LangChain</strong>：大语言模型应用开发框架。</li>
+                <li><strong style="color:#d0bcff;">spaCy / NLTK</strong>：传统 NLP 工具包。</li>
+                <li><strong style="color:#d0bcff;">Weights & Biases</strong>：实验跟踪与可视化。</li>
+            </ul>
+            <div class="code-block">
+                from transformers import AutoTokenizer, AutoModel<br>
+                tokenizer = AutoTokenizer.from_pretrained("bert-base-chinese")
+            </div>
+            <div class="tag-group">
+                <span class="tag"><i class="fas fa-robot"></i> Transformers</span>
+                <span class="tag"><i class="fas fa-fire"></i> PyTorch</span>
+                <span class="tag"><i class="fas fa-link"></i> LangChain</span>
+            </div>
+        </div>
+
+        <!-- 5. 大语言模型 (LLM) 前沿 (全宽) -->
+        <div class="card full-width">
+            <div class="icon"><i class="fas fa-brain"></i></div>
+            <h3>大语言模型 · 前沿与趋势</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; margin-top: 0.4rem;">
+                <div>
+                    <p><strong style="color:#d0bcff;">模型架构</strong></p>
+                    <ul>
+                        <li>Decoder-only (GPT 系列)</li>
+                        <li>Encoder-only (BERT 系列)</li>
+                        <li>Encoder-Decoder (T5, BART)</li>
+                        <li>MoE (Switch Transformer)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p><strong style="color:#d0bcff;">关键技术</strong></p>
+                    <ul>
+                        <li>RLHF / DPO 对齐</li>
+                        <li>长上下文 (1M+ tokens)</li>
+                        <li>多模态 (GPT-4V, LLaVA)</li>
+                        <li>RAG 检索增强生成</li>
+                    </ul>
+                </div>
+                <div>
+                    <p><strong style="color:#d0bcff;">开源生态</strong></p>
+                    <ul>
+                        <li>LLaMA / Mistral / Qwen</li>
+                        <li>ChatGLM / Baichuan</li>
+                        <li>Hugging Face Hub</li>
+                        <li>vLLM / llama.cpp 推理</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="quote-block" style="margin-top: 0.6rem;">
+                “大语言模型正在重塑 NLP 的研究范式，从 ‘为每个任务训练一个模型’ 转向 ‘一个模型适应所有任务’。”
+            </div>
+            <div class="tag-group" style="margin-top: 0.6rem;">
+                <span class="tag"><i class="fas fa-cogs"></i> MoE</span>
+                <span class="tag"><i class="fas fa-handshake"></i> RLHF</span>
+                <span class="tag"><i class="fas fa-search"></i> RAG</span>
+                <span class="tag"><i class="fas fa-image"></i> 多模态</span>
+                <span class="tag"><i class="fas fa-code-branch"></i> 开源</span>
+            </div>
+        </div>
+
+        <!-- 6. 数据集与评估 (全宽) -->
+        <div class="card full-width">
+            <div class="icon"><i class="fas fa-database"></i></div>
+            <h3>数据集 · 基准测试</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; margin-top: 0.4rem;">
+                <div>
+                    <p><strong style="color:#d0bcff;">中文数据集</strong></p>
+                    <ul>
+                        <li>CLUE (中文语言理解评测)</li>
+                        <li>CMRC (机器阅读理解)</li>
+                        <li>THUNews (清华新闻分类)</li>
+                        <li>LCQMC (语义匹配)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p><strong style="color:#d0bcff;">英文数据集</strong></p>
+                    <ul>
+                        <li>GLUE / SuperGLUE</li>
+                        <li>SQuAD (阅读理解)</li>
+                        <li>IMDB (情感分析)</li>
+                        <li>CNN/DailyMail (摘要)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p><strong style="color:#d0bcff;">评估基准</strong></p>
+                    <ul>
+                        <li>MMLU (多任务语言理解)</li>
+                        <li>HELM (Holistic Evaluation)</li>
+                        <li>C-Eval (中文综合评测)</li>
+                        <li>HumanEval (代码生成)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tag-group" style="margin-top: 0.8rem;">
+                <span class="tag"><i class="fas fa-flag"></i> GLUE</span>
+                <span class="tag"><i class="fas fa-flag"></i> CLUE</span>
+                <span class="tag"><i class="fas fa-flag"></i> MMLU</span>
+                <span class="tag"><i class="fas fa-flag"></i> C-Eval</span>
+            </div>
+        </div>
+
+        <!-- 7. 应用场景 (全宽) -->
+        <div class="card full-width">
+            <div class="icon"><i class="fas fa-rocket"></i></div>
+            <h3>应用场景 · 行业落地</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; margin-top: 0.4rem;">
+                <div>
+                    <p><strong style="color:#d0bcff;">金融科技</strong></p>
+                    <ul>
+                        <li>智能投研报告生成</li>
+                        <li>舆情监控与情感分析</li>
+                        <li>合同审核与风险识别</li>
+                    </ul>
+                </div>
+                <div>
+                    <p><strong style="color:#d0bcff;">医疗健康</strong></p>
+                    <ul>
+                        <li>病历结构化与ICD编码</li>
+                        <li>医学文献摘要</li>
+                        <li>智能问诊与导诊</li>
+                    </ul>
+                </div>
+                <div>
+                    <p><strong style="color:#d0bcff;">教育科技</strong></p>
+                    <ul>
+                        <li>智能作文批改</li>
+                        <li>个性化学习推荐</li>
+                        <li>对话式辅导系统</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="margin-top: 0.8rem;">
+                <p style="color: rgba(200, 185, 255, 0.6);"><i class="fas fa-lightbulb" style="color: #b48aff;"></i> 清华 AI 实验室重点关注：大模型安全、多模态理解、高效微调、中文 NLP 等领域，欢迎同学参与研究与实践。</p>
+            </div>
+        </div>
+
+    </div> <!-- end grid-2 -->
+
+    <!-- 底部链接 -->
+    <div class="footer-links">
+        <div style="display: flex; gap: 1.8rem; flex-wrap: wrap;">
+            <a href="https://huggingface.co" target="_blank"><i class="fas fa-robot"></i> Hugging Face</a>
+            <a href="https://pytorch.org" target="_blank"><i class="fas fa-fire"></i> PyTorch</a>
+            <a href="https://www.aclweb.org" target="_blank"><i class="fas fa-book"></i> ACL 官网</a>
+            <a href="https://arxiv.org/archive/cs.CL" target="_blank"><i class="fas fa-file-alt"></i> arXiv (cs.CL)</a>
+        </div>
+        <div style="color: rgba(200, 185, 255, 0.3); font-size: 0.85rem;">
+            <i class="fas fa-flask"></i> 清华 AI 实验室
+        </div>
+    </div>
+
+    <div class="footer-note">
+        <i class="fas fa-info-circle"></i> 内容综合自 ACL / EMNLP / NeurIPS 论文、Hugging Face 文档及行业实践。NLP 领域快速发展，建议关注最新论文与开源项目。
+    </div>
+
+</div> <!-- end glass-container -->
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</body>
+</html>

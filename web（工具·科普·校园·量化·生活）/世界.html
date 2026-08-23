@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清云小世界 · 欢迎回家</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+        /* ===== 欢迎屏 ===== */
+        .splash-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: radial-gradient(ellipse at center, #1a0a2a 0%, #0b0710 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1.2s ease, transform 1.2s ease;
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: all;
+        }
+        .splash-screen.hide {
+            opacity: 0;
+            transform: scale(1.05);
+            pointer-events: none;
+        }
+        .splash-screen .logo-glow {
+            font-size: 72px;
+            margin-bottom: 12px;
+            animation: pulseGold 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 40px rgba(247, 201, 72, 0.3));
+        }
+        @keyframes pulseGold {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 40px rgba(247, 201, 72, 0.2)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 80px rgba(247, 201, 72, 0.4)); }
+        }
+        .splash-screen h1 {
+            font-size: 38px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            background: linear-gradient(to right, #f7c948, #d9caff, #f7c948);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shimmerGold 3s linear infinite;
+            margin-bottom: 8px;
+        }
+        @keyframes shimmerGold {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+        .splash-screen .sub {
+            font-size: 16px;
+            color: #b3a1d4;
+            letter-spacing: 4px;
+            font-weight: 300;
+            opacity: 0.7;
+        }
+        .splash-screen .enter-btn {
+            margin-top: 28px;
+            background: rgba(247, 201, 72, 0.08);
+            border: 1px solid rgba(247, 201, 72, 0.15);
+            border-radius: 60px;
+            padding: 10px 40px;
+            font-size: 14px;
+            color: #f7c948;
+            cursor: pointer;
+            transition: 0.4s;
+            font-family: inherit;
+            letter-spacing: 3px;
+            backdrop-filter: blur(8px);
+        }
+        .splash-screen .enter-btn:hover {
+            background: rgba(247, 201, 72, 0.15);
+            border-color: #f7c948;
+            box-shadow: 0 0 40px rgba(247, 201, 72, 0.15);
+            transform: scale(1.02);
+        }
+        .splash-screen .sparkles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .splash-screen .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #f7c948;
+            border-radius: 50%;
+            animation: floatSparkle 6s infinite linear;
+            opacity: 0;
+        }
+        @keyframes floatSparkle {
+            0% { opacity: 0; transform: translateY(0) scale(0); }
+            20% { opacity: 0.8; transform: translateY(-20px) scale(1); }
+            80% { opacity: 0.8; transform: translateY(-80px) scale(1); }
+            100% { opacity: 0; transform: translateY(-120px) scale(0); }
+        }
+
+        /* ===== 主应用 ===== */
+        body { background: #0b0710; color: #e6e0f0; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px; }
+        .app-container {
+            width: 1440px; max-width: 100%; min-height: 920px; max-height: 98vh;
+            background: rgba(22, 16, 35, 0.3);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -8px rgba(0,0,0,0.8), 0 0 0 1px rgba(160,120,255,0.15);
+            display: flex; flex-direction: column; overflow: hidden;
+            transition: background-image 0.7s ease;
+            position: relative;
+            background-size: cover; background-position: center;
+            background-color: rgba(10,6,20,0.3);
+        }
+        .app-container::before {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(10, 6, 20, 0.12);
+            backdrop-filter: blur(4px);
+            pointer-events: none; z-index: 0;
+        }
+        .app-container>* { position: relative; z-index: 1; }
+
+        /* ===== 导航 ===== */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 16px; border-bottom: 1px solid rgba(180,140,255,0.08);
+            background: rgba(12,8,22,0.15); flex-shrink: 0; flex-wrap: wrap; gap: 4px;
+        }
+        .logo-area { display: flex; align-items: center; gap: 8px; }
+        .logo-icon {
+            background: linear-gradient(145deg, #b28aff, #7a4bff);
+            width: 30px; height: 30px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; color: #f0ecff;
+            box-shadow: 0 6px 14px rgba(90,40,200,0.5);
+        }
+        .logo-text {
+            font-weight: 700; font-size: 15px; letter-spacing: 0.5px;
+            background: linear-gradient(to right, #d9caff, #b28aff);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .logo-text small { font-weight: 400; font-size: 9px; color: #9480c0; background: none; -webkit-background-clip: unset; background-clip: unset; margin-left: 4px; }
+
+        .tag-bar {
+            display: flex; gap: 3px; flex-wrap: wrap;
+            padding: 2px 4px; background: rgba(16,10,30,0.15);
+            border-radius: 40px; border: 1px solid rgba(160,120,255,0.05);
+        }
+        .tag-btn {
+            background: transparent; border: none; padding: 3px 10px;
+            border-radius: 30px; color: #9480c0; font-size: 10px;
+            cursor: pointer; transition: 0.25s;
+            display: flex; align-items: center; gap: 3px; white-space: nowrap;
+        }
+        .tag-btn i { font-size: 10px; }
+        .tag-btn:hover { color: #d4c0ff; background: rgba(130,70,255,0.08); }
+        .tag-btn.active { background: rgba(130,70,255,0.15); color: #f0eaff; border: 1px solid rgba(160,120,255,0.08); }
+        .tag-btn.portal-btn {
+            background: rgba(247,201,72,0.08);
+            border: 1px solid rgba(247,201,72,0.1);
+            color: #f7c948;
+        }
+        .tag-btn.portal-btn:hover { background: rgba(247,201,72,0.15); }
+        .tag-btn.portal-btn i { color: #f7c948; }
+        .tag-btn.attictab {
+            background: rgba(130,70,255,0.08);
+            border: 1px solid rgba(130,70,255,0.08);
+            color: #b28aff;
+        }
+        .tag-btn.attictab:hover { background: rgba(130,70,255,0.15); color: #d4c0ff; }
+        .tag-btn.attictab.active { background: rgba(130,70,255,0.2); border-color: #b28aff; color: #f0eaff; }
+
+        .nav-right { display: flex; align-items: center; gap: 6px; }
+        .nav-clock-weather {
+            display: flex; align-items: center; gap: 4px;
+            background: rgba(30,20,55,0.2); padding: 2px 8px;
+            border-radius: 40px; border: 1px solid rgba(160,120,255,0.05);
+            font-size: 10px;
+        }
+        .nav-clock .time { font-weight: 600; color: #f0eaff; font-size: 12px; }
+        .nav-clock .date { font-size: 8px; color: #b3a1d4; }
+        .nav-weather .temp { font-size: 12px; font-weight: 500; color: #f0eaff; }
+        .nav-weather .desc { font-size: 8px; color: #b3a1d4; }
+        .avatar { width: 26px; height: 26px; background: linear-gradient(135deg, #6d44d0, #371b7a); border-radius: 100px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 9px; color: #e8dcff; border: 1px solid #a47eff; }
+
+        /* ===== 主体 ===== */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            padding: 8px 12px 8px 12px;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        /* ===== 卡片网格 ===== */
+        .card-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+            align-content: start;
+            overflow-y: auto;
+            padding: 4px 4px 8px 4px;
+        }
+        .card-grid::-webkit-scrollbar { width: 3px; }
+        .card-grid::-webkit-scrollbar-thumb { background: #4e3a78; border-radius: 10px; }
+
+        .glass-card {
+            background: rgba(22, 16, 40, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 18px 16px 14px 16px;
+            border: 1px solid rgba(160, 120, 255, 0.06);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            min-height: 130px;
+            position: relative;
+            transform-style: preserve-3d;
+            perspective: 600px;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: rgba(247, 201, 72, 0.3);
+            box-shadow: 0 0 30px rgba(247, 201, 72, 0.15), 0 8px 30px rgba(0,0,0,0.3);
+            background: rgba(30, 22, 50, 0.25);
+        }
+        /* 点击发光变大特效 */
+        .glass-card.glow-pop {
+            animation: glowPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes glowPop {
+            0% { transform: scale(1); box-shadow: 0 0 0 rgba(247,201,72,0); border-color: rgba(160,120,255,0.06); }
+            30% { transform: scale(1.08); box-shadow: 0 0 60px rgba(247,201,72,0.4), 0 0 120px rgba(247,201,72,0.15); border-color: #f7c948; }
+            100% { transform: scale(1); box-shadow: 0 0 20px rgba(247,201,72,0.1); border-color: rgba(247,201,72,0.2); }
+        }
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 24px;
+            padding: 1px;
+            background: conic-gradient(from 0deg, transparent, rgba(247,201,72,0.15), transparent, rgba(247,201,72,0.15), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .glass-card:hover::after { opacity: 1; }
+
+        .glass-card .card-emoji { font-size: 28px; margin-bottom: 2px; line-height: 1; }
+        .glass-card .card-name { font-size: 22px; font-weight: 600; color: #f0eaff; line-height: 1.2; margin-bottom: 2px; word-break: break-word; }
+        .glass-card .card-tag { font-size: 11px; color: #b28aff; background: rgba(130,70,255,0.08); padding: 1px 10px; border-radius: 30px; display: inline-block; align-self: flex-start; margin-bottom: 4px; }
+        .glass-card .card-desc { font-size: 14px; color: #c8b8e0; line-height: 1.5; flex: 1; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+        .glass-card .card-meta { font-size: 9px; color: #6c5890; margin-top: 6px; border-top: 1px solid rgba(160,120,255,0.04); padding-top: 4px; display: flex; justify-content: space-between; }
+        .glass-card .card-color-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 24px 24px 0 0; background: #b28aff; }
+        .glass-card .delete-card { position: absolute; top: 6px; right: 8px; color: #6c5890; font-size: 11px; cursor: pointer; opacity: 0.3; transition: 0.2s; background: none; border: none; z-index: 2; }
+        .glass-card .delete-card:hover { opacity: 1; color: #f78b8b; }
+
+        .glass-card.egg-card .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; min-height: 120px; }
+        .glass-card.egg-card.flipped .card-inner { transform: rotateY(180deg); }
+        .glass-card.egg-card .card-front, .glass-card.egg-card .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; top: 0; left: 0; padding: 10px; }
+        .glass-card.egg-card .card-back { transform: rotateY(180deg); background: rgba(247,201,72,0.05); border-radius: 20px; }
+        .glass-card.egg-card .card-back .egg-reveal { font-size: 14px; color: #f7c948; text-align: center; line-height: 1.6; }
+        .glass-card.egg-card .card-back .egg-reveal i { font-size: 24px; display: block; margin-bottom: 4px; }
+        .egg-badge { position: absolute; top: 6px; left: 8px; font-size: 10px; background: rgba(247,201,72,0.12); border-radius: 30px; padding: 0 8px; color: #f7c948; z-index: 2; }
+
+        .add-card {
+            border: 1.5px dashed rgba(160,120,255,0.15);
+            background: rgba(22,16,40,0.1);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 130px;
+            cursor: pointer;
+            transition: 0.25s;
+            border-radius: 24px;
+        }
+        .add-card:hover { border-color: rgba(160,120,255,0.3); background: rgba(30,22,50,0.15); }
+        .add-card i { font-size: 32px; color: #6c5890; transition: 0.2s; }
+        .add-card:hover i { color: #b28aff; transform: scale(1.05); }
+
+        /* ===== 详情面板 ===== */
+        .detail-panel {
+            width: 280px;
+            flex-shrink: 0;
+            background: rgba(16,10,30,0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 14px 16px;
+            border: 1px solid rgba(160,120,255,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+        .detail-panel::-webkit-scrollbar { width: 3px; }
+        .detail-panel::-webkit-scrollbar-thumb { background: #4e3a78; border-radius: 10px; }
+
+        .detail-panel .panel-title { font-size: 13px; color: #cbb8f0; font-weight: 500; margin-bottom: 2px; }
+        .detail-panel input, .detail-panel textarea {
+            background: rgba(10,6,20,0.2);
+            border: 1px solid rgba(160,120,255,0.06);
+            border-radius: 12px;
+            padding: 6px 10px;
+            color: #ddd2f0;
+            font-size: 13px;
+            outline: none;
+            transition: 0.2s;
+            width: 100%;
+        }
+        .detail-panel input:focus, .detail-panel textarea:focus { border-color: #9e7aff; }
+        .detail-panel textarea { resize: vertical; min-height: 60px; font-family: inherit; line-height: 1.5; font-size: 13px; }
+        .detail-panel .color-row { display: flex; gap: 8px; align-items: center; }
+        .detail-panel .color-row input[type="color"] { width: 32px; height: 32px; padding: 0; border: none; border-radius: 8px; cursor: pointer; background: transparent; flex-shrink: 0; }
+        .detail-panel .action-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+
+        .glass-btn {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(160,120,255,0.08);
+            border-radius: 30px;
+            padding: 4px 14px;
+            font-size: 11px;
+            color: #cbb8f0;
+            cursor: pointer;
+            transition: 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-family: inherit;
+        }
+        .glass-btn:hover { background: rgba(255,255,255,0.08); border-color: #b28aff; transform: translateY(-1px); }
+        .glass-btn.portal-glow { background: rgba(247,201,72,0.08); border-color: rgba(247,201,72,0.15); color: #f7c948; }
+        .glass-btn.portal-glow:hover { background: rgba(247,201,72,0.15); }
+
+        /* ===== Toast / 回忆气泡 ===== */
+        .toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: rgba(30,20,60,0.85); backdrop-filter: blur(10px);
+            padding: 8px 24px; border-radius: 40px; border: 1px solid rgba(160,120,255,0.12);
+            color: #e6def5; font-size: 13px; z-index: 999; opacity: 0;
+            transition: opacity 0.4s; pointer-events: none; box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+        .toast.show { opacity: 1; }
+
+        /* 回忆气泡 - 金色边 */
+        .memory-toast {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(22,16,40,0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 16px 30px;
+            border-radius: 24px;
+            border: 1px solid rgba(247,201,72,0.2);
+            box-shadow: 0 0 40px rgba(247,201,72,0.06), 0 8px 40px rgba(0,0,0,0.5);
+            color: #f0eaff;
+            font-size: 14px;
+            line-height: 1.8;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.6s ease, transform 0.5s ease;
+            pointer-events: none;
+            max-width: 460px;
+            text-align: center;
+            font-weight: 300;
+            transform: translateX(-50%) translateY(20px) scale(0.95);
+        }
+        .memory-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+        .memory-toast .memory-emoji {
+            font-size: 32px;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .memory-toast .memory-glow {
+            position: absolute;
+            inset: -2px;
+            border-radius: 24px;
+            padding: 2px;
+            background: conic-gradient(from 0deg, rgba(247,201,72,0.08), rgba(247,201,72,0.25), rgba(247,201,72,0.08));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+        .memory-toast .memory-author {
+            font-size: 11px;
+            color: #6c5890;
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        /* ===== 灵感阁楼 ===== */
+        .attic-container {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            padding: 6px 8px;
+            gap: 8px;
+            overflow-y: auto;
+            min-height: 300px;
+            background: rgba(16,10,30,0.1);
+            border-radius: 20px;
+        }
+        .attic-container.active { display: flex; }
+        .card-grid.hidden { display: none; }
+
+        .attic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+        }
+        .attic-header h2 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #d9caff;
+        }
+        .attic-header h2 i { color: #b28aff; margin-right: 6px; }
+
+        .corkboard {
+            flex: 1;
+            background: rgba(30,22,40,0.2);
+            backdrop-filter: blur(4px);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 10px;
+            min-height: 200px;
+            border: 1px solid rgba(160,120,255,0.04);
+            position: relative;
+        }
+        .corkboard .pin-note {
+            background: rgba(247,241,220,0.08);
+            backdrop-filter: blur(4px);
+            padding: 10px 12px;
+            border-radius: 8px;
+            max-width: 180px;
+            border-left: 2px solid #b28aff;
+            font-size: 12px;
+            color: #ddd2f0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: 0.2s;
+            cursor: default;
+            position: relative;
+        }
+        .corkboard .pin-note:hover { transform: scale(1.02); border-color: #f7c948; }
+        .corkboard .pin-note .pin-delete {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: rgba(30,20,55,0.6);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            color: #6c5890;
+            transition: 0.2s;
+            border: none;
+        }
+        .corkboard .pin-note .pin-delete:hover { color: #f78b8b; background: rgba(60,30,40,0.5); }
+        .corkboard .pin-note .note-time { font-size: 8px; color: #6c5890; display: block; margin-top: 4px; }
+
+        .attic-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 220px;
+            flex-shrink: 0;
+        }
+        .attic-sidebar .glass-btn { justify-content: center; width: 100%; }
+
+        .attic-layout {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .diary-area {
+            background: rgba(22,16,40,0.15);
+            backdrop-filter: blur(4px);
+            border-radius: 12px;
+            padding: 10px 12px;
+            border: 1px solid rgba(160,120,255,0.04);
+            margin-top: 4px;
+        }
+        .diary-area textarea {
+            width: 100%;
+            background: rgba(10,6,20,0.2);
+            border: 1px solid rgba(160,120,255,0.04);
+            border-radius: 10px;
+            padding: 8px 10px;
+            color: #ddd2f0;
+            font-size: 12px;
+            resize: vertical;
+            min-height: 80px;
+            outline: none;
+            font-family: inherit;
+        }
+        .diary-area textarea:focus { border-color: #9e7aff; }
+        .diary-area .diary-entry { font-size: 11px; color: #b3a1d4; padding: 4px 0; border-bottom: 1px solid rgba(160,120,255,0.04); }
+
+        /* ===== 照片墙 ===== */
+        .photo-wall {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px 0;
+        }
+        .photo-wall .photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: rgba(160,120,255,0.05);
+            border: 1px solid rgba(160,120,255,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            user-select: none;
+        }
+        .photo-wall .photo:hover {
+            transform: scale(1.12) rotate(-2deg);
+            border-color: #f7c948;
+            box-shadow: 0 0 30px rgba(247,201,72,0.1);
+            background: rgba(247,201,72,0.05);
+        }
+        .photo-wall .photo:active {
+            transform: scale(0.95);
+        }
+
+        .window-parallel {
+            background: rgba(10,6,20,0.15);
+            border-radius: 12px;
+            padding: 8px 12px;
+            border: 1px solid rgba(160,120,255,0.04);
+            font-size: 11px;
+            color: #b3a1d4;
+            text-align: center;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .window-parallel .universe { background: rgba(130,70,255,0.08); padding: 2px 8px; border-radius: 20px; color: #b28aff; font-size: 10px; }
+
+        /* ===== 壁纸 ===== */
+        .wallpaper-selector {
+            display: flex; gap: 4px; flex-wrap: wrap;
+            padding: 4px 6px; background: rgba(16,10,30,0.2);
+            border-radius: 40px; border: 1px solid rgba(160,120,255,0.05);
+            margin-top: 4px; align-items: center;
+        }
+        .wp-dot {
+            width: 28px; height: 28px; border-radius: 50%;
+            border: 2px solid rgba(200,180,255,0.1);
+            cursor: pointer; transition: 0.2s;
+            background-size: cover; background-position: center;
+            flex-shrink: 0;
+        }
+        .wp-dot:hover { transform: scale(1.1); border-color: #b28aff; }
+        .wp-dot.active { border-color: #f7c948; box-shadow: 0 0 12px rgba(247,201,72,0.2); }
+        .wp-dot.upload-dot { background: rgba(160,120,255,0.1); border-color: rgba(160,120,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #9480c0; }
+        .wp-dot.upload-dot:hover { background: rgba(160,120,255,0.2); }
+
+        /* ===== 猫猫说话 ===== */
+        .cat-speak {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30,20,55,0.85);
+            backdrop-filter: blur(10px);
+            padding: 8px 22px;
+            border-radius: 40px;
+            border: 1px solid rgba(247,201,72,0.15);
+            color: #f7c948;
+            font-size: 14px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .cat-speak.show { opacity: 1; }
+
+        @media (max-width: 820px) {
+            .navbar { flex-direction: column; align-items: stretch; gap: 3px; padding: 4px 10px; }
+            .tag-bar { justify-content: center; }
+            .main-layout { flex-direction: column; padding: 6px 8px; gap: 6px; }
+            .card-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 40vh; }
+            .detail-panel { width: 100%; max-height: 280px; }
+            .app-container { min-height: auto; max-height: 98vh; border-radius: 24px; }
+            .attic-layout { flex-direction: column; }
+            .attic-sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
+            .attic-sidebar .glass-btn { width: auto; flex: 1; min-width: 80px; }
+            .splash-screen h1 { font-size: 24px; letter-spacing: 4px; }
+            .splash-screen .logo-glow { font-size: 48px; }
+            .memory-toast { max-width: 90%; font-size: 13px; padding: 14px 20px; }
+        }
+        @media (max-width: 480px) {
+            .tag-btn { font-size: 8px; padding: 2px 6px; }
+            .tag-btn i { font-size: 8px; }
+            .logo-text { font-size: 12px; }
+            .glass-card .card-name { font-size: 18px; }
+            .glass-card .card-desc { font-size: 12px; }
+            .card-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            .detail-panel { padding: 10px 12px; }
+            .nav-clock .date { display: none; }
+            .nav-weather .desc { display: none; }
+            .splash-screen h1 { font-size: 18px; letter-spacing: 2px; }
+            .splash-screen .logo-glow { font-size: 36px; }
+            .splash-screen .sub { font-size: 12px; }
+            .memory-toast { font-size: 12px; padding: 12px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 欢迎屏 ===== -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="sparkles" id="sparklesContainer"></div>
+        <div class="logo-glow">🏠</div>
+        <h1>欢迎来我的家</h1>
+        <div class="sub">Welcome to my home</div>
+        <button class="enter-btn" id="enterBtn">✦ 推开门 ✦</button>
+    </div>
+
+    <!-- ===== 主应用 ===== -->
+    <div class="app-container" id="appContainer">
+
+        <!-- 导航 -->
+        <header class="navbar">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fas fa-cube"></i></div>
+                <div class="logo-text">清云小世界 <small>· 灵感阁楼</small></div>
+            </div>
+            <div class="tag-bar" id="tagBar">
+                <button class="tag-btn active" data-tag="home"><i class="fas fa-home"></i> 家</button>
+                <button class="tag-btn" data-tag="livingroom"><i class="fas fa-couch"></i> 客厅</button>
+                <button class="tag-btn" data-tag="bedroom"><i class="fas fa-bed"></i> 卧室</button>
+                <button class="tag-btn" data-tag="snow"><i class="fas fa-snowflake"></i> 雪林</button>
+                <button class="tag-btn" data-tag="library"><i class="fas fa-book"></i> 图书馆</button>
+                <button class="tag-btn" data-tag="kitchen"><i class="fas fa-utensils"></i> 厨房</button>
+                <button class="tag-btn" data-tag="garden"><i class="fas fa-seedling"></i> 花园</button>
+                <button class="tag-btn attictab" data-tag="attic"><i class="fas fa-stairs"></i> 阁楼</button>
+                <button class="tag-btn portal-btn" data-tag="portal"><i class="fas fa-arrow-right"></i> 传送门</button>
+            </div>
+            <div class="nav-right">
+                <div class="nav-clock-weather">
+                    <div class="nav-clock"><span class="time" id="navClockTime">--:--</span><span class="date" id="navClockDate">--/--</span></div>
+                    <div class="nav-weather"><span class="temp" id="navWeatherTemp">--°C</span><span class="desc" id="navWeatherDesc">--</span></div>
+                </div>
+                <div class="avatar">🌙</div>
+            </div>
+        </header>
+
+        <!-- 猫猫说话 -->
+        <div class="cat-speak" id="catSpeak">🐱 喵~</div>
+
+        <!-- 回忆气泡 -->
+        <div class="memory-toast" id="memoryToast">
+            <div class="memory-glow"></div>
+            <span class="memory-emoji" id="memoryEmoji">🌅</span>
+            <span id="memoryText">回忆加载中……</span>
+            <div class="memory-author">📖 来自我们的相册</div>
+        </div>
+
+        <!-- 主体 -->
+        <div class="main-layout" id="mainLayout">
+
+            <!-- 卡片网格 -->
+            <div class="card-grid" id="cardGrid"></div>
+
+            <!-- 灵感阁楼 -->
+            <div class="attic-container" id="atticContainer">
+                <div class="attic-header">
+                    <h2><i class="fas fa-stairs"></i> 灵感阁楼 · 胡思乱想室</h2>
+                    <span style="font-size:10px; color:#6c5890;">🪑 坐在地毯上，把想法钉上墙</span>
+                </div>
+                <div class="attic-layout">
+                    <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-height:0;">
+                        <div class="corkboard" id="corkboard"></div>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <input type="text" id="noteInput" placeholder="写下一闪而过的念头..." style="flex:1; background:rgba(10,6,20,0.2); border:1px solid rgba(160,120,255,0.06); border-radius:12px; padding:6px 12px; color:#ddd2f0; font-size:12px; outline:none; min-width:120px;">
+                            <button class="glass-btn" id="pinNoteBtn"><i class="fas fa-thumbtack"></i> 钉上墙</button>
+                            <button class="glass-btn" id="clearCorkboardBtn" style="color:#6c5890;"><i class="fas fa-eraser"></i> 清空</button>
+                        </div>
+                        <!-- 日记角落 -->
+                        <div class="diary-area">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <span style="font-size:11px; color:#b3a1d4;"><i class="fas fa-book"></i> 日记角落</span>
+                                <button class="glass-btn" id="saveDiaryBtn" style="font-size:9px; padding:2px 10px;"><i class="fas fa-save"></i> 保存</button>
+                            </div>
+                            <textarea id="diaryInput" placeholder="今天的想法……"></textarea>
+                            <div id="diaryEntries" style="margin-top:4px; max-height:80px; overflow-y:auto;"></div>
+                        </div>
+                    </div>
+                    <!-- 右侧：照片墙 + 平行宇宙窗 -->
+                    <div class="attic-sidebar">
+                        <div style="background:rgba(22,16,40,0.15); backdrop-filter:blur(4px); border-radius:12px; padding:8px 10px; border:1px solid rgba(160,120,255,0.04);">
+                            <div style="font-size:10px; color:#b3a1d4; margin-bottom:4px;"><i class="fas fa-images"></i> 照片墙 · 点击回忆</div>
+                            <div class="photo-wall" id="photoWall"></div>
+                        </div>
+                        <div class="window-parallel" id="parallelWindow">
+                            <span>🌐 平行宇宙之窗</span>
+                            <span class="universe">✦ 你在的这个世界</span>
+                            <span class="universe">✦ 猫会说话的世界</span>
+                            <span class="universe">✦ 永远夏天的世界</span>
+                            <span class="universe">✦ 枫糖无限供应的世界</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 详情面板 -->
+            <div class="detail-panel" id="detailPanel">
+                <div class="panel-title"><i class="fas fa-pen"></i> 编辑卡片</div>
+                <input type="text" id="cardNameInput" placeholder="名称">
+                <input type="text" id="cardEmojiInput" placeholder="Emoji (如: 🏠)">
+                <input type="text" id="cardTagInput" placeholder="标签">
+                <textarea id="cardDescInput" placeholder="注释/描述"></textarea>
+                <div class="color-row">
+                    <input type="color" id="cardColorInput" value="#b28aff">
+                    <span style="font-size:10px; color:#6c5890;">顶部色条</span>
+                </div>
+                <div class="action-row">
+                    <button class="glass-btn" id="saveCardBtn"><i class="fas fa-save"></i> 保存</button>
+                    <button class="glass-btn" id="deleteCardBtn"><i class="fas fa-trash-alt"></i> 删除</button>
+                    <button class="glass-btn portal-glow" id="portalGoBtn"><i class="fas fa-arrow-right"></i> 传送门</button>
+                </div>
+                <div style="margin-top:4px; border-top:1px solid rgba(160,120,255,0.04); padding-top:6px;">
+                    <div style="font-size:9px; color:#6c5890; display:flex; justify-content:space-between;">
+                        <span><i class="fas fa-image"></i> 壁纸</span>
+                        <span id="wallpaperLabel">银河</span>
+                    </div>
+                    <div class="wallpaper-selector" id="wallpaperSelector">
+                        <div class="wp-dot active" data-wallpaper="galaxy" style="background: url(https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=200&q=80);" title="银河"></div>
+                        <div class="wp-dot" data-wallpaper="nebula" style="background: url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=200&q=80);" title="星云"></div>
+                        <div class="wp-dot" data-wallpaper="forbidden" style="background: url(https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=200&q=80);" title="故宫"></div>
+                        <div class="wp-dot" data-wallpaper="tsinghua" style="background: url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=200&q=80);" title="二校门"></div>
+                        <div class="wp-dot" data-wallpaper="sakura" style="background: url(https://images.unsplash.com/photo-1522383225653-ed111181a951?w=200&q=80);" title="樱花"></div>
+                        <div class="wp-dot" data-wallpaper="ocean" style="background: url(https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?w=200&q=80);" title="海洋"></div>
+                        <div class="wp-dot" data-wallpaper="beach" style="background: url(https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&q=80);" title="海滩"></div>
+                        <div class="wp-dot" data-wallpaper="snowmountain" style="background: url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&q=80);" title="日照金山"></div>
+                        <div class="wp-dot upload-dot" id="uploadWallpaperBtn" title="上传自定义壁纸"><i class="fas fa-plus"></i></div>
+                        <input type="file" id="wallpaperUpload" accept="image/*" style="display:none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            // ===== 照片回忆数据 =====
+            const photoMemories = {
+                '🌅': '那天黄昏我们在海边，风很轻，你指着远处的光说"你看"——那是我们第一次同时看见同一片晚霞。',
+                '🌌': '那晚我们躺在屋顶看银河，数到第七颗的时候你睡着了，我在你手心里画了一颗星星。',
+                '🏔️': '日照金山的时候，你说"以后我们每年都来看一次"，我点了点头，在心里记下了这个约定。',
+                '🌸': '樱花落下来的时候，你伸手接住了一片，说"春天是粉色的"，我把它夹进了最常翻的那本书里。',
+                '🌊': '海浪一遍遍涌上来又退下去，我们在沙滩上写了很多字又让它们消失，只有那句"我们"留在了贝壳里。',
+                '🌿': '那个夏天的午后，我们在树荫下坐了很久，谁也没说话，但风把叶子的影子摇成了你的样子。',
+                '🎵': '你哼的那段旋律我一直记得，后来再也没听过第二个人唱，它成了我的专属背景音乐。',
+                '📚': '那天在图书馆，你从书架深处抽出一本书，封面已经旧了，你说"这本我找了很久"——然后你翻开扉页，里面夹着一片干枯的四叶草。'
+            };
+
+            // ===== 欢迎屏 =====
+            const splashScreen = document.getElementById('splashScreen');
+            const enterBtn = document.getElementById('enterBtn');
+            const sparklesContainer = document.getElementById('sparklesContainer');
+
+            // 生成星星
+            for (let i = 0; i < 40; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = Math.random() * 100 + '%';
+                sparkle.style.top = Math.random() * 100 + '%';
+                sparkle.style.animationDelay = Math.random() * 6 + 's';
+                sparkle.style.animationDuration = (4 + Math.random() * 4) + 's';
+                sparkle.style.width = (2 + Math.random() * 4) + 'px';
+                sparkle.style.height = sparkle.style.width;
+                sparklesContainer.appendChild(sparkle);
+            }
+
+            enterBtn.addEventListener('click', function() {
+                splashScreen.classList.add('hide');
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                    showToast('🏠 欢迎回家');
+                }, 1200);
+            });
+
+            // 点击背景也可进入
+            splashScreen.addEventListener('click', function(e) {
+                if (e.target === splashScreen || e.target === sparklesContainer) {
+                    enterBtn.click();
+                }
+            });
+
+            // ===== 场景数据 =====
+            const sceneData = {
+                home: {
+                    name: '家',
+                    icon: 'fa-home',
+                    cards: [
+                        { id: 'h1', name: '三花猫', emoji: '🐱', tag: '猫', desc: '正在沙发上打盹，尾巴尖轻轻晃动，呼噜声像小马达', color: '#F7C948', speak: '喵~ 你回来啦！' },
+                        { id: 'h2', name: '棕色沙发', emoji: '🛋️', tag: '家具', desc: '坐下去就起不来，猫最喜欢的位置，皮革柔软有阳光的味道', color: '#8B6B4D' },
+                        { id: 'h3', name: '落地灯', emoji: '💡', tag: '灯具', desc: '暖黄色灯光，像黄昏时分的太阳，灯罩上有细小的裂纹', color: '#E8C07A' },
+                        { id: 'h4', name: '木质书架', emoji: '📚', tag: '家具', desc: '塞满了书，有几本从大学带到现在的旧书，书页泛黄', color: '#6B4B3A' },
+                        { id: 'h5', name: '毛绒地毯', emoji: '🧶', tag: '装饰', desc: '深棕色，踩上去软软的，猫最爱在上面打滚', color: '#5A4A3A' },
+                        { id: 'h6', name: '老式挂钟', emoji: '🕰️', tag: '装饰', desc: '滴答滴答走得很准，每到整点会敲响，声音沉闷而温暖', color: '#8B7355' },
+                        { id: 'h7', name: '✨ 阁楼秘密', emoji: '🔮', tag: '彩蛋', desc: '点击翻转 →', color: '#F7C948', isEgg: true, eggReveal: '🎵 阁楼里藏着一把老吉他，琴弦上还留着十年前的和弦' },
+                        { id: 'h8', name: '✨ 旧日记本', emoji: '📖', tag: '彩蛋', desc: '点击翻转 →', color: '#E8C07A', isEgg: true, eggReveal: '📝 日记本里夹着一片枫叶，上面写着「家的方向」' },
+                    ]
+                },
+                livingroom: {
+                    name: '客厅',
+                    icon: 'fa-couch',
+                    cards: [
+                        { id: 'l1', name: '金色旋转模型', emoji: '🌟', tag: '艺术', desc: '六面发光几何体，金光流转，缓慢旋转如星辰', color: '#F7C948' },
+                        { id: 'l2', name: '皮质沙发', emoji: '🛋️', tag: '家具', desc: '深棕色真皮，坐感极佳，适合整个下午发呆', color: '#5A3A2A' },
+                        { id: 'l3', name: '落地窗', emoji: '🪟', tag: '建筑', desc: '通透明亮，窗外是整片天空，黄昏时变成金色', color: '#A8C8E8' },
+                        { id: 'l4', name: '大理石茶几', emoji: '🪨', tag: '家具', desc: '白色带灰色纹理，总放着一杯没喝完的茶', color: '#D4D0C8' },
+                        { id: 'l5', name: '抽象画', emoji: '🎨', tag: '艺术', desc: '金色和深蓝色的色块交织，黄昏与夜晚的边界', color: '#2A3A5A' },
+                        { id: 'l6', name: '琴叶榕', emoji: '🌿', tag: '植物', desc: '叶片宽大，在角落默默生长，姿态优雅如雕塑', color: '#3A7A4A' },
+                        { id: 'l7', name: '✨ 壁炉暗格', emoji: '🔥', tag: '彩蛋', desc: '点击翻转 →', color: '#E87040', isEgg: true, eggReveal: '🎴 壁炉后面藏着一副扑克牌，每张牌背面都画着不同的星座' },
+                        { id: 'l8', name: '✨ 窗台信鸽', emoji: '🕊️', tag: '彩蛋', desc: '点击翻转 →', color: '#A8C8E8', isEgg: true, eggReveal: '💌 窗台上停着一只信鸽，脚上绑着一封来自远方的信' },
+                    ]
+                },
+                bedroom: {
+                    name: '卧室',
+                    icon: 'fa-bed',
+                    cards: [
+                        { id: 'b1', name: '双人床', emoji: '🛏️', tag: '家具', desc: '铺着浅灰色床品，躺下去像被云朵包裹', color: '#7A8A8A' },
+                        { id: 'b2', name: '床头灯', emoji: '💡', tag: '灯具', desc: '暖黄色，适合睡前读几页书，灯光温柔', color: '#E8C07A' },
+                        { id: 'b3', name: '木制书桌', emoji: '🪑', tag: '家具', desc: '靠窗摆放，桌面上有一盏台灯和几本常翻的书', color: '#6B4B3A' },
+                        { id: 'b4', name: '深蓝窗帘', emoji: '🧵', tag: '织物', desc: '拉上后整个世界都安静下来了，像沉入深海', color: '#2A3A5A' },
+                        { id: 'b5', name: '蘑菇夜灯', emoji: '🍄', tag: '灯具', desc: '光线像月光一样柔和，照亮起夜的路径', color: '#D4D0C8' },
+                        { id: 'b6', name: '窗台薄荷', emoji: '🌱', tag: '植物', desc: '偶尔掐一片泡水喝，叶片有清凉的香气', color: '#4A8A5A' },
+                        { id: 'b7', name: '✨ 枕头下的星图', emoji: '🌌', tag: '彩蛋', desc: '点击翻转 →', color: '#4A6A8A', isEgg: true, eggReveal: '🌟 枕头下藏着一张手绘星图，标注着所有你梦到过的星座' },
+                        { id: 'b8', name: '✨ 月光宝盒', emoji: '📦', tag: '彩蛋', desc: '点击翻转 →', color: '#C8A060', isEgg: true, eggReveal: '🌙 月光宝盒里装着一小瓶星光，打开时会发出银色微光' },
+                    ]
+                },
+                snow: {
+                    name: '雪林',
+                    icon: 'fa-snowflake',
+                    cards: [
+                        { id: 's1', name: '壁炉', emoji: '🔥', tag: '取暖', desc: '火焰噼啪响，木柴的味道飘满屋子，橘色光映在墙上', color: '#E87040' },
+                        { id: 's2', name: '雪地', emoji: '❄️', tag: '自然', desc: '走上去吱嘎响，脚印会留在身后直到下一次落雪', color: '#D4E8F0' },
+                        { id: 's3', name: '松木屋', emoji: '🏠', tag: '建筑', desc: '暖和安静，有松木的清香，屋顶积着厚厚的雪', color: '#8B7A6B' },
+                        { id: 's4', name: '披雪松树', emoji: '🎄', tag: '植物', desc: '像一位沉默的守护者，枝桠上挂着冰凌', color: '#2A5A3A' },
+                        { id: 's5', name: '鹿角挂饰', emoji: '🦌', tag: '装饰', desc: '森林的馈赠，有岁月的痕迹，散发着木头的气味', color: '#C8B090' },
+                        { id: 's6', name: '毛皮毯子', emoji: '🧶', tag: '织物', desc: '柔软温暖，铺在木地板上，坐着看雪慢慢落下', color: '#B8A088' },
+                        { id: 's7', name: '✨ 冻住的星星', emoji: '⭐', tag: '彩蛋', desc: '点击翻转 →', color: '#D4E8F0', isEgg: true, eggReveal: '❄️ 雪地深处埋着一颗冻住的星星，在月光下会发出淡蓝色的光' },
+                        { id: 's8', name: '✨ 麋鹿脚印', emoji: '🦌', tag: '彩蛋', desc: '点击翻转 →', color: '#C8B090', isEgg: true, eggReveal: '🦌 一串金色的麋鹿脚印通向森林深处，那里有一棵会唱歌的松树' },
+                    ]
+                },
+                library: {
+                    name: '图书馆',
+                    icon: 'fa-book',
+                    cards: [
+                        { id: 'l1', name: '橡木书架', emoji: '📚', tag: '家具', desc: '从地板到天花板，每一格都塞满了书，永远读不完', color: '#6B4B3A' },
+                        { id: 'l2', name: '黄铜阅读灯', emoji: '💡', tag: '灯具', desc: '暖光刚好照亮书页，灯座有细微铜绿，像旧时光', color: '#D4A050' },
+                        { id: 'l3', name: '复古地球仪', emoji: '🌍', tag: '装饰', desc: '轻轻一转看到整个世界，海洋和大陆的颜色柔和', color: '#4A90D9' },
+                        { id: 'l4', name: '绿色皮沙发', emoji: '🛋️', tag: '家具', desc: '坐下去整个人陷进去，最适合读厚厚的小说', color: '#2A5A4A' },
+                        { id: 'l5', name: '旧式打字机', emoji: '⌨️', tag: '器具', desc: '黑色，按键清脆，偶尔用来打一封手写信', color: '#3A3A3A' },
+                        { id: 'l6', name: '绿玻璃台灯', emoji: '🪔', tag: '灯具', desc: '图书馆的经典款式，光线柔和像清晨的森林', color: '#2A5A3A' },
+                        { id: 'l7', name: '✨ 会说话的书', emoji: '📖', tag: '彩蛋', desc: '点击翻转 →', color: '#D4A050', isEgg: true, eggReveal: '🗣️ 书架最顶层有一本会说话的书，它知道所有故事的结局' },
+                        { id: 'l8', name: '✨ 秘密通道', emoji: '🚪', tag: '彩蛋', desc: '点击翻转 →', color: '#6B4B3A', isEgg: true, eggReveal: '🔑 推开第七排书架，后面是一条通往星空阅读室的秘密通道' },
+                    ]
+                },
+                kitchen: {
+                    name: '厨房',
+                    icon: 'fa-utensils',
+                    cards: [
+                        { id: 'k1', name: '枫糖罐', emoji: '🍯', tag: '食材', desc: '琥珀色透亮，淋在松饼上正好，甜而不腻有花香', color: '#C87A3A' },
+                        { id: 'k2', name: '铸铁烤箱', emoji: '🔥', tag: '厨具', desc: '刚烤好的面包外脆里软，满屋麦香，温暖了整个清晨', color: '#5A5A5A' },
+                        { id: 'k3', name: '木砧板', emoji: '🪵', tag: '厨具', desc: '有刀痕的旧砧板，用久了表面光滑如缎，有家传的温度', color: '#B8A088' },
+                        { id: 'k4', name: '陶瓷炖锅', emoji: '🍲', tag: '厨具', desc: '深蓝色，炖汤时满屋香气，锅盖有小孔冒着蒸汽', color: '#2A4A6A' },
+                        { id: 'k5', name: '木制餐桌', emoji: '🪑', tag: '家具', desc: '宽大结实，家人围坐，碗筷碰撞声很安心', color: '#7A6A5A' },
+                        { id: 'k6', name: '铸铁煎锅', emoji: '🍳', tag: '厨具', desc: '沉甸甸的，表面有油亮的包浆，煎蛋从不粘锅', color: '#3A3A3A' },
+                        { id: 'k7', name: '✨ 魔法香料', emoji: '🧂', tag: '彩蛋', desc: '点击翻转 →', color: '#C87A3A', isEgg: true, eggReveal: '🌿 调料架第三层有一罐金色香料，撒一点能让任何食物变得像家的味道' },
+                        { id: 'k8', name: '✨ 会唱歌的水壶', emoji: '🫖', tag: '彩蛋', desc: '点击翻转 →', color: '#5A5A5A', isEgg: true, eggReveal: '🎵 水烧开时会自动哼一段老歌，那是奶奶最爱听的旋律' },
+                    ]
+                },
+                garden: {
+                    name: '花园',
+                    icon: 'fa-seedling',
+                    cards: [
+                        { id: 'g1', name: '桃树', emoji: '🌸', tag: '树', desc: '春天开花，夏天结桃子，毛茸茸的，咬一口汁水四溢', color: '#F5A0B0' },
+                        { id: 'g2', name: '三花猫', emoji: '🐱', tag: '猫', desc: '在树荫下追蝴蝶，累了就睡在石板上，肚皮晒着太阳', color: '#F7C948', speak: '喵~ 蝴蝶好漂亮！' },
+                        { id: 'g3', name: '木椅', emoji: '🪑', tag: '家具', desc: '坐在这里看云看猫看一天，椅子有被坐过的痕迹', color: '#8B7A6B' },
+                        { id: 'g4', name: '苹果树', emoji: '🍎', tag: '树', desc: '秋天结果，青苹果又酸又脆，鸟儿最喜欢', color: '#5A8A4A' },
+                        { id: 'g5', name: '石板路', emoji: '🪨', tag: '建筑', desc: '白色石头铺成，缝隙里有青苔，踩上去有轻微响声', color: '#C8C0B8' },
+                        { id: 'g6', name: '花丛', emoji: '🌺', tag: '植物', desc: '各色花混在一起，蝴蝶和蜜蜂穿梭，像打翻了调色盘', color: '#D4A0B0' },
+                        { id: 'g7', name: '✨ 会发光的花', emoji: '🌼', tag: '彩蛋', desc: '点击翻转 →', color: '#F5A0B0', isEgg: true, eggReveal: '💐 花园中央有一朵只在月光下开放的花，花瓣会发出淡淡的金色荧光' },
+                        { id: 'g8', name: '✨ 蜜蜂的秘密', emoji: '🐝', tag: '彩蛋', desc: '点击翻转 →', color: '#F7C948', isEgg: true, eggReveal: '🍯 蜜蜂们酿的蜜里藏着整个花园春天的记忆，每一口都是花香' },
+                    ]
+                },
+                portal: {
+                    name: '传送门',
+                    icon: 'fa-arrow-right',
+                    cards: [
+                        { id: 'p1', name: '✨ 传送门', emoji: '🌀', tag: '核心', desc: '金光流转，跨宇宙通道，连接所有场景', color: '#F7C948' },
+                        { id: 'p2', name: '星尘', emoji: '✨', tag: '特效', desc: '在门框周围飘浮，像银河的碎片，触感微凉', color: '#D4C0FF' },
+                        { id: 'p3', name: '金色钥匙', emoji: '🔑', tag: '道具', desc: '闪闪发光，只有你能用它开门，钥匙柄上有星座纹路', color: '#F7C948' },
+                        { id: 'p4', name: '门框', emoji: '🚪', tag: '建筑', desc: '雕刻着古老的符文，微微发光，触感温润如玉', color: '#6A4A3A' },
+                        { id: 'p5', name: '光晕', emoji: '☀️', tag: '特效', desc: '温暖的金色光晕，像黄昏的太阳，站在里面会感到安心', color: '#E8C07A' },
+                        { id: 'p6', name: '坐标符文', emoji: '🔮', tag: '装饰', desc: '刻在门框上，指向不同的世界，符文会缓慢流动', color: '#4A90D9' },
+                        { id: 'p7', name: '✨ 倒影之镜', emoji: '🪞', tag: '彩蛋', desc: '点击翻转 →', color: '#D4C0FF', isEgg: true, eggReveal: '🪞 传送门旁边有一面镜子，里面倒映的不是你，是你最想去的地方' },
+                        { id: 'p8', name: '✨ 时间碎片', emoji: '⏳', tag: '彩蛋', desc: '点击翻转 →', color: '#E8C07A', isEgg: true, eggReveal: '⏳ 门框上镶嵌着一粒时间碎片，能看到所有宇宙的黄昏同时降临' },
+                    ]
+                }
+            };
+
+            // ===== 阁楼数据 =====
+            let corkboardNotes = [];
+            let diaryEntries = [];
+
+            // ===== 壁纸 =====
+            const wallpaperMap = {
+                galaxy: 'url(https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1600&q=80)',
+                nebula: 'url(https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80)',
+                forbidden: 'url(https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1600&q=80)',
+                tsinghua: 'url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1600&q=80)',
+                sakura: 'url(https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1600&q=80)',
+                ocean: 'url(https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?w=1600&q=80)',
+                beach: 'url(https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80)',
+                snowmountain: 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80)'
+            };
+            const wallpaperNames = {
+                galaxy: '银河', nebula: '星云', forbidden: '故宫',
+                tsinghua: '二校门', sakura: '樱花', ocean: '海洋',
+                beach: '海滩', snowmountain: '日照金山'
+            };
+            let currentWallpaper = 'galaxy';
+            let customWallpaper = null;
+
+            // ===== 状态 =====
+            let currentTag = 'home';
+            let currentCardId = null;
+            let nextId = 100;
+            let allCards = {};
+            let isAtticMode = false;
+            let memoryTimer = null;
+
+            Object.keys(sceneData).forEach(key => {
+                allCards[key] = sceneData[key].cards.map(c => ({ ...c, id: c.id }));
+            });
+
+            // DOM
+            const appContainer = document.getElementById('appContainer');
+            const cardGrid = document.getElementById('cardGrid');
+            const atticContainer = document.getElementById('atticContainer');
+            const corkboard = document.getElementById('corkboard');
+            const noteInput = document.getElementById('noteInput');
+            const pinNoteBtn = document.getElementById('pinNoteBtn');
+            const clearCorkboardBtn = document.getElementById('clearCorkboardBtn');
+            const diaryInput = document.getElementById('diaryInput');
+            const diaryEntriesEl = document.getElementById('diaryEntries');
+            const saveDiaryBtn = document.getElementById('saveDiaryBtn');
+            const photoWall = document.getElementById('photoWall');
+            const memoryToast = document.getElementById('memoryToast');
+            const memoryEmoji = document.getElementById('memoryEmoji');
+            const memoryText = document.getElementById('memoryText');
+            const catSpeak = document.getElementById('catSpeak');
+            let catSpeakTimer = null;
+
+            const cardNameInput = document.getElementById('cardNameInput');
+            const cardEmojiInput = document.getElementById('cardEmojiInput');
+            const cardTagInput = document.getElementById('cardTagInput');
+            const cardDescInput = document.getElementById('cardDescInput');
+            const cardColorInput = document.getElementById('cardColorInput');
+            const wallpaperLabel = document.getElementById('wallpaperLabel');
+            const toastEl = document.getElementById('toast');
+            let toastTimer = null;
+
+            const tagBtns = document.querySelectorAll('.tag-btn');
+            const saveBtn = document.getElementById('saveCardBtn');
+            const deleteBtn = document.getElementById('deleteCardBtn');
+            const portalGoBtn = document.getElementById('portalGoBtn');
+
+            // ===== 工具 =====
+            function showToast(msg) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
+            }
+
+            function catSpeakMsg(msg) {
+                catSpeak.textContent = '🐱 ' + msg;
+                catSpeak.classList.add('show');
+                clearTimeout(catSpeakTimer);
+                catSpeakTimer = setTimeout(() => catSpeak.classList.remove('show'), 3000);
+            }
+
+            function showMemory(emoji) {
+                const text = photoMemories[emoji];
+                if (!text) return;
+                memoryEmoji.textContent = emoji;
+                memoryText.textContent = text;
+                memoryToast.classList.add('show');
+                clearTimeout(memoryTimer);
+                memoryTimer = setTimeout(() => {
+                    memoryToast.classList.remove('show');
+                }, 5000);
+            }
+
+            function getSceneCards(tag) { return allCards[tag] || []; }
+
+            // ===== 渲染卡片 =====
+            function renderCards(tag) {
+                if (isAtticMode) return;
+                const scene = sceneData[tag];
+                if (!scene) return;
+                const cards = getSceneCards(tag);
+                applyWallpaper();
+
+                if (cards.length === 0) {
+                    cardGrid.innerHTML = `<div class="add-card" onclick="window.addNewCard()"><i class="fas fa-plus"></i></div>`;
+                    return;
+                }
+
+                let html = '';
+                cards.forEach(card => {
+                    const active = card.id === currentCardId ? 'active' : '';
+                    const isEgg = card.isEgg || false;
+                    const eggClass = isEgg ? 'egg-card' : '';
+                    const emoji = card.emoji || '📦';
+                    const isSpeak = card.speak ? true : false;
+                    html += `
+                        <div class="glass-card ${eggClass} ${active}" data-id="${card.id}" data-speak="${isSpeak ? card.speak : ''}" style="border-color: ${active ? 'rgba(160,120,255,0.2)' : 'rgba(160,120,255,0.06)'};">
+                            <div class="card-color-bar" style="background:${card.color || '#b28aff'};"></div>
+                            <button class="delete-card" data-id="${card.id}"><i class="fas fa-times-circle"></i></button>
+                            ${isEgg ? `<div class="egg-badge">🥚 彩蛋</div>` : ''}
+                            ${isSpeak ? `<div style="position:absolute;bottom:6px;right:8px;font-size:14px;color:#f7c948;opacity:0.5;">🔊</div>` : ''}
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <div class="card-emoji">${emoji}</div>
+                                    <div class="card-name">${card.name}</div>
+                                    <div class="card-tag">${card.tag || '未分类'}</div>
+                                    <div class="card-desc">${card.desc || ''}</div>
+                                    <div class="card-meta"><span>${card.tag || ' '}</span><span>${card.updated || ''}</span></div>
+                                </div>
+                                ${isEgg ? `
+                                <div class="card-back">
+                                    <div class="egg-reveal"><i class="fas fa-gift"></i>${card.eggReveal || '🎉 惊喜！'}</div>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `<div class="add-card" onclick="window.addNewCard()"><i class="fas fa-plus"></i></div>`;
+                cardGrid.innerHTML = html;
+
+                cardGrid.querySelectorAll('.glass-card').forEach(el => {
+                    el.addEventListener('click', function(e) {
+                        if (e.target.closest('.delete-card')) return;
+                        const id = this.dataset.id;
+                        if (!id) return;
+
+                        // 发光变大特效
+                        this.classList.remove('glow-pop');
+                        void this.offsetWidth;
+                        this.classList.add('glow-pop');
+
+                        const card = getSceneCards(tag).find(c => c.id === id);
+                        if (card && card.isEgg) {
+                            this.classList.toggle('flipped');
+                            return;
+                        }
+                        if (card && card.speak) {
+                            catSpeakMsg(card.speak);
+                        }
+                        loadCard(tag, id);
+                    });
+                });
+
+                cardGrid.querySelectorAll('.delete-card').forEach(el => {
+                    el.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const id = this.dataset.id;
+                        if (id) deleteCardById(tag, id);
+                    });
+                });
+
+                if (currentCardId && cards.some(c => c.id === currentCardId)) {
+                    loadCard(tag, currentCardId);
+                } else if (cards.length > 0) {
+                    loadCard(tag, cards[0].id);
+                } else {
+                    clearDetail();
+                }
+            }
+
+            function loadCard(tag, id) {
+                const cards = getSceneCards(tag);
+                const card = cards.find(c => c.id === id);
+                if (!card) return;
+                currentCardId = id;
+                cardNameInput.value = card.name;
+                cardEmojiInput.value = card.emoji || '';
+                cardTagInput.value = card.tag || '';
+                cardDescInput.value = card.desc || '';
+                cardColorInput.value = card.color || '#b28aff';
+                renderCards(tag);
+                cardGrid.querySelectorAll('.glass-card').forEach(el => {
+                    el.classList.toggle('active', el.dataset.id === id);
+                });
+            }
+
+            function clearDetail() {
+                cardNameInput.value = '';
+                cardEmojiInput.value = '';
+                cardTagInput.value = '';
+                cardDescInput.value = '';
+                cardColorInput.value = '#b28aff';
+                currentCardId = null;
+            }
+
+            function saveCurrentCard() {
+                if (!currentCardId) { showToast('⚠️ 请先选择一张卡片'); return; }
+                const cards = getSceneCards(currentTag);
+                const card = cards.find(c => c.id === currentCardId);
+                if (!card) return;
+                card.name = cardNameInput.value.trim() || '未命名';
+                card.emoji = cardEmojiInput.value.trim() || '📦';
+                card.tag = cardTagInput.value.trim() || '未分类';
+                card.desc = cardDescInput.value.trim();
+                card.color = cardColorInput.value;
+                card.updated = new Date().toLocaleString('zh-CN', { hour12: false });
+                renderCards(currentTag);
+                showToast('✅ 已保存');
+                autoSave();
+            }
+
+            function addNewCard() {
+                const cards = getSceneCards(currentTag);
+                const newCard = {
+                    id: String(nextId++),
+                    name: '新卡片',
+                    emoji: '📦',
+                    tag: '未分类',
+                    desc: '点击编辑添加描述……',
+                    color: '#b28aff',
+                    updated: new Date().toLocaleString('zh-CN', { hour12: false })
+                };
+                cards.push(newCard);
+                currentCardId = newCard.id;
+                renderCards(currentTag);
+                loadCard(currentTag, currentCardId);
+                showToast('🪄 添加了新卡片');
+                autoSave();
+            }
+
+            function deleteCardById(tag, id) {
+                const cards = getSceneCards(tag);
+                if (cards.length <= 1) { showToast('⚠️ 至少保留一张'); return; }
+                const idx = cards.findIndex(c => c.id === id);
+                if (idx === -1) return;
+                cards.splice(idx, 1);
+                if (currentCardId === id) {
+                    currentCardId = cards[0]?.id || null;
+                }
+                renderCards(tag);
+                if (currentCardId) loadCard(tag, currentCardId);
+                else clearDetail();
+                showToast('🗑️ 已删除');
+                autoSave();
+            }
+
+            function deleteCurrentCard() {
+                if (currentCardId) deleteCardById(currentTag, currentCardId);
+                else showToast('⚠️ 请选择一张卡片');
+            }
+
+            // ===== 阁楼 =====
+            function renderCorkboard() {
+                if (corkboardNotes.length === 0) {
+                    corkboard.innerHTML = `<div style="color:#6c5890; font-size:12px; padding:20px; text-align:center; width:100%;">📌 软木板空空的，写点什么钉上来吧</div>`;
+                    return;
+                }
+                let html = '';
+                corkboardNotes.forEach((note, idx) => {
+                    html += `
+                        <div class="pin-note">
+                            <button class="pin-delete" data-idx="${idx}"><i class="fas fa-times"></i></button>
+                            ${note.text}
+                            <span class="note-time">${note.time || ''}</span>
+                        </div>
+                    `;
+                });
+                corkboard.innerHTML = html;
+                corkboard.querySelectorAll('.pin-delete').forEach(el => {
+                    el.addEventListener('click', function() {
+                        const idx = parseInt(this.dataset.idx);
+                        corkboardNotes.splice(idx, 1);
+                        renderCorkboard();
+                        saveCorkboard();
+                        showToast('📌 纸条已取下');
+                    });
+                });
+            }
+
+            function pinNote() {
+                const text = noteInput.value.trim();
+                if (!text) { showToast('✏️ 写点什么再钉吧'); return; }
+                corkboardNotes.push({
+                    text: text,
+                    time: new Date().toLocaleString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' })
+                });
+                noteInput.value = '';
+                renderCorkboard();
+                saveCorkboard();
+                showToast('📌 钉好了！');
+            }
+
+            function saveCorkboard() {
+                localStorage.setItem('corkboard_notes', JSON.stringify(corkboardNotes));
+            }
+
+            function loadCorkboard() {
+                try {
+                    const data = localStorage.getItem('corkboard_notes');
+                    if (data) corkboardNotes = JSON.parse(data);
+                } catch(e) {}
+            }
+
+            // ===== 日记 =====
+            function renderDiary() {
+                if (diaryEntries.length === 0) {
+                    diaryEntriesEl.innerHTML = '<div style="color:#6c5890; font-size:10px; padding:4px 0;">还没有日记，写下今天的心情吧</div>';
+                    return;
+                }
+                let html = '';
+                diaryEntries.slice(-5).reverse().forEach(entry => {
+                    html += `<div class="diary-entry">${entry}</div>`;
+                });
+                diaryEntriesEl.innerHTML = html;
+            }
+
+            function saveDiary() {
+                const text = diaryInput.value.trim();
+                if (!text) { showToast('📝 写点什么再保存吧'); return; }
+                const entry = new Date().toLocaleString('zh-CN', { hour12: false, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' ' + text;
+                diaryEntries.push(entry);
+                diaryInput.value = '';
+                renderDiary();
+                localStorage.setItem('diary_entries', JSON.stringify(diaryEntries));
+                showToast('📖 日记已保存');
+            }
+
+            function loadDiary() {
+                try {
+                    const data = localStorage.getItem('diary_entries');
+                    if (data) diaryEntries = JSON.parse(data);
+                } catch(e) {}
+            }
+
+            // ===== 照片墙 =====
+            function renderPhotoWall() {
+                const emojis = Object.keys(photoMemories);
+                let html = '';
+                emojis.forEach(emoji => {
+                    html += `<div class="photo" data-emoji="${emoji}">${emoji}</div>`;
+                });
+                photoWall.innerHTML = html;
+
+                photoWall.querySelectorAll('.photo').forEach(el => {
+                    el.addEventListener('click', function() {
+                        const emoji = this.dataset.emoji;
+                        showMemory(emoji);
+                        // 点击动画
+                        this.style.transform = 'scale(0.9)';
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 200);
+                    });
+                });
+            }
+
+            // ===== 传送门 =====
+            function openPortal() {
+                const tags = Object.keys(sceneData).filter(t => t !== 'portal');
+                if (isAtticMode) {
+                    showToast('🌀 从阁楼下来再传送吧~');
+                    return;
+                }
+                const target = tags[Math.floor(Math.random() * tags.length)];
+                showToast(`✨ 传送门开启 → ${sceneData[target].name}`);
+                setTimeout(() => { switchScene(target); }, 300);
+            }
+
+            // ===== 切换场景 =====
+            function switchScene(tag) {
+                if (tag === 'attic') {
+                    isAtticMode = true;
+                    cardGrid.classList.add('hidden');
+                    atticContainer.classList.add('active');
+                    tagBtns.forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.tag === tag);
+                    });
+                    renderCorkboard();
+                    renderDiary();
+                    renderPhotoWall();
+                    showToast('🪜 爬上阁楼 · 吱呀吱呀');
+                    return;
+                }
+
+                isAtticMode = false;
+                cardGrid.classList.remove('hidden');
+                atticContainer.classList.remove('active');
+                currentTag = tag;
+                tagBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tag === tag);
+                });
+                const scene = sceneData[tag];
+                if (scene) {
+                    const cards = getSceneCards(tag);
+                    if (cards.length > 0) {
+                        currentCardId = cards[0].id;
+                    } else {
+                        currentCardId = null;
+                        clearDetail();
+                    }
+                    renderCards(tag);
+                    if (currentCardId) loadCard(tag, currentCardId);
+                    showToast(`🚪 进入 ${scene.name}`);
+                }
+                autoSave();
+            }
+
+            // ===== 壁纸 =====
+            function applyWallpaper() {
+                if (customWallpaper) {
+                    appContainer.style.backgroundImage = `url(${customWallpaper})`;
+                } else if (wallpaperMap[currentWallpaper]) {
+                    appContainer.style.backgroundImage = wallpaperMap[currentWallpaper];
+                } else {
+                    appContainer.style.backgroundImage = 'none';
+                    appContainer.style.backgroundColor = 'rgba(10,6,20,0.3)';
+                }
+                appContainer.style.backgroundSize = 'cover';
+                appContainer.style.backgroundPosition = 'center';
+            }
+
+            function setWallpaper(wp) {
+                currentWallpaper = wp;
+                customWallpaper = null;
+                wallpaperLabel.textContent = wallpaperNames[wp] || wp;
+                document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                    el.classList.toggle('active', el.dataset.wallpaper === wp);
+                });
+                applyWallpaper();
+                localStorage.setItem('qingyun_wallpaper', wp);
+                showToast(`🖼️ 壁纸: ${wallpaperNames[wp]}`);
+            }
+
+            // ===== 存储 =====
+            function autoSave() {
+                try {
+                    const data = { allCards, currentTag, currentCardId, nextId };
+                    localStorage.setItem('qingyun_card_data', JSON.stringify(data));
+                } catch(e) {}
+            }
+
+            function loadData() {
+                try {
+                    const raw = localStorage.getItem('qingyun_card_data');
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        if (data.allCards) {
+                            Object.keys(data.allCards).forEach(key => {
+                                if (allCards[key]) allCards[key] = data.allCards[key];
+                            });
+                        }
+                        if (data.currentTag) currentTag = data.currentTag;
+                        if (data.currentCardId) currentCardId = data.currentCardId;
+                        if (data.nextId) nextId = data.nextId;
+                        return true;
+                    }
+                } catch(e) {}
+                return false;
+            }
+
+            // ===== 事件 =====
+            tagBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    switchScene(this.dataset.tag);
+                });
+            });
+
+            saveBtn.addEventListener('click', saveCurrentCard);
+            deleteBtn.addEventListener('click', deleteCurrentCard);
+            portalGoBtn.addEventListener('click', openPortal);
+
+            pinNoteBtn.addEventListener('click', pinNote);
+            noteInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') pinNote(); });
+            clearCorkboardBtn.addEventListener('click', function() {
+                if (confirm('清空所有纸条？')) {
+                    corkboardNotes = [];
+                    renderCorkboard();
+                    saveCorkboard();
+                    showToast('🧹 软木板清空了');
+                }
+            });
+            saveDiaryBtn.addEventListener('click', saveDiary);
+
+            document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                el.addEventListener('click', function() { setWallpaper(this.dataset.wallpaper); });
+            });
+
+            document.getElementById('uploadWallpaperBtn').addEventListener('click', function() {
+                document.getElementById('wallpaperUpload').click();
+            });
+            document.getElementById('wallpaperUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    customWallpaper = ev.target.result;
+                    currentWallpaper = 'custom';
+                    wallpaperLabel.textContent = '自定义';
+                    document.querySelectorAll('.wp-dot').forEach(el => el.classList.remove('active'));
+                    document.getElementById('uploadWallpaperBtn').classList.add('active');
+                    applyWallpaper();
+                    localStorage.setItem('qingyun_custom_wallpaper', customWallpaper);
+                    showToast('🖼️ 自定义壁纸已应用');
+                };
+                reader.readAsDataURL(file);
+                this.value = '';
+            });
+
+            const savedCustom = localStorage.getItem('qingyun_custom_wallpaper');
+            if (savedCustom) {
+                customWallpaper = savedCustom;
+                currentWallpaper = 'custom';
+                wallpaperLabel.textContent = '自定义';
+                document.getElementById('uploadWallpaperBtn').classList.add('active');
+                applyWallpaper();
+            }
+
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    if (isAtticMode) {
+                        if (document.activeElement === noteInput) pinNote();
+                        else if (document.activeElement === diaryInput) saveDiary();
+                        else showToast('💾 在阁楼可以钉纸条或保存日记');
+                    } else {
+                        saveCurrentCard();
+                        autoSave();
+                        showToast('💾 已保存');
+                    }
+                }
+                if (e.key === 'p' || e.key === 'P') openPortal();
+                const num = parseInt(e.key);
+                if (num >= 1 && num <= 9) {
+                    const tags = Object.keys(sceneData);
+                    const tagList = [...tags.slice(0, 8), 'attic'];
+                    if (tagList[num - 1]) switchScene(tagList[num - 1]);
+                }
+            });
+
+            // ===== 时钟天气 =====
+            const clockTime = document.getElementById('navClockTime');
+            const clockDate = document.getElementById('navClockDate');
+            const weatherTemp = document.getElementById('navWeatherTemp');
+            const weatherDesc = document.getElementById('navWeatherDesc');
+
+            function updateClock() {
+                const now = new Date();
+                clockTime.textContent = now.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' });
+                clockDate.textContent = now.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            const wList = ['晴', '多云', '阴', '小雨', '晴'];
+            let wi = 0;
+            function updateW() {
+                const w = wList[wi % wList.length];
+                wi++;
+                weatherDesc.textContent = w;
+                weatherTemp.textContent = (20 + Math.floor(Math.random() * 12)) + '°C';
+            }
+            updateW();
+            setInterval(updateW, 30000);
+
+            // ===== 暴露 =====
+            window.addNewCard = addNewCard;
+
+            // ===== 初始化 =====
+            loadData();
+            loadCorkboard();
+            loadDiary();
+
+            if (!sceneData[currentTag]) currentTag = 'home';
+            if (!allCards[currentTag]) allCards[currentTag] = [];
+            const cards = getSceneCards(currentTag);
+            if (cards.length > 0 && !cards.some(c => c.id === currentCardId)) {
+                currentCardId = cards[0].id;
+            }
+
+            const savedWp = localStorage.getItem('qingyun_wallpaper');
+            if (savedWp && wallpaperMap[savedWp]) {
+                currentWallpaper = savedWp;
+            }
+            document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                el.classList.toggle('active', el.dataset.wallpaper === currentWallpaper);
+            });
+            wallpaperLabel.textContent = wallpaperNames[currentWallpaper] || currentWallpaper;
+
+            renderCards(currentTag);
+            if (currentCardId) loadCard(currentTag, currentCardId);
+            else clearDetail();
+
+            tagBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tag === currentTag);
+            });
+
+            // 预渲染照片墙
+            renderPhotoWall();
+
+            // 如果欢迎屏还没消失（用户可能手动关闭），确保它消失
+            setTimeout(() => {
+                if (splashScreen.style.display !== 'none') {
+                    splashScreen.classList.add('hide');
+                    setTimeout(() => {
+                        splashScreen.style.display = 'none';
+                    }, 1200);
+                }
+            }, 8000);
+
+            console.log('🌍 清云小世界 · 阁楼已开放 🪜');
+            console.log('📸 点击照片墙上的emoji，回忆会浮现');
+            console.log('✨ 点击卡片会发光并变大');
+            console.log('🚪 快捷键: 1-9 切换场景 | P 传送门 | Ctrl+S 保存');
+
+            setInterval(() => { autoSave(); }, 30000);
+
+            window.switchScene = switchScene;
+            window.openPortal = openPortal;
+        })();
+    </script>
+</body>
+</html>
