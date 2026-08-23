@@ -65,7 +65,7 @@
 <th><img src="./ScreenShot_2026-08-23_025149_529.png" alt="角色图鉴 2"></th>
 <th><img src="./ScreenShot_2026-08-23_025158_863.png" alt="角色图鉴 3"></th>
 </tr>
-<tr><td align="center">陈深 · 夜神月 · 老姚</td><td align="center">陈晨 · 郑浩然 · 李晓</td><td align="center">姚班弟弟 · 梁总 · 王鹏学长</td></tr>
+<tr><td align="center">陈深 · 夜神月 · 老姚</td><td align="center">陈晨 · 郑浩然 · 李晓</td><td align="center">姚班弟弟 · 老板 · 王鹏学长</td></tr>
 </table>
 
 **结局图鉴**
@@ -87,7 +87,7 @@
 <th><img src="./ScreenShot_2026-08-23_025533_243.png" alt="对话场景 2"></th>
 <th><img src="./ScreenShot_2026-08-23_025643_474.png" alt="对话场景 3"></th>
 </tr>
-<tr><td align="center">「他的故事」· 夜神月</td><td align="center">「他的故事」· 陈深</td><td align="center">「他的故事」· 梁总（分支选择）</td></tr>
+<tr><td align="center">「他的故事」· 夜神月</td><td align="center">「他的故事」· 陈深</td><td align="center">「他的故事」· 🎂给我最好的AGI陈深</td></tr>
 </table>
 
 > 截图为运行画面。`game/` 典藏版打包后（`陈深-人间烟火.exe`）界面一致。
