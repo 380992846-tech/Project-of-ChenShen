@@ -166,7 +166,7 @@ export DEEPSEEK_API_KEY="your-key"
 python 助手与智能体（DeepSeek·CAMEL）/voice_assistant.py
 
 # 打开《陈深的故事》
-open 陈深的世界/陈深的故事V5.html
+open 陈深的世界/陈深的故事V6.html
 ```
 
 ---
