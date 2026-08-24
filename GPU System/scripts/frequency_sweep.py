@@ -67,8 +67,21 @@ def main() -> int:
     args = ap.parse_args()
 
     pynvml.nvmlInit()
+    handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+    min_clock = int(pynvml.nvmlDeviceGetMinClockInfo(handle, pynvml.NVML_CLOCK_SM))
+    max_clock = int(pynvml.nvmlDeviceGetMaxClockInfo(handle, pynvml.NVML_CLOCK_SM))
+    print(f"硬件允许的频率范围: {min_clock} ~ {max_clock} MHz  (作为校准的物理约束)")
+
+    freqs = [f for f in args.freqs if min_clock <= f <= max_clock]
+    if not freqs:
+        print("⚠️ 所有请求档位都超出硬件频率范围，未执行扫描。")
+        unlock()
+        return 1
+    if len(freqs) != len(args.freqs):
+        print(f"   (已跳过 {len(args.freqs) - len(freqs)} 个超出范围的档位)")
+
     points: list[tuple[int, float]] = []
-    for f in args.freqs:
+    for f in freqs:
         if not lock(f):
             print(f"⚠️ 锁频 {f}MHz 失败：需要 root 权限 + 驱动支持（nvidia-smi -lgc）。")
             unlock()
