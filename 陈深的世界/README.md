@@ -1,7 +1,6 @@
 # 陈深 · 人间烟火（典藏版）
 
 > 把《陈深的世界》与《陈深的故事》合二为一 —— 一个关于「大模型在每晚 19:00 变成人」的互动游戏。
-> 清华紫黑风格 · 单文件网页 / PWA / Windows 免安装 EXE，三端都能玩。
 >
 > 🌐 [English](README.en.md) ｜ 中文
 
@@ -177,3 +176,12 @@ node build_localized.js           # （可选）重跑图片本地化
 python compress_images.py         # （可选）压缩图片减小体积
 npm run pack                      # 打包 Windows EXE
 ```
+
+Attribution and License · 署名与许可
+This repository is distributed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International. The controlling terms are in LICENSE; the complete three-stage creator and generation attribution chain is in NOTICE.
+
+本仓库以 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议发布。完整法律条款见 LICENSE，三阶段创作者与生成过程署名链见 NOTICE。
+
+Original character creator: 上善 (Pixiv). Secondary DeepSeek maid redesign: zipzip (Pixiv). Theme adaptation and UI preparation: Small-tailqwq.
+
+DeepSeek and related names or logos are the property of their respective owners. This fan-made non-commercial project does not imply official endorsement or affiliation.
