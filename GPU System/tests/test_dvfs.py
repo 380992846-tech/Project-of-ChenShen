@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "software"))
 
-from core.dvfs_controller import DVFSController, PowerMode  # noqa: E402
+from core.dvfs_controller import DVFSController, PowerMode
 
 
 def _ctrl():
@@ -45,3 +45,31 @@ def test_mode_switches_update_state():
     c.set_power_mode(PowerMode.POWER_SAVE)
     assert c.state.current_mode == PowerMode.POWER_SAVE
     assert c.state.core_clock <= c.freq_table[1]
+
+
+def test_predict_memory_bound_uses_low_clock():
+    # 显存忙、计算闲 => 访存密集，无需高频（二维启发式）
+    c = _ctrl()
+    c.state.utilization = 40
+    c.state.memory_utilization = 85
+    assert c.predict_optimal_frequency() == c.freq_table[4]
+
+
+def test_predict_compute_bound_uses_high_clock():
+    c = _ctrl()
+    c.state.utilization = 95
+    c.state.memory_utilization = 30
+    assert c.predict_optimal_frequency() == c.freq_table[-1]
+
+
+def test_clock_limit_snap_without_nvml():
+    c = _ctrl()
+    c.set_clock_limit(9_999_999)
+    assert c.state.core_clock == c.freq_table[-1]
+    assert c.clock_lock_status == "unlocked"  # 无 NVML 不触发真锁频
+
+
+def test_lock_gpu_clocks_degrades_gracefully():
+    c = _ctrl()
+    c.lock_gpu_clocks(1200)
+    assert c.clock_lock_status in ("locked", "unlocked_offset_only")

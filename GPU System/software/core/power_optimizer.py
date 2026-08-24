@@ -7,6 +7,8 @@ Universal GPU Power Optimizer — GEAR
 一行调用即可快速套用保守优化。
 """
 
+from __future__ import annotations
+
 import os
 import subprocess
 
@@ -45,13 +47,20 @@ class GPUPowerOptimizer:
         return {"optimized": True, "power_reduction_pct": 15.0, "mode": "simulated"}
 
     def _optimize_nvidia(self) -> dict:
+        idx = str(self.gpu_index)
         # 1) 持久化模式（降低空闲功耗）
         subprocess.run(["nvidia-smi", "-pm", "1"], capture_output=True)
         # 2) 功耗封顶到 70% TDP（估算；真机按 TDP 自适应）
-        subprocess.run(["nvidia-smi", "-pl", "70"], capture_output=True)
-        # 3) 频率封顶（示意，命令随驱动版本而异；失败无碍）
-        subprocess.run(["nvidia-smi", "--gpu-target-clock=1800"], capture_output=True)
+        subprocess.run(["nvidia-smi", "-i", idx, "-pl", "70"], capture_output=True)
+        # 3) 真正锁定核心频率（-lgc，需管理员权限），而非无效的偏移量
+        subprocess.run(["nvidia-smi", "-i", idx, "-lgc", "1800,1800"], capture_output=True)
         return {"optimized": True, "power_reduction_pct": 15.0, "mode": "nvidia"}
+
+    def restore_clock(self) -> dict:
+        """解除频率锁定，恢复驱动自由睿频（-rgc）。"""
+        idx = str(self.gpu_index)
+        subprocess.run(["nvidia-smi", "-i", idx, "-rgc"], capture_output=True)
+        return {"mode": "restored"}
 
     def _optimize_amd(self) -> dict:
         os.environ["FORCE_POWER_CAP"] = str(90)  # Watts
@@ -60,8 +69,9 @@ class GPUPowerOptimizer:
     def apply_energy_saver(self) -> dict:
         """保守节能档：适度封顶，优先保住吞吐。"""
         if self.gpu_type == "nvidia":
-            subprocess.run(["nvidia-smi", "-pl", "80"], capture_output=True)
-            subprocess.run(["nvidia-smi", "--gpu-target-clock=1600"], capture_output=True)
+            idx = str(self.gpu_index)
+            subprocess.run(["nvidia-smi", "-i", idx, "-pl", "80"], capture_output=True)
+            subprocess.run(["nvidia-smi", "-i", idx, "-lgc", "1600,1600"], capture_output=True)
         return {"mode": "energy_saver", "status": "active"}
 
 

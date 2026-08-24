@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "software"))
 
-from core.thermal_manager import ThermalManager, ThermalStatus  # noqa: E402
+from core.thermal_manager import ThermalManager, ThermalStatus
 
 
 def test_thermal_classification_thresholds():

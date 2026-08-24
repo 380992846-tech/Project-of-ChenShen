@@ -13,9 +13,9 @@
 
 | 模块 | 作用 |
 |---|---|
-| `DVFSController` | 动态调频 + 功耗/频率封顶 + ML 最优频率预测 + 温度感知降频 |
+| `DVFSController` | 动态调频 + 功耗封顶 + **真正锁频**（`nvidia-smi -lgc`）+ **二维 ML 调频**（计算利用率 × 显存带宽利用率）+ 温度感知降频 |
 | `ThermalManager` | 温度采集、热状态分级、过热降频、可回收废热度量 |
-| `GPUPowerOptimizer` | 一键保守功耗优化（NVIDIA/AMD） |
+| `GPUPowerOptimizer` | 一键保守功耗优化（NVIDIA/AMD），锁频/复位用真实 `-lgc`/`-rgc` |
 | CLI 遥测仪表盘 | 实时展示温度/功耗/频率/利用率/累计能耗/性能功耗比 |
 
 ## 运行模式
@@ -43,11 +43,16 @@ python main.py --mode thermal --gpu 0
 # 一行功耗优化
 python -c "from core.power_optimizer import optimize_gpu; print(optimize_gpu())"
 
-# 训练成本估算
-python scripts/estimate_cost.py --params 671 --tokens 14800 --gpu H100
+# 训练成本估算（含 PUE 预设与互联带宽瓶颈）
+python scripts/estimate_cost.py --params 671 --tokens 14800 --gpu H100 --dc nmg
+# --dc: default(1.30) / nmg(内蒙古天然冷风, 1.15) / zhongguancun(城市机房, 1.70)
+# --network-loss: 千卡互联带宽瓶颈导致的等效效率损失(0-1, 默认0.10)
+# 显式 --pue 覆盖 --dc：python scripts/estimate_cost.py --gpu H100 --pue 1.7
 ```
 
 安装真实硬件依赖：`pip install -r requirements.txt`（缺 `pynvml` 会自动降级为模拟）。
+
+> 🔒 **关于锁频**：`set_clock_limit` 用底层 `nvidia-smi -lgc` 真正锁定频率区间，而非仅设会被睿频回弹的偏移量；需管理员权限，失败时降级并**明确告警**（不静默）。`predict_optimal_frequency` 为二维启发式：显存忙而计算闲（访存密集）时用低频省电，计算密集时按利用率拉高频率。
 
 > 详细 API/配置/评估方法见 `docs/`（架构/API/设计决策/FAQ）。本目录中 `scripts/` 下有 `calibrate.py`（实测拟合 `P ≈ α·f^β`）、`run_benchmark.py`（基准）、`estimate_cost.py`（训练成本估算）。
 

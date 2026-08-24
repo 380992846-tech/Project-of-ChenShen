@@ -6,11 +6,12 @@ GEAR — GPU Energy-Aware Runtime · CLI 遥测仪表盘
 无真实 GPU 时以模拟数据运行（--simulate），有 NVIDIA GPU + pynvml 时自动用真实硬件。
 """
 
+from __future__ import annotations
+
+import argparse
 import os
 import sys
 import time
-import argparse
-import threading
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -21,9 +22,8 @@ try:
 except Exception:
     pass
 
-from core.dvfs_controller import DVFSController, PowerMode, NVML_AVAILABLE
+from core.dvfs_controller import NVML_AVAILABLE, DVFSController, PowerMode
 from core.thermal_manager import ThermalManager
-
 
 BANNER = r"""
 ╔══════════════════════════════════════════════════════════════╗

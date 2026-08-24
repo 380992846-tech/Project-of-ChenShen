@@ -6,11 +6,13 @@ GPU 热管理与"可回收废热"度量。
 用于：温度监测、热状态分级、过热降频决策、以及"可回收热量"这一能效指标。
 """
 
-import time
+from __future__ import annotations
+
 import threading
+import time
 from dataclasses import dataclass
-from typing import Optional, List, Callable
 from enum import Enum
+from typing import Callable, List, Optional
 
 
 class ThermalStatus(Enum):

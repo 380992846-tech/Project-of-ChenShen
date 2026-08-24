@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: F403, F405  -- pynvml 为可选通配导入，名字由 pynvml 提供
 """
 DVFS Controller — GEAR (GPU Energy-Aware Runtime)
 基于ML驱动的动态电压频率调整运行时系统。
@@ -7,11 +8,13 @@ DVFS Controller — GEAR (GPU Energy-Aware Runtime)
 Reference: ML-driven DVFS runtime for heterogeneous CPU-GPU systems
 """
 
-import time
+from __future__ import annotations
+
 import threading
+import time
 from dataclasses import dataclass
-from typing import Optional, Dict, List
 from enum import Enum
+from typing import Dict, List, Optional
 
 try:
     import numpy as np
@@ -45,6 +48,7 @@ class GPUState:
     core_clock: int = 0               # 核心频率 (MHz)
     memory_clock: int = 0             # 显存频率 (MHz)
     utilization: float = 0.0          # 利用率 (%)
+    memory_utilization: float = 0.0   # 显存带宽利用率 (%) —— 用于区分访存密集/计算密集
     sm_occupancy: float = 0.0         # SM占用率 (%)
     energy_total: float = 0.0         # 累计能耗 (J)
     current_mode: PowerMode = PowerMode.BALANCED
@@ -82,6 +86,8 @@ class DVFSController:
         self.handle = None
         self.min_power_limit = 30.0
         self.max_power_limit = 300.0
+        # 锁频状态：locked / unlocked_offset_only / unlocked
+        self.clock_lock_status = "unlocked"
         if NVML_AVAILABLE:
             nvmlInit()
             self.handle = nvmlDeviceGetHandleByIndex(gpu_index)
@@ -128,6 +134,7 @@ class DVFSController:
             self.state.core_clock = nvmlDeviceGetClockInfo(self.handle, NVML_CLOCK_SM)
             util = nvmlDeviceGetUtilizationRates(self.handle)
             self.state.utilization = util.gpu
+            self.state.memory_utilization = getattr(util, "memory", 0) or 0
 
             # 累计能耗 = 平均功耗 × 采样间隔
             if dt > 0:
@@ -148,16 +155,55 @@ class DVFSController:
         except Exception:
             pass
 
-    def set_clock_limit(self, clock_mhz: int):
-        """设置频率封顶 (MHz)，吸附到最近的可用频率档。"""
+    def set_clock_limit(self, clock_mhz: int, lock: bool = True):
+        """设置频率封顶 (MHz)，吸附到最近的可用频率档。
+
+        ``lock=True`` 时在真机上**真正锁定**核心频率区间（底层 ``nvidia-smi -lgc``），
+        而不是仅设一个会被驱动睿频回弹的偏移量。
+        """
         target = min(self.freq_table, key=lambda x: abs(x - clock_mhz))
         self.state.core_clock = target
         if not NVML_AVAILABLE or self.handle is None:
             return
+        # 先清掉之前叠加的 GPC 偏移量，避免新旧偏移累加导致频率漂移
         try:
             nvmlDeviceSetGpcClkVfOffset(self.handle, 0)
         except Exception:
             pass
+        if lock:
+            self.lock_gpu_clocks(target)
+
+    def _run_nvidia_smi(self, args: list[str]) -> tuple[bool, str]:
+        """执行一条 nvidia-smi 命令，返回 (是否成功, 输出)。"""
+        import subprocess
+
+        try:
+            r = subprocess.run(["nvidia-smi", *args], capture_output=True, text=True, timeout=8)
+        except Exception as exc:
+            return False, str(exc)
+        ok = r.returncode == 0
+        return ok, (r.stdout or r.stderr or "").strip()
+
+    def lock_gpu_clocks(self, clock_mhz: int, span: int = 0):
+        """真正锁定核心频率到区间 [clock-span, clock+span] (MHz)。
+
+        底层走 ``nvidia-smi -lgc <lo>,<hi>``（新版驱动单位 MHz，早期驱动为 kHz）。
+        需要管理员权限；失败时降级为仅清偏移量并明确告警，不静默。
+        """
+        lo = max(0, clock_mhz - span)
+        hi = clock_mhz + span
+        ok, out = self._run_nvidia_smi(["-i", str(self.gpu_index), "-lgc", f"{lo},{hi}"])
+        self.clock_lock_status = "locked" if ok else "unlocked_offset_only"
+        if not ok:
+            print(f"⚠️ 锁频失败（{out}）。可能无管理员权限，已降级为偏移量控制，"
+                  f"驱动仍可能睿频回弹。建议以 root 运行或改用 nvidia-smi -lgc。")
+
+    def unlock_gpu_clocks(self):
+        """解除频率锁定，恢复驱动自由睿频。"""
+        ok, out = self._run_nvidia_smi(["-i", str(self.gpu_index), "-rgc"])
+        self.clock_lock_status = "unlocked"
+        if not ok:
+            print(f"⚠️ 解锁频率失败（{out}）。")
 
     def set_power_mode(self, mode: PowerMode):
         """切换功耗/能效模式。"""
@@ -201,24 +247,36 @@ class DVFSController:
             self.set_clock_limit(self.freq_table[0])
 
     # ---------- ML 预测 ----------
+    def _heuristic_frequency(self) -> int:
+        """无模型时的二维启发式：同时看计算利用率与显存带宽利用率。
+
+        - 访存密集（显存忙、计算闲）：无需高频，低频省电；
+        - 计算密集（高利用率）：按利用率档位拉高频率保吞吐。
+        """
+        util = self.state.utilization
+        mem = self.state.memory_utilization
+        if mem > 70 and util < 50:
+            return self.freq_table[4]      # 800 MHz：访存密集，降核频省电
+        if util < 30:
+            return self.freq_table[2]
+        elif util < 60:
+            return self.freq_table[6]
+        elif util < 85:
+            return self.freq_table[10]
+        else:
+            return self.freq_table[-1]
+
     def predict_optimal_frequency(self, workload_type: str = "unknown") -> int:
         """
-        预测能效最优频率。
-        输入特征: [utilization, sm_occupancy, power, temperature]
-        无模型时降级为基于利用率的启发式。
+        预测能效最优频率（二维：计算利用率 + 显存带宽利用率）。
+        输入特征: [utilization, memory_utilization, sm_occupancy, power, temperature]
+        无模型时降级为启发式。
         """
         if self.ml_model is None or not NP_AVAILABLE:
-            util = self.state.utilization
-            if util < 30:
-                return self.freq_table[2]
-            elif util < 60:
-                return self.freq_table[6]
-            elif util < 85:
-                return self.freq_table[10]
-            else:
-                return self.freq_table[-1]
+            return self._heuristic_frequency()
         features = np.array([[
             self.state.utilization,
+            self.state.memory_utilization,
             self.state.sm_occupancy,
             self.state.power_usage,
             self.state.temperature
