@@ -69,20 +69,20 @@ def main() -> int:
     args = ap.parse_args()
 
     pynvml.nvmlInit()
-    points: list[tuple[int, float]] = []
+    points: list[tuple[int, int, float]] = []
     for shape in args.levels:
         clock, power = run_level(shape, args.warmup, args.stable)
         print(f"shape={shape}  ->  {clock} MHz / {power:.1f} W")
-        points.append((clock, power))
+        points.append((shape, clock, power))
 
     with open(args.out, "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
-        w.writerow(["core_clock_mhz", "power_w"])
+        w.writerow(["matrix_size", "core_clock_mhz", "power_w"])
         w.writerows(points)
 
     # 检测频率是否有区分度，决定能否拟合
-    clocks = [p[0] for p in points]
-    powers = [p[1] for p in points]
+    clocks = [p[1] for p in points]
+    powers = [p[2] for p in points]
     span = max(clocks) - min(clocks)
     print("\n" + "=" * 46)
     print(f"频率跨度: {span} MHz  ({min(clocks)} ~ {max(clocks)})")

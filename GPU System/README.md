@@ -117,6 +117,19 @@ ruff check software tests
 
 训练/推理的 GPU 账单是数据中心最大开销之一（例如 DeepSeek-V3 约 $5.6M 算力成本）。通过功耗封顶 + DVFS，**理论上限**可降低 20–30% 能耗——这是**潜力上限，未经本仓库实测验证**。当前 README 不含任何未经验证的"降低 X%"承诺性声明；具体幅度以 `scripts/collect_power.py` 在真实硬件上采集的数据为准。
 
+## 校准与扩展
+
+### 容器环境下的诚实校准（AutoDL 等）
+由于租用容器（Container）环境默认**无宿主机级权限进行硬件锁频**（`nvidia-smi -lgc` 返回
+`does not have permission to change clocks`），本仓库提供 `scripts/burn_in.py` 作为**容器环境降级校准方案**。
+
+- **原理**：通过纯浮点矩阵乘法（`torch.rand @ torch.rand`）让 GPU 在满载状态下**自动睿频到最高档**。
+- **产出**：获取满载稳态下的实测 (核心频率, 功耗) 观测值；切换矩阵规模（2048/4096/6144）可得多个"算力 vs 功耗"点，用于展示**算力与功耗的正相关**。
+- **诚实声明**：容器中 GPU 会优先锁定最高频率，导致各档位频率差异极小，**无法拟合出可信的 `P≈α·f^β` 曲线**；该脚本仅作为参考观测，**不用于回填 `ALPHA/BETA`**。
+- **解决方法**：若需可信的 `ALPHA/BETA`，请在**物理裸机（拥有 Root 权限）**环境运行 `scripts/frequency_sweep.py`（逐档 `-lgc` 锁频扫描）后一键回填。
+
+> 本仓库**不提供任何未经实测的 α/β 承诺值**；`dvfs_controller.ALPHA/BETA` 保持经验默认（1.0 / 2.8），待可锁频环境校准。
+
 ## 许可
 
 MIT（见 [`LICENSE.md`](LICENSE.md)）。
