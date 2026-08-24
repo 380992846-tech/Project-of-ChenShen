@@ -154,7 +154,7 @@ ruff check tests "量化策略（聚宽·回测）/quant_features.py" LLM推理�
 - [x] PagedAttention（分页 KV 缓存）
 - [x] 千节点 Raft 分布式 KV 存储
 - [x] GPU 能效运行时（GEAR）
-- [x] 助手与智能体大厂化（CLI 包 + 测试 + CI + 文档）
+- [x] 助手与智能体工程化（CLI 包 + 测试 + CI + 文档）
 - [ ] 真·多机分布式推理
 - [ ] 量化策略统一工程化 + 实盘风控
 - [ ] 《陈深的故事》更多结局与章节
