@@ -113,7 +113,7 @@ ruff check software tests
 - 峰值温度：**57 °C**
 - **性能功耗比：≈ 2.11 tok/s/W**（= 588.89 / 278.9）
 
-> 📌 **诚实边界**：这是**单次负载采样**，非标准基准；功耗随负载/并发/模型变化。`calibrate.py --csv` 用**负载时序**拟合 `P≈α·f^β` 会得到**负 β（物理上不合理）**，因为时序数据不是"每档频率→稳态功耗"的扫描——**DVFS 模型校准需要专门的频率-功耗扫描**（把 GPU 锁到 300/…/2000 MHz 各测一次），尚未完成，故 `dvfs_controller.ALPHA/BETA` 保持默认值。
+> 📌 **诚实边界**：这是**单次负载采样**，非标准基准；功耗随负载/并发/模型变化。`calibrate.py --csv` 用**负载时序**拟合 `P≈α·f^β` 会得到**负 β（物理上不合理）**，因为时序数据不是"每档频率→稳态功耗"的扫描。**DVFS 模型的 `ALPHA/BETA` 校准需要专门的频率-功耗扫描**（`scripts/frequency_sweep.py` 已备好，逐档 `nvidia-smi -lgc` 锁频→跑负载→读功耗→拟合）；但 **AutoDL 容器无宿主机级锁频权限**（`nvidia-smi -lgc` 返回 `does not have permission to change clocks`），此环境无法执行。故 `dvfs_controller.ALPHA/BETA` 保持默认值，**待可锁频环境（宿主机/受控机）跑 `frequency_sweep.py` 后回填**。
 
 ## 许可
 
