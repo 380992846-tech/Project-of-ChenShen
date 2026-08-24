@@ -25,7 +25,7 @@
 - 峰值温度：**57 °C**
 - **性能功耗比：≈ 2.11 tok/s/W**（= 588.89 / 278.9）
 
-> 📌 **诚实边界**：这是**单次负载采样**，非标准基准；功耗随负载/并发/模型变化。`calibrate.py --csv` 用**负载时序**拟合 `P≈α·f^β` 会得到**负 β（物理上不合理）**，因为时序数据不是"每档频率→稳态功耗"的扫描。**DVFS 模型的 `ALPHA/BETA` 校准需要专门的频率-功耗扫描**（`scripts/frequency_sweep.py` 已备好，逐档 `nvidia-smi -lgc` 锁频→跑负载→读功耗→拟合）；但 **AutoDL 容器无宿主机级锁频权限**（`nvidia-smi -lgc` 返回 `does not have permission to change clocks`），此环境无法执行。故 `dvfs_controller.ALPHA/BETA` 保持默认值，**待可锁频环境（宿主机/受控机）跑 `frequency_sweep.py` 后回填**。
+> 📌 **诚实边界**：这是**单次负载采样**，非标准基准；功耗随负载/并发/模型变化。**切勿用 vLLM 负载时序硬拟合 `P≈α·f^β`**——推理负载受内存访问 / CPU 排队影响、波动大，拟合会得到**负 β（物理上不合理）**。DVFS 校准需要**稳定的纯计算负载**（`scripts/burn_in.py`，纯浮点矩阵乘榨干 GPU）+ **逐档固定频率**；但 **AutoDL 容器无宿主机级锁频权限**（`nvidia-smi -lgc` 返回 `does not have permission to change clocks`），无法硬件锁频。因此 `dvfs_controller.ALPHA/BETA` 保持**经验默认值（1.0 / 2.8）**；待**物理裸机 / 可锁频环境**跑 `frequency_sweep.py`（或 `burn_in.py` 多档）后一键回填。**本系统不提供任何未经实测的 α/β 承诺值。**
 
 ## 功能
 
