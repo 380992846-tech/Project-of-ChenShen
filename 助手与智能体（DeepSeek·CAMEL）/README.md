@@ -84,9 +84,9 @@ dsh-assistant web            # 多模型 Web 界面 → http://127.0.0.1:8000
 | `DSH_VOICE` | `zh-CN-YunxiNeural` | Edge TTS 音色 |
 | `DSH_SPEAK` | `1` | 语音播报开关 |
 | `DSH_STREAM` | `1` | 流式输出开关 |
-| `DSH_MODEL_PRO` | — | V4 Pro 的模型标识（空则回退 `DSH_MODEL`） |
-| `DSH_MODEL_FLASH` | — | V4 Flash 的模型标识 |
-| `DSH_MODEL_VISION` | — | V4 Flash 视觉的模型标识 |
+| `DSH_MODEL_PRO` | `deepseek-v4-pro` | V4 Pro 的模型标识 |
+| `DSH_MODEL_FLASH` | `deepseek-v4-flash` | V4 Flash 的模型标识 |
+| `DSH_MODEL_VISION` | `deepseek-v4-flash-vision-exp` | V4 Flash 视觉的模型标识 |
 | `DSH_MAX_ROUNDS` | `20` | 记忆保留轮数 |
 | `DSH_LOG_LEVEL` | `INFO` | 日志级别 |
 | `DSH_DATA_DIR` | `~/.dsh_assistant` | 记忆/数据目录 |

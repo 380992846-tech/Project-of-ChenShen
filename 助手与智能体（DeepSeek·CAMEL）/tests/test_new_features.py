@@ -131,12 +131,17 @@ def test_stream_yields_chunks(monkeypatch):
 
 # ---- 多模型配置与 Web 后端 ----
 
-def test_model_ids_fallback():
+def test_model_ids_defaults_and_override():
     s = Settings(api_key="x", model="deepseek-chat")
     ids = s.model_ids()
-    assert ids == {"pro": "deepseek-chat", "flash": "deepseek-chat", "vision": "deepseek-chat"}
-    s2 = Settings(api_key="x", model="deepseek-chat", model_pro="v4-pro")
-    assert s2.model_ids()["pro"] == "v4-pro"
+    assert ids == {
+        "pro": "deepseek-v4-pro",
+        "flash": "deepseek-v4-flash",
+        "vision": "deepseek-v4-flash-vision-exp",
+    }
+    # 显式覆盖；留空则回退到 self.model
+    s2 = Settings(api_key="x", model="deepseek-chat", model_pro="custom-pro", model_flash="")
+    assert s2.model_ids()["pro"] == "custom-pro"
     assert s2.model_ids()["flash"] == "deepseek-chat"
 
 

@@ -66,10 +66,10 @@ class Settings:
     # 输出模式
     stream_mode: bool = True
 
-    # 多模型：各模型的 API model 标识（可留空，回退到 ``model``）
-    model_pro: str = ""
-    model_flash: str = ""
-    model_vision: str = ""
+    # 多模型：各模型的 API model 标识（参考 DeepSeek 官方模型表）
+    model_pro: str = "deepseek-v4-pro"
+    model_flash: str = "deepseek-v4-flash"
+    model_vision: str = "deepseek-v4-flash-vision-exp"
 
     # 记忆
     max_rounds: int = 20
