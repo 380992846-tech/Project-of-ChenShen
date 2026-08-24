@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>清华校园 · 陈深的藏宝图</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #0b0710;
+            color: #e6e0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .app-container {
+            width: 1440px;
+            max-width: 100%;
+            min-height: 920px;
+            max-height: 98vh;
+            background: rgba(22, 16, 35, 0.3);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(160, 120, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-image 0.7s ease;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            background-color: rgba(10, 6, 20, 0.3);
+        }
+        .app-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 6, 20, 0.12);
+            backdrop-filter: blur(4px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .app-container>* {
+            position: relative;
+            z-index: 1;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 16px;
+            border-bottom: 1px solid rgba(180, 140, 255, 0.08);
+            background: rgba(12, 8, 22, 0.15);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-icon {
+            background: linear-gradient(145deg, #b28aff, #7a4bff);
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #f0ecff;
+            box-shadow: 0 6px 14px rgba(90, 40, 200, 0.5);
+        }
+        .logo-text {
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #d9caff, #b28aff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo-text small {
+            font-weight: 400;
+            font-size: 9px;
+            color: #9480c0;
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            margin-left: 4px;
+        }
+        .tag-bar {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            padding: 2px 4px;
+            background: rgba(16, 10, 30, 0.15);
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+        }
+        .tag-btn {
+            background: transparent;
+            border: none;
+            padding: 3px 10px;
+            border-radius: 30px;
+            color: #9480c0;
+            font-size: 10px;
+            cursor: pointer;
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+        .tag-btn i {
+            font-size: 10px;
+        }
+        .tag-btn:hover {
+            color: #d4c0ff;
+            background: rgba(130, 70, 255, 0.08);
+        }
+        .tag-btn.active {
+            background: rgba(130, 70, 255, 0.15);
+            color: #f0eaff;
+            border: 1px solid rgba(160, 120, 255, 0.08);
+        }
+        .tag-btn.portal-btn {
+            background: rgba(247, 201, 72, 0.08);
+            border: 1px solid rgba(247, 201, 72, 0.1);
+            color: #f7c948;
+        }
+        .tag-btn.portal-btn:hover {
+            background: rgba(247, 201, 72, 0.15);
+        }
+        .tag-btn.portal-btn i {
+            color: #f7c948;
+        }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-clock-weather {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(30, 20, 55, 0.2);
+            padding: 2px 8px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            font-size: 10px;
+        }
+        .nav-clock .time {
+            font-weight: 600;
+            color: #f0eaff;
+            font-size: 12px;
+        }
+        .nav-clock .date {
+            font-size: 8px;
+            color: #b3a1d4;
+        }
+        .nav-weather .temp {
+            font-size: 12px;
+            font-weight: 500;
+            color: #f0eaff;
+        }
+        .nav-weather .desc {
+            font-size: 8px;
+            color: #b3a1d4;
+        }
+        .avatar {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, #6d44d0, #371b7a);
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 9px;
+            color: #e8dcff;
+            border: 1px solid #a47eff;
+        }
+        .main-layout {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            padding: 8px 12px 8px 12px;
+            gap: 10px;
+            overflow: hidden;
+        }
+        .card-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+            align-content: start;
+            overflow-y: auto;
+            padding: 4px 4px 8px 4px;
+        }
+        .card-grid::-webkit-scrollbar {
+            width: 3px;
+        }
+        .card-grid::-webkit-scrollbar-thumb {
+            background: #4e3a78;
+            border-radius: 10px;
+        }
+        .glass-card {
+            background: rgba(22, 16, 40, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 18px 16px 14px 16px;
+            border: 1px solid rgba(160, 120, 255, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            min-height: 140px;
+            position: relative;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: rgba(247, 201, 72, 0.3);
+            box-shadow: 0 0 30px rgba(247, 201, 72, 0.12), 0 8px 30px rgba(0, 0, 0, 0.3);
+            background: rgba(30, 22, 50, 0.3);
+        }
+        .glass-card:active {
+            transform: scale(0.97);
+        }
+        .glass-card .card-emoji {
+            font-size: 32px;
+            margin-bottom: 2px;
+            line-height: 1;
+        }
+        .glass-card .card-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f0eaff;
+            line-height: 1.2;
+            margin-bottom: 2px;
+            word-break: break-word;
+        }
+        .glass-card .card-tag {
+            font-size: 10px;
+            color: #b28aff;
+            background: rgba(130, 70, 255, 0.08);
+            padding: 1px 10px;
+            border-radius: 30px;
+            display: inline-block;
+            align-self: flex-start;
+            margin-bottom: 4px;
+        }
+        .glass-card .card-desc {
+            font-size: 13px;
+            color: #c8b8e0;
+            line-height: 1.5;
+            flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+        .glass-card .card-meta {
+            font-size: 9px;
+            color: #6c5890;
+            margin-top: 6px;
+            border-top: 1px solid rgba(160, 120, 255, 0.04);
+            padding-top: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .glass-card .card-color-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 24px 24px 0 0;
+            background: #b28aff;
+        }
+        .glass-card .card-badge {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            font-size: 9px;
+            background: rgba(160, 120, 255, 0.1);
+            border-radius: 30px;
+            padding: 0 8px;
+            color: #9480c0;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+        }
+        .glass-card.egg-card .card-front,
+        .glass-card.egg-card .card-back {
+            backface-visibility: hidden;
+            transition: transform 0.6s;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 24px;
+            padding: 18px 16px 14px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(22, 16, 40, 0.35);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(247, 201, 72, 0.15);
+        }
+        .glass-card.egg-card .card-front {
+            transform: rotateY(0deg);
+        }
+        .glass-card.egg-card .card-back {
+            transform: rotateY(180deg);
+            background: rgba(40, 20, 60, 0.5);
+        }
+        .glass-card.egg-card.flipped .card-front {
+            transform: rotateY(-180deg);
+        }
+        .glass-card.egg-card.flipped .card-back {
+            transform: rotateY(0deg);
+        }
+        .glass-card.egg-card {
+            min-height: 160px;
+            perspective: 800px;
+            cursor: pointer;
+            position: relative;
+        }
+        .glass-card.egg-card .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 140px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .glass-card.egg-card .card-front,
+        .glass-card.egg-card .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            text-align: center;
+        }
+        .glass-card.egg-card .card-back {
+            transform: rotateY(180deg);
+            background: rgba(30, 18, 50, 0.7);
+            border: 1px solid #f7c948;
+        }
+        .glass-card.egg-card .egg-emoji {
+            font-size: 36px;
+        }
+        .glass-card.egg-card .egg-hint {
+            font-size: 11px;
+            color: #b28aff;
+            margin-top: 4px;
+        }
+        .detail-panel {
+            width: 280px;
+            flex-shrink: 0;
+            background: rgba(16, 10, 30, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 14px 16px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+        .detail-panel::-webkit-scrollbar {
+            width: 3px;
+        }
+        .detail-panel::-webkit-scrollbar-thumb {
+            background: #4e3a78;
+            border-radius: 10px;
+        }
+        .detail-panel .panel-title {
+            font-size: 13px;
+            color: #cbb8f0;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .detail-panel .detail-emoji {
+            font-size: 40px;
+            text-align: center;
+            padding: 4px 0;
+        }
+        .detail-panel .detail-name {
+            font-size: 22px;
+            font-weight: 600;
+            color: #f0eaff;
+            text-align: center;
+        }
+        .detail-panel .detail-tag {
+            font-size: 11px;
+            color: #b28aff;
+            background: rgba(130, 70, 255, 0.08);
+            padding: 2px 14px;
+            border-radius: 30px;
+            display: inline-block;
+            align-self: center;
+            margin: 2px 0;
+        }
+        .detail-panel .detail-desc {
+            font-size: 14px;
+            color: #c8b8e0;
+            line-height: 1.8;
+            padding: 8px 0;
+            border-top: 1px solid rgba(160, 120, 255, 0.04);
+            border-bottom: 1px solid rgba(160, 120, 255, 0.04);
+        }
+        .detail-panel .detail-story {
+            font-size: 13px;
+            color: #ddd2f0;
+            line-height: 1.8;
+            padding: 6px 0;
+            font-style: italic;
+            background: rgba(160, 120, 255, 0.03);
+            border-radius: 12px;
+            padding: 10px 14px;
+        }
+        .detail-panel .detail-story::before {
+            content: '📖 ';
+            color: #b28aff;
+        }
+        .wallpaper-selector {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            padding: 4px 6px;
+            background: rgba(16, 10, 30, 0.2);
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            margin-top: 4px;
+            align-items: center;
+        }
+        .wp-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid rgba(200, 180, 255, 0.1);
+            cursor: pointer;
+            transition: 0.2s;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+        .wp-dot:hover {
+            transform: scale(1.1);
+            border-color: #b28aff;
+        }
+        .wp-dot.active {
+            border-color: #f7c948;
+            box-shadow: 0 0 12px rgba(247, 201, 72, 0.2);
+        }
+        .wp-dot.upload-dot {
+            background: rgba(160, 120, 255, 0.1);
+            border-color: rgba(160, 120, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #9480c0;
+        }
+        .wp-dot.upload-dot:hover {
+            background: rgba(160, 120, 255, 0.2);
+        }
+        .bgm-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #6c5890;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 30px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            transition: 0.2s;
+            background: rgba(16, 10, 30, 0.15);
+            margin-top: 4px;
+        }
+        .bgm-toggle:hover {
+            border-color: rgba(160, 120, 255, 0.2);
+            color: #b3a1d4;
+        }
+        .bgm-toggle i {
+            font-size: 12px;
+            color: #88aaff;
+        }
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 20, 60, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 8px 24px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.12);
+            color: #e6def5;
+            font-size: 13px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .cat-speak {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 20, 55, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 8px 22px;
+            border-radius: 40px;
+            border: 1px solid rgba(247, 201, 72, 0.15);
+            color: #f7c948;
+            font-size: 14px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        .cat-speak.show {
+            opacity: 1;
+        }
+        @media (max-width: 820px) {
+            .navbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 3px;
+                padding: 4px 10px;
+            }
+            .tag-bar {
+                justify-content: center;
+            }
+            .main-layout {
+                flex-direction: column;
+                padding: 6px 8px;
+                gap: 6px;
+            }
+            .card-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
+                max-height: 40vh;
+            }
+            .detail-panel {
+                width: 100%;
+                max-height: 240px;
+            }
+            .app-container {
+                min-height: auto;
+                max-height: 98vh;
+                border-radius: 24px;
+            }
+        }
+        @media (max-width: 480px) {
+            .tag-btn {
+                font-size: 8px;
+                padding: 2px 6px;
+            }
+            .tag-btn i {
+                font-size: 8px;
+            }
+            .logo-text {
+                font-size: 12px;
+            }
+            .glass-card .card-name {
+                font-size: 16px;
+            }
+            .glass-card .card-desc {
+                font-size: 11px;
+            }
+            .card-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+            .detail-panel {
+                padding: 10px 12px;
+                max-height: 200px;
+            }
+            .nav-clock .date {
+                display: none;
+            }
+            .nav-weather .desc {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="appContainer">
+
+        <header class="navbar">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fas fa-map"></i></div>
+                <div class="logo-text">清华校园 · 陈深的藏宝图 <small id="cardCountLabel">16 个地标</small></div>
+            </div>
+            <div class="tag-bar">
+                <button class="tag-btn active" data-tag="all"><i class="fas fa-th"></i> 全部</button>
+                <button class="tag-btn" data-tag="学习"><i class="fas fa-book"></i> 学习</button>
+                <button class="tag-btn" data-tag="食堂"><i class="fas fa-utensils"></i> 食堂</button>
+                <button class="tag-btn" data-tag="宿舍"><i class="fas fa-bed"></i> 宿舍</button>
+                <button class="tag-btn" data-tag="地标"><i class="fas fa-landmark"></i> 地标</button>
+                <button class="tag-btn portal-btn" id="portalBtn"><i class="fas fa-arrow-right"></i> 传送门</button>
+            </div>
+            <div class="nav-right">
+                <div class="nav-clock-weather">
+                    <div class="nav-clock"><span class="time" id="navClockTime">--:--</span><span class="date" id="navClockDate">--/--</span></div>
+                    <div class="nav-weather"><span class="temp" id="navWeatherTemp">--°C</span><span class="desc" id="navWeatherDesc">--</span></div>
+                </div>
+                <div class="avatar">🎓</div>
+            </div>
+        </header>
+
+        <div class="cat-speak" id="catSpeak">🐱 喵~</div>
+
+        <div class="main-layout">
+            <div class="card-grid" id="cardGrid"></div>
+            <div class="detail-panel" id="detailPanel">
+                <div class="panel-title"><i class="fas fa-map-pin"></i> 地点详情</div>
+                <div class="detail-emoji" id="detailEmoji">🏛️</div>
+                <div class="detail-name" id="detailName">清华园</div>
+                <div class="detail-tag" id="detailTag">地标</div>
+                <div class="detail-desc" id="detailDesc">点击一张卡片，查看陈深在这里的故事。</div>
+                <div class="detail-story" id="detailStory">📍 陈深在这里留下了足迹……</div>
+
+                <div style="margin-top:8px; border-top:1px solid rgba(160,120,255,0.04); padding-top:6px;">
+                    <div style="font-size:10px; color:#6c5890;"><i class="fas fa-image"></i> 壁纸</div>
+                    <div class="wallpaper-selector" id="wallpaperSelector">
+                        <div class="wp-dot active" data-wallpaper="galaxy" style="background: url(https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=200&q=80);" title="银河"></div>
+                        <div class="wp-dot" data-wallpaper="tsinghua" style="background: url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=200&q=80);" title="二校门"></div>
+                        <div class="wp-dot" data-wallpaper="sakura" style="background: url(https://images.unsplash.com/photo-1522383225653-ed111181a951?w=200&q=80);" title="樱花"></div>
+                        <div class="wp-dot" data-wallpaper="ocean" style="background: url(https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?w=200&q=80);" title="海洋"></div>
+                        <div class="wp-dot" data-wallpaper="snowmountain" style="background: url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&q=80);" title="日照金山"></div>
+                        <div class="wp-dot upload-dot" id="uploadWallpaperBtn" title="上传自定义壁纸"><i class="fas fa-plus"></i></div>
+                        <input type="file" id="wallpaperUpload" accept="image/*" style="display:none;">
+                    </div>
+                    <div style="font-size:9px; color:#6c5890; margin-top:2px;">
+                        <span id="wallpaperLabel">银河</span>
+                        <span style="float:right;"><i class="fas fa-music" id="bgmIcon"></i> BGM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <audio id="bgm" loop style="display:none;">
+        <source src="https://www.bensound.com/bensound-music/bensound-pianomoment.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        (function() {
+            // ============================================================
+            //  1. 基础卡片 (16个) — 每个分类4个
+            // ============================================================
+            const baseCards = [{
+                id: 'gate',
+                name: '二校门',
+                emoji: '🏛️',
+                tag: '地标',
+                color: '#C8A060',
+                desc: '青砖白柱，百年守望。',
+                story: '陈深大一报到时，第一次站在二校门下拍照。“我终于来了。” 他对自己说。后来每次路过，都会想起那个秋天。'
+            }, {
+                id: 'library',
+                name: '图书馆老馆',
+                emoji: '📚',
+                tag: '学习',
+                color: '#6B4B3A',
+                desc: '红墙绿窗，书海沉静。',
+                story: '陈深最喜欢图书馆三楼靠窗的位置。阳光会从下午两点照到四点，刚好落在他翻开的书页上。“这里是我的第二个宿舍。”'
+            }, {
+                id: 'fit',
+                name: 'FIT 楼',
+                emoji: '💻',
+                tag: '学习',
+                color: '#4A6A8A',
+                desc: '信息科技大楼，贵系大本营。',
+                story: 'FIT 楼的走廊很长，陈深第一次去实验室时差点迷路。后来他在这里熬过无数个夜，也在这里写下了第一篇论文。“FIT 楼是我的战场。”'
+            }, {
+                id: 'sixth',
+                name: '六教',
+                emoji: '🏫',
+                tag: '学习',
+                color: '#7A5A3A',
+                desc: '阶梯教室，座无虚席。',
+                story: '陈深在六教上过最难的课，也在这里第一次当众做presentation。“六教的空调总是很冷，但讲台上的灯很亮。”'
+            }, {
+                id: 'zijing',
+                name: '紫荆公寓',
+                emoji: '🏠',
+                tag: '宿舍',
+                color: '#5A4A7A',
+                desc: '紫荆宿舍区，青春的家。',
+                story: '紫荆公寓的楼道里永远飘着泡面的味道。陈深和室友在这里聊到凌晨三点，聊理想、聊未来、聊喜欢的女生。“紫荆是我在清华的家。”'
+            }, {
+                id: 'zijingcanteen',
+                name: '紫荆园食堂',
+                emoji: '🍜',
+                tag: '食堂',
+                color: '#D47040',
+                desc: '麻辣香锅，一绝。',
+                story: '“老板，加辣！” 陈深每次去紫荆园都喊这句话。麻辣香锅配冰可乐，是他最治愈的夜晚。“紫荆园的味道，就是大二的味道。”'
+            }, {
+                id: 'taoli',
+                name: '桃李园食堂',
+                emoji: '🍚',
+                tag: '食堂',
+                color: '#E8A070',
+                desc: '拉面刀削，暖心暖胃。',
+                story: '陈深在桃李园吃过的拉面，大概可以绕操场一圈。“老板，多放香菜！” 他说了两年，老板都认识他了。'
+            }, {
+                id: 'qingfen',
+                name: '清芬园食堂',
+                emoji: '🥟',
+                tag: '食堂',
+                color: '#8A9A6A',
+                desc: '烤鸭包子，排队也值。',
+                story: '清芬园的烤鸭窗口总是排长队。陈深每次排到都会说：“半只，多要酱。”“清芬园是陈深的快乐源泉。”'
+            }, {
+                id: 'auditorium',
+                name: '大礼堂',
+                emoji: '🎭',
+                tag: '地标',
+                color: '#8A6A4A',
+                desc: '清华精神，庄重温暖。',
+                story: '开学典礼、毕业典礼、各种晚会……陈深在大礼堂听过很多演讲，也在这里笑过、感动过。“大礼堂的穹顶下，有很多个陈深的影子。”'
+            }, {
+                id: 'zicao',
+                name: '紫荆操场',
+                emoji: '🏃',
+                tag: '地标',
+                color: '#5A8A5A',
+                desc: '跑步散步，星空聊天。',
+                story: '陈深在紫操跑过无数圈，也在这里和朋友们聊到深夜。“紫操的星空，比任何地方都清晰。”'
+            }, {
+                id: 'loverhill',
+                name: '情人坡',
+                emoji: '🌸',
+                tag: '地标',
+                color: '#E8A0B0',
+                desc: '日落樱花，温柔时光。',
+                story: '陈深和那个女生第一次散步就到了情人坡。“这里的日落很温柔。” 她说。陈深点了点头，把这句话记住了。'
+            }, {
+                id: 'lab',
+                name: '实验楼',
+                emoji: '🔬',
+                tag: '学习',
+                color: '#6A8A9A',
+                desc: '通宵实验，bug与奇迹。',
+                story: '陈深在实验楼做过最复杂的实验，也在这里遇到过最崩溃的bug。“实验楼的灯，凌晨两点最亮。”'
+            }, {
+                id: 'mengminwei',
+                name: '蒙民伟楼',
+                emoji: '🎵',
+                tag: '地标',
+                color: '#9A7A5A',
+                desc: '音乐艺术，心灵栖息。',
+                story: '陈深偶尔会去蒙民伟楼听音乐会。“这里让我觉得，清华不只是代码和考试。”'
+            }, {
+                id: 'cs',
+                name: '计算机系楼',
+                emoji: '🖥️',
+                tag: '学习',
+                color: '#4A5A8A',
+                desc: '代码与梦想，贵系圣地。',
+                story: '贵系的楼不大，但装满了陈深所有的梦想。“从C语言到操作系统，我在这里学会了编程，也学会了思考。”'
+            }, {
+                id: 'history',
+                name: '校史馆',
+                emoji: '📖',
+                tag: '地标',
+                color: '#6A5A4A',
+                desc: '百年故事，岁月如歌。',
+                story: '陈深在校史馆里看到过很多老照片。“有一天，我们的故事也会被写进去吧。”'
+            }, {
+                id: 'portal',
+                name: '🌌 传送门',
+                emoji: '🌀',
+                tag: '地标',
+                color: '#7A5AB0',
+                desc: '通往所有地标的随机传送门。',
+                story: '“点我，去一个你还没去过的地方。”\n陈深说：“有时候，随机也是一种选择。”'
+            }];
+
+            // ============================================================
+            //  2. 每个分类扩充 3倍 全新卡片 (每个分类12张)
+            // ============================================================
+            const tagExpansions = {
+                '学习': [{
+                    id: 'study1',
+                    name: '逸夫馆',
+                    emoji: '📖',
+                    desc: '科技文献，学术海洋。',
+                    story: '逸夫馆的灯总是亮到很晚。陈深在这里查过最多的论文，也在这里写过最长的报告。“逸夫馆是我的第二个图书馆。”'
+                }, {
+                    id: 'study2',
+                    name: '三教',
+                    emoji: '📝',
+                    desc: '小班教室，思维碰撞。',
+                    story: '三教的研讨室里，陈深和队友们为了一个项目吵过架，也击过掌。“三教教会了我，一个人走得快，一群人走得远。”'
+                }, {
+                    id: 'study3',
+                    name: '五教',
+                    emoji: '🧮',
+                    desc: '数学与逻辑，理性之光。',
+                    story: '五教的教室里，陈深第一次真正理解了“证明”的意义。“从这里开始，我学会了用逻辑看世界。”'
+                }, {
+                    id: 'study4',
+                    name: '新清华学堂',
+                    emoji: '🎓',
+                    desc: '讲座与论坛，思想盛宴。',
+                    story: '陈深在这里听过诺奖得主的演讲，也听过创业者的故事。“每一次讲座，都像打开了一扇窗。”'
+                }, {
+                    id: 'study5',
+                    name: '美术学院楼',
+                    emoji: '🎨',
+                    desc: '艺术与设计，灵感之源。',
+                    story: '陈深偶尔会去美院楼看展览。“那些画和雕塑提醒我，世界不只有代码，还有色彩。”'
+                }, {
+                    id: 'study6',
+                    name: '经管学院楼',
+                    emoji: '📊',
+                    desc: '商业与智慧，未来之窗。',
+                    story: '陈深在这里上过一门经济学课。“虽然我是理工男，但这里让我对世界有了另一种理解。”'
+                }, {
+                    id: 'study7',
+                    name: '法学院楼',
+                    emoji: '⚖️',
+                    desc: '正义与思辨，理性之声。',
+                    story: '陈深旁听过一次模拟法庭。“那种唇枪舌剑的紧张感，让我觉得法律也是一门艺术。”'
+                }, {
+                    id: 'study8',
+                    name: '建筑学院楼',
+                    emoji: '🏗️',
+                    desc: '空间与美学，城市之梦。',
+                    story: '建筑学院的模型室里，陈深看到过很多精美的建筑模型。“每一栋建筑，都是一个凝固的梦。”'
+                }, {
+                    id: 'study9',
+                    name: '天文台',
+                    emoji: '🔭',
+                    desc: '星空与宇宙，仰望之地。',
+                    story: '陈深在天文台看过一次流星雨。“那种浩瀚，让我觉得自己的烦恼都变得渺小。”'
+                }, {
+                    id: 'study10',
+                    name: '生物楼',
+                    emoji: '🧬',
+                    desc: '生命与基因，探索之旅。',
+                    story: '陈深在生物楼看过一次显微镜下的细胞。“原来生命这么复杂，又这么美。”'
+                }, {
+                    id: 'study11',
+                    name: '化学楼',
+                    emoji: '🧪',
+                    desc: '试管与反应，科学之趣。',
+                    story: '陈深在化学楼做过一次有趣的实验，颜色变化的那一刻，他觉得科学很浪漫。'
+                }, {
+                    id: 'study12',
+                    name: '物理楼',
+                    emoji: '⚛️',
+                    desc: '量子与相对论，宇宙之律。',
+                    story: '物理楼的走廊里挂着很多科学家的照片。“每次路过，都觉得他们在对我微笑。”'
+                }],
+                '食堂': [{
+                    id: 'food1',
+                    name: '丁香园食堂',
+                    emoji: '🥘',
+                    desc: '小炒砂锅，冬日暖阳。',
+                    story: '丁香园的砂锅是陈深冬天的标配。“一碗下肚，整个人都活过来了。”'
+                }, {
+                    id: 'food2',
+                    name: '芝兰园食堂',
+                    emoji: '🍲',
+                    desc: '自助盛宴，应有尽有。',
+                    story: '陈深每次去芝兰园都要吃撑。“这里的自助让我觉得，食堂也可以是天堂。”'
+                }, {
+                    id: 'food3',
+                    name: '玉树园食堂',
+                    emoji: '🥗',
+                    desc: '轻食健康，清新之选。',
+                    story: '陈深在玉树园爱上了沙拉。“原来健康也可以这么好吃。”'
+                }, {
+                    id: 'food4',
+                    name: '观畴园食堂',
+                    emoji: '🍛',
+                    desc: '铁板烧，滋滋作响。',
+                    story: '观畴园的铁板烧是陈深的最爱之一。“那滋滋的声音，就是幸福的声音。”'
+                }, {
+                    id: 'food5',
+                    name: '春华园食堂',
+                    emoji: '🥟',
+                    desc: '饺子馄饨，家的味道。',
+                    story: '春华园的饺子让陈深想家了。“韭菜鸡蛋馅的，和妈妈包的一个味道。”'
+                }, {
+                    id: 'food6',
+                    name: '秋实园食堂',
+                    emoji: '🍜',
+                    desc: '麻辣烫，自选快乐。',
+                    story: '陈深喜欢秋实园的麻辣烫，每次都要加很多豆皮。“自由搭配的感觉真好。”'
+                }, {
+                    id: 'food7',
+                    name: '荷园食堂',
+                    emoji: '🥪',
+                    desc: '三明治简餐，匆忙时光。',
+                    story: '荷园的三明治是陈深赶课时的最爱。“两分钟搞定，不耽误上课。”'
+                }, {
+                    id: 'food8',
+                    name: '寓园食堂',
+                    emoji: '🍚',
+                    desc: '家常小炒，温暖日常。',
+                    story: '寓园的西红柿炒蛋让陈深想起了高中食堂。“简单的菜，最抚人心。”'
+                }, {
+                    id: 'food9',
+                    name: '南园食堂',
+                    emoji: '🍲',
+                    desc: '砂锅粥，深夜慰藉。',
+                    story: '南园的砂锅粥是陈深熬夜后的救赎。“一碗热粥，胜过千言万语。”'
+                }, {
+                    id: 'food10',
+                    name: '北园食堂',
+                    emoji: '🍖',
+                    desc: '酱大骨，大口吃肉。',
+                    story: '北园的酱大骨让陈深吃出了豪迈感。“这才是北方食堂该有的样子。”'
+                }, {
+                    id: 'food11',
+                    name: '西园食堂',
+                    emoji: '🍕',
+                    desc: '披萨意面，西餐风味。',
+                    story: '西园是陈深偶尔换口味的地方。“虽然不正宗，但胜在便宜。”'
+                }, {
+                    id: 'food12',
+                    name: '东园食堂',
+                    emoji: '🍣',
+                    desc: '寿司日料，精致小巧。',
+                    story: '东园的寿司让陈深觉得，食堂也可以很精致。“有时候，仪式感很重要。”'
+                }],
+                '宿舍': [{
+                    id: 'dorm1',
+                    name: '南区宿舍',
+                    emoji: '🛏️',
+                    desc: '老宿舍，有故事。',
+                    story: '南区的宿舍虽然旧，但陈深觉得很有味道。“这里的每道墙缝里，都藏着学长们的青春。”'
+                }, {
+                    id: 'dorm2',
+                    name: '北区宿舍',
+                    emoji: '🏢',
+                    desc: '新楼新气象。',
+                    story: '北区的宿舍很新，陈深大一就住这里。“新楼的味道，就是新生活的味道。”'
+                }, {
+                    id: 'dorm3',
+                    name: '西区宿舍',
+                    emoji: '🌳',
+                    desc: '绿树成荫，安静宜人。',
+                    story: '西区的宿舍外面是一排大树。“夏天的时候，窗外的蝉鸣伴我入眠。”'
+                }, {
+                    id: 'dorm4',
+                    name: '东区宿舍',
+                    emoji: '🏙️',
+                    desc: '离食堂最近，幸福。',
+                    story: '东区宿舍最大的优势就是离食堂近。“别人还在路上，我已经开吃了。”'
+                }, {
+                    id: 'dorm5',
+                    name: '研究生公寓',
+                    emoji: '📚',
+                    desc: '学术氛围，更浓。',
+                    story: '陈深偶尔会去研究生公寓找师兄。“那里的书比人多，很有压迫感。”'
+                }, {
+                    id: 'dorm6',
+                    name: '留学生公寓',
+                    emoji: '🌍',
+                    desc: '国际范儿，多元文化。',
+                    story: '陈深在留学生公寓认识了一个德国朋友。“我们互相教对方语言，很有趣。”'
+                }, {
+                    id: 'dorm7',
+                    name: '青年教师公寓',
+                    emoji: '👨‍🏫',
+                    desc: '老师的家，亲切。',
+                    story: '陈深去过一次导师家。“看到导师也住宿舍，突然觉得他没那么遥远了。”'
+                }, {
+                    id: 'dorm8',
+                    name: '紫荆9号楼',
+                    emoji: '🏠',
+                    desc: '紫荆最高楼，视野好。',
+                    story: '紫荆9号楼的顶楼可以看见整个校园。“站在楼顶，觉得整个清华都是我的。”'
+                }, {
+                    id: 'dorm9',
+                    name: '紫荆11号楼',
+                    emoji: '🏘️',
+                    desc: '紫荆核心区，热闹。',
+                    story: '紫荆11号楼下面就是超市和快递点。“生活很方便，每天都很热闹。”'
+                }, {
+                    id: 'dorm10',
+                    name: '紫荆13号楼',
+                    emoji: '🌅',
+                    desc: '看日落绝佳位置。',
+                    story: '陈深在紫荆13号楼看过很多次日落。“太阳落下去的时候，世界都安静了。”'
+                }, {
+                    id: 'dorm11',
+                    name: '紫荆15号楼',
+                    emoji: '🌙',
+                    desc: '夜猫子的聚集地。',
+                    story: '紫荆15号楼的灯总是亮到很晚。“这里的人都不睡觉，都在赶ddl。”'
+                }, {
+                    id: 'dorm12',
+                    name: '紫荆17号楼',
+                    emoji: '🎮',
+                    desc: '游戏与友谊，青春。',
+                    story: '陈深在紫荆17号楼和室友打过无数局游戏。“那些输赢，现在都成了笑谈。”'
+                }],
+                '地标': [{
+                    id: 'land1',
+                    name: '清华学堂',
+                    emoji: '🏫',
+                    desc: '百年学堂，薪火相传。',
+                    story: '清华学堂是陈深每次路过都会多看几眼的地方。“它站在那里，就是一部历史。”'
+                }, {
+                    id: 'land2',
+                    name: '科学馆',
+                    emoji: '🔬',
+                    desc: '科学精神，历久弥新。',
+                    story: '科学馆的墙上刻着“格物致知”。“每次看到，都觉得心中有力量。”'
+                }, {
+                    id: 'land3',
+                    name: '同方部',
+                    emoji: '📜',
+                    desc: '清华早期建筑，底蕴深厚。',
+                    story: '同方部是清华最早的建筑之一。“每次走进去，都像穿越了时空。”'
+                }, {
+                    id: 'land4',
+                    name: '工字厅',
+                    emoji: '🏛️',
+                    desc: '行政中枢，庄严肃穆。',
+                    story: '工字厅的门前，陈深拍过一张照片。“这里大概是清华最严肃的地方了。”'
+                }, {
+                    id: 'land5',
+                    name: '水木清华',
+                    emoji: '🌊',
+                    desc: '水木清华，钟灵毓秀。',
+                    story: '水木清华是陈深觉得最美的地方。“那水、那树、那亭子，像画一样。”'
+                }, {
+                    id: 'land6',
+                    name: '荷塘月色',
+                    emoji: '🌙',
+                    desc: '朱自清笔下的荷塘。',
+                    story: '陈深在月夜里去过荷塘。“虽然没有朱自清那样的文采，但那种宁静，是相通的。”'
+                }, {
+                    id: 'land7',
+                    name: '荒岛',
+                    emoji: '🏝️',
+                    desc: '人工湖心岛，秘密基地。',
+                    story: '荒岛是陈深心情不好时最爱去的地方。“坐在湖边，吹吹风，一切都会好起来。”'
+                }, {
+                    id: 'land8',
+                    name: '西校门',
+                    emoji: '🚪',
+                    desc: '西门外的世界，诱惑。',
+                    story: '西校门外是一条热闹的街。“每次出去，都像一次小小的冒险。”'
+                }, {
+                    id: 'land9',
+                    name: '东校门',
+                    emoji: '🚪',
+                    desc: '东门外的地铁，连接城市。',
+                    story: '陈深从东门坐地铁去过很多地方。“东门是清华通往城市的窗口。”'
+                }, {
+                    id: 'land10',
+                    name: '南校门',
+                    emoji: '🚪',
+                    desc: '南门外的科技园，未来。',
+                    story: '南门外是中关村科技园。“每次经过，都觉得那里是未来。”'
+                }, {
+                    id: 'land11',
+                    name: '北校门',
+                    emoji: '🚪',
+                    desc: '北门外的郊野，自由。',
+                    story: '北门外是北京郊野。“陈深去过一次，觉得那里很自由。”'
+                }, {
+                    id: 'land12',
+                    name: '雕塑广场',
+                    emoji: '🗿',
+                    desc: '艺术与校园，融合。',
+                    story: '雕塑广场是陈深觉得最有艺术感的地方。“那些雕塑，像是在诉说各自的故事。”'
+                }]
+            };
+
+            // 每个分类的彩蛋 (2个 各不相同)
+            const eggMap = {
+                '学习': [{
+                    id: 'egg_study_1',
+                    name: '学霸的秘密',
+                    emoji: '🧠',
+                    story: '陈深说，真正的好成绩，不是熬夜熬出来的，而是“效率”和“专注”的产物。他在这栋楼里悟到了这个道理。'
+                }, {
+                    id: 'egg_study_2',
+                    name: '自习室的温暖',
+                    emoji: '☕',
+                    story: '陈深在图书馆的角落里发现了一本旧书，里面夹着一张泛黄的纸条：“愿你在此，找到答案。” 他把它留在了原处。'
+                }],
+                '食堂': [{
+                    id: 'egg_food_1',
+                    name: '厨师的秘密',
+                    emoji: '👨‍🍳',
+                    story: '食堂大叔告诉陈深，最受欢迎的菜不是大厨做的，而是“今天的米饭特别好吃”。“用心，比用贵食材更重要。”'
+                }, {
+                    id: 'egg_food_2',
+                    name: '排队哲学',
+                    emoji: '⏳',
+                    story: '陈深在排队长龙中学会了耐心。“有时候，最长的队伍，往往藏着最好的味道。”'
+                }],
+                '宿舍': [{
+                    id: 'egg_dorm_1',
+                    name: '夜话时光',
+                    emoji: '🕯️',
+                    story: '陈深和室友的夜聊从没停过。从政治八卦到宇宙起源，他们什么都聊。“那些夜晚，让我觉得大学没白过。”'
+                }, {
+                    id: 'egg_dorm_2',
+                    name: '宿管阿姨的温暖',
+                    emoji: '👩',
+                    story: '宿管阿姨每晚都会在楼下等最后一个学生回来。“她说，她看着我们，就像看着自己的孩子。”'
+                }],
+                '地标': [{
+                    id: 'egg_land_1',
+                    name: '百年之约',
+                    emoji: '⌛',
+                    story: '陈深在工字厅前遇到一位老校友，他说：“我在这里许过一个愿，希望清华越来越好。今天，我的愿望实现了。”'
+                }, {
+                    id: 'egg_land_2',
+                    name: '秘密花园',
+                    emoji: '🌺',
+                    story: '陈深在荒岛发现了一小片野花。“它们没人管，却开得那么灿烂。生命自有其力量。”'
+                }]
+            };
+
+            // ============================================================
+            //  3. 构建完整卡片池
+            // ============================================================
+            function buildFullCardList() {
+                const all = [];
+                // 基础卡片 (含portal)
+                baseCards.forEach(c => all.push({ ...c }));
+                // 扩充卡片
+                for (const [tag, cards] of Object.entries(tagExpansions)) {
+                    cards.forEach(c => {
+                        all.push({
+                            ...c,
+                            tag: tag,
+                            color: baseCards.find(b => b.tag === tag)?.color || '#888',
+                            isExpanded: true
+                        });
+                    });
+                }
+                // 彩蛋 (作为独立卡片, 带isEgg标记)
+                for (const [tag, eggs] of Object.entries(eggMap)) {
+                    eggs.forEach(e => {
+                        all.push({
+                            id: e.id,
+                            name: e.name,
+                            emoji: e.emoji,
+                            tag: tag,
+                            color: '#D4A0FF',
+                            desc: '🥚 翻转查看彩蛋！',
+                            story: e.story,
+                            isEgg: true,
+                            isExpanded: true
+                        });
+                    });
+                }
+                return all;
+            }
+
+            const fullCards = buildFullCardList();
+
+            // ============================================================
+            //  4. 渲染逻辑
+            // ============================================================
+            let currentTag = 'all';
+            let selectedId = null;
+            const cardGrid = document.getElementById('cardGrid');
+            const detailEmoji = document.getElementById('detailEmoji');
+            const detailName = document.getElementById('detailName');
+            const detailTag = document.getElementById('detailTag');
+            const detailDesc = document.getElementById('detailDesc');
+            const detailStory = document.getElementById('detailStory');
+            const cardCountLabel = document.getElementById('cardCountLabel');
+
+            function getCardsForTag(tag) {
+                if (tag === 'all') {
+                    // 全部页面: 基础16个 + 扩充 (不含彩蛋, 彩蛋只出现在各自tag页)
+                    return fullCards.filter(c => !c.isEgg && c.id !== 'portal');
+                }
+                // 该tag下的: 基础(该tag) + 扩充(该tag) + 彩蛋(该tag)
+                const base = fullCards.filter(c => c.tag === tag && !c.isEgg && c.id !== 'portal');
+                const eggs = fullCards.filter(c => c.tag === tag && c.isEgg);
+                // 加上portal? 只在全部显示
+                return [...base, ...eggs];
+            }
+
+            function renderCards(tag) {
+                const cards = getCardsForTag(tag);
+                cardCountLabel.textContent = cards.length + ' 个地标';
+
+                if (cards.length === 0) {
+                    cardGrid.innerHTML =
+                        `<div style="grid-column:1/-1; text-align:center; color:#6c5890; padding:40px 0;">📍 这个分类还没有地标</div>`;
+                    return;
+                }
+
+                let html = '';
+                cards.forEach(card => {
+                    const isEgg = card.isEgg || false;
+                    if (isEgg) {
+                        html += `
+                            <div class="glass-card egg-card" data-id="${card.id}" data-egg="true">
+                                <div class="card-color-bar" style="background:${card.color || '#D4A0FF'};"></div>
+                                <div class="card-inner">
+                                    <div class="card-front">
+                                        <div class="card-emoji">${card.emoji}</div>
+                                        <div class="card-name">${card.name}</div>
+                                        <div class="card-tag">🥚 彩蛋</div>
+                                        <div class="card-desc">点击翻转</div>
+                                    </div>
+                                    <div class="card-back">
+                                        <div class="egg-emoji">${card.emoji}</div>
+                                        <div style="font-size:14px; font-weight:600; color:#f7c948;">✨ 惊喜</div>
+                                        <div style="font-size:12px; color:#ddd2f0; margin-top:6px;">${card.story}</div>
+                                        <div class="egg-hint">点击翻回</div>
+                                    </div>
+                                </div>
+                                <div class="card-badge">🥚</div>
+                            </div>
+                        `;
+                    } else {
+                        const active = card.id === selectedId ? 'active' : '';
+                        html += `
+                            <div class="glass-card" data-id="${card.id}" style="border-color: ${active ? 'rgba(247,201,72,0.3)' : 'rgba(160,120,255,0.08)'};">
+                                <div class="card-color-bar" style="background:${card.color || '#b28aff'};"></div>
+                                <div class="card-badge">${card.tag}</div>
+                                <div class="card-emoji">${card.emoji}</div>
+                                <div class="card-name">${card.name}</div>
+                                <div class="card-tag">${card.tag}</div>
+                                <div class="card-desc">${card.desc}</div>
+                                <div class="card-meta"><span>📍 ${card.tag}</span><span>点击查看故事</span></div>
+                            </div>
+                        `;
+                    }
+                });
+                cardGrid.innerHTML = html;
+
+                // 事件绑定
+                cardGrid.querySelectorAll('.glass-card').forEach(el => {
+                    const isEgg = el.dataset.egg === 'true';
+                    if (isEgg) {
+                        el.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            this.classList.toggle('flipped');
+                            const isFlipped = this.classList.contains('flipped');
+                            if (isFlipped) {
+                                showToast('🥚 发现彩蛋！');
+                                const storyText = this.querySelector('.card-back')?.innerText?.trim() || '惊喜！';
+                                catSpeakMsg('🐱 ' + storyText.slice(0, 30) + '……');
+                            } else {
+                                showToast('🔮 翻回去了~');
+                            }
+                        });
+                    } else {
+                        el.addEventListener('click', function() {
+                            const id = this.dataset.id;
+                            if (id === 'portal') {
+                                const random = fullCards.filter(c => c.id !== 'portal' && !c.isEgg);
+                                const pick = random[Math.floor(Math.random() * random.length)];
+                                if (pick) selectCard(pick.id);
+                                else selectCard('gate');
+                                showToast(`🌀 传送门带你到了 ${pick?.name || '二校门'}`);
+                                catSpeakMsg(`喵！我们到了 ${pick?.name || '二校门'}~`);
+                                return;
+                            }
+                            selectCard(id);
+                        });
+                    }
+                });
+
+                // 高亮选中的
+                if (selectedId) {
+                    const found = cards.find(c => c.id === selectedId);
+                    if (found) {
+                        cardGrid.querySelectorAll('.glass-card').forEach(el => {
+                            if (el.dataset.id === selectedId) {
+                                el.style.borderColor = 'rgba(247,201,72,0.3)';
+                            } else {
+                                el.style.borderColor = 'rgba(160,120,255,0.08)';
+                            }
+                        });
+                    } else {
+                        selectedId = null;
+                        clearDetail();
+                    }
+                }
+            }
+
+            function selectCard(id) {
+                const allCards = getCardsForTag(currentTag);
+                const card = allCards.find(c => c.id === id);
+                if (!card) return;
+                if (card.isEgg) {
+                    // 彩蛋点开显示详情
+                    detailEmoji.textContent = card.emoji || '🥚';
+                    detailName.textContent = card.name || '彩蛋';
+                    detailTag.textContent = '🥚 彩蛋';
+                    detailDesc.textContent = '点击卡片翻转查看惊喜！';
+                    detailStory.textContent = card.story || '陈深藏了一个小秘密……';
+                    selectedId = id;
+                    renderCards(currentTag);
+                    showToast(`🥚 ${card.name}`);
+                    return;
+                }
+                selectedId = id;
+                detailEmoji.textContent = card.emoji || '📍';
+                detailName.textContent = card.name || '未知';
+                detailTag.textContent = card.tag || '未知';
+                detailDesc.textContent = card.desc || '暂无描述';
+                detailStory.textContent = card.story || '📍 陈深在这里留下了足迹……';
+                renderCards(currentTag);
+                showToast(`📍 ${card.name}`);
+            }
+
+            function clearDetail() {
+                detailEmoji.textContent = '🏛️';
+                detailName.textContent = '清华园';
+                detailTag.textContent = '地标';
+                detailDesc.textContent = '点击一张卡片，查看陈深在这里的故事。';
+                detailStory.textContent = '📍 陈深在这里留下了足迹……';
+            }
+
+            // ============================================================
+            //  5. 标签切换
+            // ============================================================
+            document.querySelectorAll('.tag-btn[data-tag]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tag = this.dataset.tag;
+                    currentTag = tag;
+                    document.querySelectorAll('.tag-btn[data-tag]').forEach(b => b.classList.toggle('active', b
+                        .dataset.tag === tag));
+                    if (selectedId) {
+                        const all = getCardsForTag(tag);
+                        if (!all.find(c => c.id === selectedId)) {
+                            selectedId = null;
+                            clearDetail();
+                        }
+                    }
+                    renderCards(tag);
+                    showToast(`🏷️ 分类: ${tag === 'all' ? '全部' : tag}`);
+                });
+            });
+
+            // ============================================================
+            //  6. 传送门
+            // ============================================================
+            document.getElementById('portalBtn').addEventListener('click', function() {
+                const random = fullCards.filter(c => c.id !== 'portal' && !c.isEgg);
+                const pick = random[Math.floor(Math.random() * random.length)];
+                if (pick) selectCard(pick.id);
+                else selectCard('gate');
+                showToast(`🌀 传送门带你到了 ${pick?.name || '二校门'}`);
+                catSpeakMsg(`喵！我们到了 ${pick?.name || '二校门'}~`);
+            });
+
+            // ============================================================
+            //  7. Toast & 猫咪
+            // ============================================================
+            const toastEl = document.getElementById('toast');
+            const catSpeak = document.getElementById('catSpeak');
+            let toastTimer = null,
+                catSpeakTimer = null;
+
+            function showToast(msg) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
+            }
+
+            function catSpeakMsg(msg) {
+                catSpeak.textContent = '🐱 ' + msg;
+                catSpeak.classList.add('show');
+                clearTimeout(catSpeakTimer);
+                catSpeakTimer = setTimeout(() => catSpeak.classList.remove('show'), 3000);
+            }
+
+            // ============================================================
+            //  8. 壁纸 (保留)
+            // ============================================================
+            const appContainer = document.getElementById('appContainer');
+            const wallpaperMap = {
+                galaxy: 'url(https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1600&q=80)',
+                tsinghua: 'url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1600&q=80)',
+                sakura: 'url(https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1600&q=80)',
+                ocean: 'url(https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?w=1600&q=80)',
+                snowmountain: 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80)'
+            };
+            const wallpaperNames = { galaxy: '银河', tsinghua: '二校门', sakura: '樱花', ocean: '海洋', snowmountain: '日照金山' };
+            let currentWallpaper = 'galaxy';
+            let customWallpaper = null;
+
+            function applyWallpaper() {
+                if (customWallpaper) {
+                    appContainer.style.backgroundImage = `url(${customWallpaper})`;
+                } else if (wallpaperMap[currentWallpaper]) {
+                    appContainer.style.backgroundImage = wallpaperMap[currentWallpaper];
+                } else {
+                    appContainer.style.backgroundImage = 'none';
+                    appContainer.style.backgroundColor = 'rgba(10,6,20,0.3)';
+                }
+                appContainer.style.backgroundSize = 'cover';
+                appContainer.style.backgroundPosition = 'center';
+            }
+
+            function setWallpaper(wp) {
+                currentWallpaper = wp;
+                customWallpaper = null;
+                document.getElementById('wallpaperLabel').textContent = wallpaperNames[wp] || wp;
+                document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                    el.classList.toggle('active', el.dataset.wallpaper === wp);
+                });
+                applyWallpaper();
+                localStorage.setItem('qingyun_wallpaper', wp);
+                showToast(`🖼️ 壁纸: ${wallpaperNames[wp]}`);
+            }
+
+            document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                el.addEventListener('click', function() { setWallpaper(this.dataset.wallpaper); });
+            });
+
+            document.getElementById('uploadWallpaperBtn').addEventListener('click', function() {
+                document.getElementById('wallpaperUpload').click();
+            });
+            document.getElementById('wallpaperUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    customWallpaper = ev.target.result;
+                    currentWallpaper = 'custom';
+                    document.getElementById('wallpaperLabel').textContent = '自定义';
+                    document.querySelectorAll('.wp-dot').forEach(el => el.classList.remove('active'));
+                    document.getElementById('uploadWallpaperBtn').classList.add('active');
+                    applyWallpaper();
+                    localStorage.setItem('qingyun_custom_wallpaper', customWallpaper);
+                    showToast('🖼️ 自定义壁纸已应用');
+                };
+                reader.readAsDataURL(file);
+                this.value = '';
+            });
+
+            const savedWp = localStorage.getItem('qingyun_wallpaper');
+            if (savedWp && wallpaperMap[savedWp]) {
+                currentWallpaper = savedWp;
+                document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                    el.classList.toggle('active', el.dataset.wallpaper === currentWallpaper);
+                });
+                document.getElementById('wallpaperLabel').textContent = wallpaperNames[currentWallpaper] || currentWallpaper;
+            }
+            const savedCustom = localStorage.getItem('qingyun_custom_wallpaper');
+            if (savedCustom) {
+                customWallpaper = savedCustom;
+                currentWallpaper = 'custom';
+                document.getElementById('wallpaperLabel').textContent = '自定义';
+                document.getElementById('uploadWallpaperBtn').classList.add('active');
+            }
+            applyWallpaper();
+
+            // ============================================================
+            //  9. BGM
+            // ============================================================
+            const bgm = document.getElementById('bgm');
+            const bgmIcon = document.getElementById('bgmIcon');
+            let bgmPlaying = true;
+
+            function tryPlayBgm() {
+                bgm.volume = 0.25;
+                bgm.play().catch(() => {
+                    document.addEventListener('click', function playOnClick() {
+                        bgm.play().catch(() => {});
+                        document.removeEventListener('click', playOnClick);
+                    }, { once: true });
+                });
+            }
+            setTimeout(tryPlayBgm, 500);
+
+            document.getElementById('bgmIcon')?.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (bgmPlaying) {
+                    bgm.pause();
+                    bgmPlaying = false;
+                    this.className = 'fas fa-music-slash';
+                    showToast('🔇 BGM 已暂停');
+                } else {
+                    bgm.play().catch(() => {});
+                    bgmPlaying = true;
+                    this.className = 'fas fa-music';
+                    showToast('🎵 BGM 已恢复');
+                }
+            });
+
+            // ============================================================
+            //  10. 时钟
+            // ============================================================
+            const clockTime = document.getElementById('navClockTime');
+            const clockDate = document.getElementById('navClockDate');
+            const weatherTemp = document.getElementById('navWeatherTemp');
+            const weatherDesc = document.getElementById('navWeatherDesc');
+
+            function updateClock() {
+                const now = new Date();
+                clockTime.textContent = now.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' });
+                clockDate.textContent = now.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            const wList = ['晴', '多云', '阴', '小雨', '晴'];
+            let wi = 0;
+
+            function updateW() {
+                const w = wList[wi % wList.length];
+                wi++;
+                weatherDesc.textContent = w;
+                weatherTemp.textContent = (20 + Math.floor(Math.random() * 12)) + '°C';
+            }
+            updateW();
+            setInterval(updateW, 30000);
+
+            // ============================================================
+            //  11. 键盘快捷键
+            // ============================================================
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'p' || e.key === 'P') {
+                    document.getElementById('portalBtn').click();
+                }
+                if (e.key === 'r' || e.key === 'R') {
+                    selectedId = null;
+                    clearDetail();
+                    renderCards(currentTag);
+                    showToast('🔄 重置视图');
+                }
+                const num = parseInt(e.key);
+                if (num >= 1 && num <= 9) {
+                    const idx = num - 1;
+                    const cards = getCardsForTag(currentTag);
+                    if (cards[idx]) {
+                        selectCard(cards[idx].id);
+                    }
+                }
+            });
+
+            // ============================================================
+            //  12. 启动
+            // ============================================================
+            const first = fullCards.find(c => c.id !== 'portal' && !c.isEgg);
+            if (first) selectCard(first.id);
+            renderCards('all');
+
+            setTimeout(() => {
+                catSpeakMsg('🐱 欢迎来清华校园！每个分类都有全新卡片和彩蛋~');
+            }, 800);
+
+            console.log('🏛️ 清华校园 · 陈深的藏宝图 (豪华版)');
+            console.log('📚 每个分类 12+ 张全新卡片 + 2个独特彩蛋');
+            console.log('⌨️  1-9 快速跳转 | P 传送门 | R 重置');
+        })();
+    </script>
+</body>
+</html>

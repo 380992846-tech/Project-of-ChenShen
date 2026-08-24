@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>中关村 · 宇宙中心漫游指南</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #0b0710;
+            color: #e6e0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .app-container {
+            width: 1440px;
+            max-width: 100%;
+            min-height: 920px;
+            max-height: 98vh;
+            background: rgba(22, 16, 35, 0.3);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(160, 120, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-image 0.7s ease;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            background-color: rgba(10, 6, 20, 0.3);
+        }
+        .app-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 6, 20, 0.12);
+            backdrop-filter: blur(4px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .app-container>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 16px;
+            border-bottom: 1px solid rgba(180, 140, 255, 0.08);
+            background: rgba(12, 8, 22, 0.15);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-icon {
+            background: linear-gradient(145deg, #ff7e5f, #feb47b);
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #fff;
+            box-shadow: 0 6px 14px rgba(255, 120, 80, 0.4);
+        }
+        .logo-text {
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #ffb38a, #ff7e5f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo-text small {
+            font-weight: 400;
+            font-size: 9px;
+            color: #a08070;
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            margin-left: 4px;
+        }
+
+        .tag-bar {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            padding: 2px 4px;
+            background: rgba(16, 10, 30, 0.15);
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+        }
+        .tag-btn {
+            background: transparent;
+            border: none;
+            padding: 3px 10px;
+            border-radius: 30px;
+            color: #9480c0;
+            font-size: 10px;
+            cursor: pointer;
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+        .tag-btn i {
+            font-size: 10px;
+        }
+        .tag-btn:hover {
+            color: #d4c0ff;
+            background: rgba(130, 70, 255, 0.08);
+        }
+        .tag-btn.active {
+            background: rgba(130, 70, 255, 0.15);
+            color: #f0eaff;
+            border: 1px solid rgba(160, 120, 255, 0.08);
+        }
+        .tag-btn.portal-btn {
+            background: rgba(247, 201, 72, 0.08);
+            border: 1px solid rgba(247, 201, 72, 0.1);
+            color: #f7c948;
+        }
+        .tag-btn.portal-btn:hover {
+            background: rgba(247, 201, 72, 0.15);
+        }
+        .tag-btn.portal-btn i {
+            color: #f7c948;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-clock-weather {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(30, 20, 55, 0.2);
+            padding: 2px 8px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            font-size: 10px;
+        }
+        .nav-clock .time {
+            font-weight: 600;
+            color: #f0eaff;
+            font-size: 12px;
+        }
+        .nav-clock .date {
+            font-size: 8px;
+            color: #b3a1d4;
+        }
+        .nav-weather .temp {
+            font-size: 12px;
+            font-weight: 500;
+            color: #f0eaff;
+        }
+        .nav-weather .desc {
+            font-size: 8px;
+            color: #b3a1d4;
+        }
+        .avatar {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, #ff7e5f, #c0392b);
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 9px;
+            color: #fff;
+            border: 1px solid #ff7e5f;
+        }
+
+        .main-layout {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            padding: 8px 12px 8px 12px;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .card-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+            align-content: start;
+            overflow-y: auto;
+            padding: 4px 4px 8px 4px;
+        }
+        .card-grid::-webkit-scrollbar {
+            width: 3px;
+        }
+        .card-grid::-webkit-scrollbar-thumb {
+            background: #4e3a78;
+            border-radius: 10px;
+        }
+
+        .glass-card {
+            background: rgba(22, 16, 40, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 18px 16px 14px 16px;
+            border: 1px solid rgba(160, 120, 255, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            min-height: 140px;
+            position: relative;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: rgba(255, 126, 95, 0.3);
+            box-shadow: 0 0 30px rgba(255, 126, 95, 0.12), 0 8px 30px rgba(0, 0, 0, 0.3);
+            background: rgba(40, 25, 35, 0.3);
+        }
+        .glass-card:active {
+            transform: scale(0.97);
+        }
+
+        .glass-card .card-emoji {
+            font-size: 32px;
+            margin-bottom: 2px;
+            line-height: 1;
+        }
+        .glass-card .card-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f0eaff;
+            line-height: 1.2;
+            margin-bottom: 2px;
+            word-break: break-word;
+        }
+        .glass-card .card-tag {
+            font-size: 10px;
+            color: #ff9a7a;
+            background: rgba(255, 126, 95, 0.08);
+            padding: 1px 10px;
+            border-radius: 30px;
+            display: inline-block;
+            align-self: flex-start;
+            margin-bottom: 4px;
+        }
+        .glass-card .card-desc {
+            font-size: 13px;
+            color: #d0c0b8;
+            line-height: 1.5;
+            flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+        .glass-card .card-meta {
+            font-size: 9px;
+            color: #7a6a60;
+            margin-top: 6px;
+            border-top: 1px solid rgba(160, 120, 255, 0.04);
+            padding-top: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .glass-card .card-color-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 24px 24px 0 0;
+            background: #ff7e5f;
+        }
+        .glass-card .card-badge {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            font-size: 9px;
+            background: rgba(255, 126, 95, 0.1);
+            border-radius: 30px;
+            padding: 0 8px;
+            color: #ff9a7a;
+            border: 1px solid rgba(255, 126, 95, 0.05);
+        }
+
+        .detail-panel {
+            width: 280px;
+            flex-shrink: 0;
+            background: rgba(16, 10, 30, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 14px 16px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+        .detail-panel::-webkit-scrollbar {
+            width: 3px;
+        }
+        .detail-panel::-webkit-scrollbar-thumb {
+            background: #4e3a78;
+            border-radius: 10px;
+        }
+
+        .detail-panel .panel-title {
+            font-size: 13px;
+            color: #cbb8f0;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .detail-panel .detail-emoji {
+            font-size: 40px;
+            text-align: center;
+            padding: 4px 0;
+        }
+        .detail-panel .detail-name {
+            font-size: 22px;
+            font-weight: 600;
+            color: #f0eaff;
+            text-align: center;
+        }
+        .detail-panel .detail-tag {
+            font-size: 11px;
+            color: #ff9a7a;
+            background: rgba(255, 126, 95, 0.08);
+            padding: 2px 14px;
+            border-radius: 30px;
+            display: inline-block;
+            align-self: center;
+            margin: 2px 0;
+        }
+        .detail-panel .detail-desc {
+            font-size: 14px;
+            color: #d0c0b8;
+            line-height: 1.8;
+            padding: 8px 0;
+            border-top: 1px solid rgba(160, 120, 255, 0.04);
+            border-bottom: 1px solid rgba(160, 120, 255, 0.04);
+        }
+        .detail-panel .detail-story {
+            font-size: 13px;
+            color: #ddd2f0;
+            line-height: 1.8;
+            padding: 6px 0;
+            font-style: italic;
+            background: rgba(255, 126, 95, 0.03);
+            border-radius: 12px;
+            padding: 10px 14px;
+        }
+        .detail-panel .detail-story::before {
+            content: '📖 ';
+            color: #ff7e5f;
+        }
+
+        .wallpaper-selector {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            padding: 4px 6px;
+            background: rgba(16, 10, 30, 0.2);
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            margin-top: 4px;
+            align-items: center;
+        }
+        .wp-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid rgba(200, 180, 255, 0.1);
+            cursor: pointer;
+            transition: 0.2s;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+        .wp-dot:hover {
+            transform: scale(1.1);
+            border-color: #ff7e5f;
+        }
+        .wp-dot.active {
+            border-color: #f7c948;
+            box-shadow: 0 0 12px rgba(247, 201, 72, 0.2);
+        }
+        .wp-dot.upload-dot {
+            background: rgba(160, 120, 255, 0.1);
+            border-color: rgba(160, 120, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #9480c0;
+        }
+        .wp-dot.upload-dot:hover {
+            background: rgba(160, 120, 255, 0.2);
+        }
+
+        .bgm-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #6c5890;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 30px;
+            border: 1px solid rgba(160, 120, 255, 0.05);
+            transition: 0.2s;
+            background: rgba(16, 10, 30, 0.15);
+            margin-top: 4px;
+        }
+        .bgm-toggle:hover {
+            border-color: rgba(160, 120, 255, 0.2);
+            color: #b3a1d4;
+        }
+        .bgm-toggle i {
+            font-size: 12px;
+            color: #88aaff;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 20, 60, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 8px 24px;
+            border-radius: 40px;
+            border: 1px solid rgba(160, 120, 255, 0.12);
+            color: #e6def5;
+            font-size: 13px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+        .toast.show {
+            opacity: 1;
+        }
+
+        .cat-speak {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 20, 55, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 8px 22px;
+            border-radius: 40px;
+            border: 1px solid rgba(247, 201, 72, 0.15);
+            color: #f7c948;
+            font-size: 14px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        .cat-speak.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 820px) {
+            .navbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 3px;
+                padding: 4px 10px;
+            }
+            .tag-bar {
+                justify-content: center;
+            }
+            .main-layout {
+                flex-direction: column;
+                padding: 6px 8px;
+                gap: 6px;
+            }
+            .card-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
+                max-height: 40vh;
+            }
+            .detail-panel {
+                width: 100%;
+                max-height: 240px;
+            }
+            .app-container {
+                min-height: auto;
+                max-height: 98vh;
+                border-radius: 24px;
+            }
+        }
+        @media (max-width: 480px) {
+            .tag-btn {
+                font-size: 8px;
+                padding: 2px 6px;
+            }
+            .tag-btn i {
+                font-size: 8px;
+            }
+            .logo-text {
+                font-size: 12px;
+            }
+            .glass-card .card-name {
+                font-size: 16px;
+            }
+            .glass-card .card-desc {
+                font-size: 11px;
+            }
+            .card-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+            .detail-panel {
+                padding: 10px 12px;
+                max-height: 200px;
+            }
+            .nav-clock .date {
+                display: none;
+            }
+            .nav-weather .desc {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="appContainer">
+
+        <header class="navbar">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fas fa-city"></i></div>
+                <div class="logo-text">中关村 · 宇宙中心 <small>漫游指南</small></div>
+            </div>
+            <div class="tag-bar">
+                <button class="tag-btn active" data-tag="all"><i class="fas fa-th"></i> 全部</button>
+                <button class="tag-btn" data-tag="美食"><i class="fas fa-utensils"></i> 美食</button>
+                <button class="tag-btn" data-tag="书店"><i class="fas fa-book"></i> 书店</button>
+                <button class="tag-btn" data-tag="商场"><i class="fas fa-shopping-bag"></i> 商场</button>
+                <button class="tag-btn" data-tag="地标"><i class="fas fa-landmark"></i> 地标</button>
+                <button class="tag-btn portal-btn" id="portalBtn"><i class="fas fa-arrow-right"></i> 传送门</button>
+            </div>
+            <div class="nav-right">
+                <div class="nav-clock-weather">
+                    <div class="nav-clock"><span class="time" id="navClockTime">--:--</span><span class="date" id="navClockDate">--/--</span></div>
+                    <div class="nav-weather"><span class="temp" id="navWeatherTemp">--°C</span><span class="desc" id="navWeatherDesc">--</span></div>
+                </div>
+                <div class="avatar">🌆</div>
+            </div>
+        </header>
+
+        <div class="cat-speak" id="catSpeak">🐱 喵~</div>
+
+        <div class="main-layout">
+
+            <div class="card-grid" id="cardGrid"></div>
+
+            <div class="detail-panel" id="detailPanel">
+                <div class="panel-title"><i class="fas fa-map-pin"></i> 地点详情</div>
+                <div class="detail-emoji" id="detailEmoji">🌆</div>
+                <div class="detail-name" id="detailName">中关村</div>
+                <div class="detail-tag" id="detailTag">地标</div>
+                <div class="detail-desc" id="detailDesc">点击一张卡片，看看陈深在这里的故事。</div>
+                <div class="detail-story" id="detailStory">📍 陈深在这里留下了足迹……</div>
+
+                <div style="margin-top:8px; border-top:1px solid rgba(160,120,255,0.04); padding-top:6px;">
+                    <div style="font-size:10px; color:#6c5890;"><i class="fas fa-image"></i> 壁纸</div>
+                    <div class="wallpaper-selector" id="wallpaperSelector">
+                        <div class="wp-dot active" data-wallpaper="city" style="background: url(https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=200&q=80);" title="城市夜景"></div>
+                        <div class="wp-dot" data-wallpaper="sakura" style="background: url(https://images.unsplash.com/photo-1522383225653-ed111181a951?w=200&q=80);" title="樱花"></div>
+                        <div class="wp-dot" data-wallpaper="ocean" style="background: url(https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?w=200&q=80);" title="海洋"></div>
+                        <div class="wp-dot" data-wallpaper="snowmountain" style="background: url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&q=80);" title="日照金山"></div>
+                        <div class="wp-dot upload-dot" id="uploadWallpaperBtn" title="上传自定义壁纸"><i class="fas fa-plus"></i></div>
+                        <input type="file" id="wallpaperUpload" accept="image/*" style="display:none;">
+                    </div>
+                    <div style="font-size:9px; color:#6c5890; margin-top:2px;">
+                        <span id="wallpaperLabel">城市夜景</span>
+                        <span style="float:right;"><i class="fas fa-music" id="bgmIcon"></i> BGM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <audio id="bgm" loop style="display:none;">
+        <source src="https://www.bensound.com/bensound-music/bensound-pianomoment.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        (function() {
+            // ============================================================
+            //  中关村 · 宇宙中心 地标卡片
+            // ============================================================
+            const cityCards = [{
+                id: 'huajiayiyuan',
+                name: '花家怡园',
+                emoji: '🥢',
+                tag: '美食',
+                color: '#d45030',
+                desc: '中关村的老牌京菜馆，烤鸭和梨汤是一绝。',
+                story: '陈深第一次去花家怡园是跟着导师聚餐。\n“这是北京烤鸭。” 导师说。他卷了第一张饼，从此爱上了这口。'
+            }, {
+                id: 'xiaodiaolishui',
+                name: '小吊梨汤',
+                emoji: '🍐',
+                tag: '美食',
+                color: '#c8a050',
+                desc: '温暖的小店，梨汤绵密清甜，是冬天的救赎。',
+                story: '北京的冬天冷得刺骨，陈深和室友钻进小吊梨汤。\n“老板，来一壶梨汤。” 暖流从胃里蔓延到指尖。\n“这是宇宙中心最暖的地方。” 他说。'
+            }, {
+                id: 'zhongshuge',
+                name: '钟书阁',
+                emoji: '📚',
+                tag: '书店',
+                color: '#6a5a4a',
+                desc: '中关村的网红书店，设计感十足，适合泡一整天。',
+                story: '陈深第一次进钟书阁是陪那个女生来买书。\n“这里的书像迷宫一样。” 她说。他偷偷记下了她翻过的那一页。'
+            }, {
+                id: 'rongke',
+                name: '融科 · 中关村',
+                emoji: '🏢',
+                tag: '地标',
+                color: '#4a6a8a',
+                desc: '融科大厦，中关村的地标，科技与繁华的交汇。',
+                story: '陈深在融科楼下等过很多人，也在这里接过offer call。\n“中关村的楼很高，但梦想更高。” 他说。'
+            }, {
+                id: 'zaogao',
+                name: '五道口枣糕',
+                emoji: '🧁',
+                tag: '美食',
+                color: '#b87840',
+                desc: '五道口枣糕王，排队到街角的传奇小店。',
+                story: '“五道口枣糕王，排队至少半小时。”\n陈深每次路过都这么说，但每次都会乖乖排队。\n“枣糕是五道口的灵魂。” 他说。'
+            }, {
+                id: 'fangzhuanchang',
+                name: '方砖厂',
+                emoji: '🍜',
+                tag: '美食',
+                color: '#8a6a4a',
+                desc: '方砖厂胡同里的炸酱面，老北京的味道。',
+                story: '陈深第一次吃方砖厂的炸酱面是学长带他去的。\n“这家店比你的年龄都大。” 学长说。他吃完了一整碗，连酱都刮干净了。'
+            }, {
+                id: 'anni',
+                name: '安妮意大利餐厅',
+                emoji: '🍝',
+                tag: '美食',
+                color: '#c03a2a',
+                desc: '中关村的意大利餐厅，氛围温暖，意面很正宗。',
+                story: '陈深和那个女生第一次“约会”就是在安妮。\n“你喜欢吃意面吗？” 她问。他点了点头。\n后来他们去了很多次，但第一次的那盘面，他记得最清楚。'
+            }, {
+                id: 'huajiaqingyuan',
+                name: '华清嘉园',
+                emoji: '🏠',
+                tag: '地标',
+                color: '#6a7a5a',
+                desc: '五道口的传奇小区，无数清华人的第一站。',
+                story: '陈深大二那年帮学长搬家到华清嘉园。\n“这是五道口最有故事的小区。” 学长说。\n他看着楼下的枣糕店，觉得这里像另一个校园。'
+            }, {
+                id: 'wudaokou',
+                name: '五道口购物中心',
+                emoji: '🛍️',
+                tag: '商场',
+                color: '#7a6a8a',
+                desc: '五道口购物中心，宇宙中心的心脏地带。',
+                story: '陈深在这里看过电影、吃过饭、逛过街。\n“五道口的晚上永远热闹。” 他说。\n有一次他在这里遇到了刚来北京的高中同学，两个人站在广场上聊了很久。'
+            }, {
+                id: 'wudaokoustation',
+                name: '五道口地铁站',
+                emoji: '🚇',
+                tag: '地标',
+                color: '#5a7a8a',
+                desc: '五道口地铁站，宇宙中心的交通枢纽。',
+                story: '陈深在这里上上下下过无数次，13号线和15号线交织。\n“五道口地铁站是宇宙中心的心脏。” 他说。\n每次从这里出来，都觉得回到了家。'
+            }, {
+                id: 'qinghuasouth',
+                name: '清华南门',
+                emoji: '🚪',
+                tag: '地标',
+                color: '#7a5a4a',
+                desc: '清华南门，连接校园和宇宙中心的通道。',
+                story: '陈深从南门走出去，是中关村；从南门走进来，是清华。\n“南门是结界。” 他说。\n每次跨过南门，他都在两个世界之间切换。'
+            }, {
+                id: 'zhongguancun',
+                name: '中关村大街',
+                emoji: '🏙️',
+                tag: '地标',
+                color: '#4a5a7a',
+                desc: '中关村大街，中国硅谷的心脏。',
+                story: '陈深骑自行车穿过中关村大街，两边是百度、腾讯、新浪……\n“有一天，我的名字也会挂在这些楼上吗？” 他问自己。'
+            }, {
+                id: 'portal',
+                name: '🌀 传送门',
+                emoji: '🌀',
+                tag: '地标',
+                color: '#7a5ab0',
+                desc: '通往所有地标的随机传送门。',
+                story: '“点我，去一个你还没去过的地方。”\n陈深说：“中关村的每个角落，都值得去一次。”'
+            }];
+
+            // ============================================================
+            //  渲染
+            // ============================================================
+            let currentTag = 'all';
+            let selectedId = null;
+            const cardGrid = document.getElementById('cardGrid');
+            const detailEmoji = document.getElementById('detailEmoji');
+            const detailName = document.getElementById('detailName');
+            const detailTag = document.getElementById('detailTag');
+            const detailDesc = document.getElementById('detailDesc');
+            const detailStory = document.getElementById('detailStory');
+
+            function renderCards(tag) {
+                const filtered = tag === 'all' ? cityCards : cityCards.filter(c => c.tag === tag);
+                if (filtered.length === 0) {
+                    cardGrid.innerHTML =
+                        `<div style="grid-column:1/-1; text-align:center; color:#6c5890; padding:40px 0;">📍 这个分类还没有地标</div>`;
+                    return;
+                }
+                let html = '';
+                filtered.forEach(card => {
+                    const active = card.id === selectedId ? 'active' : '';
+                    html += `
+                        <div class="glass-card ${active}" data-id="${card.id}" style="border-color: ${active ? 'rgba(255,126,95,0.3)' : 'rgba(160,120,255,0.08)'};">
+                            <div class="card-color-bar" style="background:${card.color || '#ff7e5f'};"></div>
+                            <div class="card-badge">${card.tag}</div>
+                            <div class="card-emoji">${card.emoji}</div>
+                            <div class="card-name">${card.name}</div>
+                            <div class="card-tag">${card.tag}</div>
+                            <div class="card-desc">${card.desc}</div>
+                            <div class="card-meta"><span>📍 ${card.tag}</span><span>点击查看故事</span></div>
+                        </div>
+                    `;
+                });
+                cardGrid.innerHTML = html;
+
+                cardGrid.querySelectorAll('.glass-card').forEach(el => {
+                    el.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        if (id === 'portal') {
+                            const random = cityCards.filter(c => c.id !== 'portal');
+                            const pick = random[Math.floor(Math.random() * random.length)];
+                            selectCard(pick.id);
+                            showToast(`🌀 传送门带你到了 ${pick.name}`);
+                            catSpeakMsg(`喵！我们到了 ${pick.name}~`);
+                            return;
+                        }
+                        selectCard(id);
+                    });
+                });
+
+                if (selectedId) {
+                    const found = filtered.find(c => c.id === selectedId);
+                    if (found) {
+                        cardGrid.querySelectorAll('.glass-card').forEach(el => {
+                            el.classList.toggle('active', el.dataset.id === selectedId);
+                            if (el.dataset.id === selectedId) {
+                                el.style.borderColor = 'rgba(255,126,95,0.3)';
+                            } else {
+                                el.style.borderColor = 'rgba(160,120,255,0.08)';
+                            }
+                        });
+                    } else {
+                        selectedId = null;
+                        clearDetail();
+                    }
+                }
+            }
+
+            function selectCard(id) {
+                const card = cityCards.find(c => c.id === id);
+                if (!card) return;
+                selectedId = id;
+                detailEmoji.textContent = card.emoji;
+                detailName.textContent = card.name;
+                detailTag.textContent = card.tag;
+                detailDesc.textContent = card.desc;
+                detailStory.textContent = card.story || '📍 陈深在这里留下了足迹……';
+                renderCards(currentTag);
+                showToast(`📍 ${card.name}`);
+            }
+
+            function clearDetail() {
+                detailEmoji.textContent = '🌆';
+                detailName.textContent = '中关村';
+                detailTag.textContent = '地标';
+                detailDesc.textContent = '点击一张卡片，看看陈深在这里的故事。';
+                detailStory.textContent = '📍 陈深在这里留下了足迹……';
+            }
+
+            // ============================================================
+            //  标签切换
+            // ============================================================
+            document.querySelectorAll('.tag-btn[data-tag]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tag = this.dataset.tag;
+                    currentTag = tag;
+                    document.querySelectorAll('.tag-btn[data-tag]').forEach(b => b.classList.toggle('active', b
+                        .dataset.tag === tag));
+                    if (selectedId) {
+                        const card = cityCards.find(c => c.id === selectedId);
+                        if (card && tag !== 'all' && card.tag !== tag) {
+                            selectedId = null;
+                            clearDetail();
+                        }
+                    }
+                    renderCards(tag);
+                    showToast(`🏷️ 分类: ${tag === 'all' ? '全部' : tag}`);
+                });
+            });
+
+            // ============================================================
+            //  传送门
+            // ============================================================
+            document.getElementById('portalBtn').addEventListener('click', function() {
+                const random = cityCards.filter(c => c.id !== 'portal');
+                const pick = random[Math.floor(Math.random() * random.length)];
+                selectCard(pick.id);
+                showToast(`🌀 传送门带你到了 ${pick.name}`);
+                catSpeakMsg(`喵！我们到了 ${pick.name}~`);
+            });
+
+            // ============================================================
+            //  Toast & 猫咪
+            // ============================================================
+            const toastEl = document.getElementById('toast');
+            const catSpeak = document.getElementById('catSpeak');
+            let toastTimer = null;
+            let catSpeakTimer = null;
+
+            function showToast(msg) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
+            }
+
+            function catSpeakMsg(msg) {
+                catSpeak.textContent = '🐱 ' + msg;
+                catSpeak.classList.add('show');
+                clearTimeout(catSpeakTimer);
+                catSpeakTimer = setTimeout(() => catSpeak.classList.remove('show'), 3000);
+            }
+
+            // ============================================================
+            //  壁纸
+            // ============================================================
+            const appContainer = document.getElementById('appContainer');
+            const wallpaperMap = {
+                city: 'url(https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1600&q=80)',
+                sakura: 'url(https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1600&q=80)',
+                ocean: 'url(https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?w=1600&q=80)',
+                snowmountain: 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80)'
+            };
+            const wallpaperNames = { city: '城市夜景', sakura: '樱花', ocean: '海洋', snowmountain: '日照金山' };
+            let currentWallpaper = 'city';
+            let customWallpaper = null;
+
+            function applyWallpaper() {
+                if (customWallpaper) {
+                    appContainer.style.backgroundImage = `url(${customWallpaper})`;
+                } else if (wallpaperMap[currentWallpaper]) {
+                    appContainer.style.backgroundImage = wallpaperMap[currentWallpaper];
+                } else {
+                    appContainer.style.backgroundImage = 'none';
+                    appContainer.style.backgroundColor = 'rgba(10,6,20,0.3)';
+                }
+                appContainer.style.backgroundSize = 'cover';
+                appContainer.style.backgroundPosition = 'center';
+            }
+
+            function setWallpaper(wp) {
+                currentWallpaper = wp;
+                customWallpaper = null;
+                document.getElementById('wallpaperLabel').textContent = wallpaperNames[wp] || wp;
+                document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                    el.classList.toggle('active', el.dataset.wallpaper === wp);
+                });
+                applyWallpaper();
+                localStorage.setItem('qingyun_wallpaper', wp);
+                showToast(`🖼️ 壁纸: ${wallpaperNames[wp]}`);
+            }
+
+            document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                el.addEventListener('click', function() { setWallpaper(this.dataset.wallpaper); });
+            });
+
+            document.getElementById('uploadWallpaperBtn').addEventListener('click', function() {
+                document.getElementById('wallpaperUpload').click();
+            });
+            document.getElementById('wallpaperUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    customWallpaper = ev.target.result;
+                    currentWallpaper = 'custom';
+                    document.getElementById('wallpaperLabel').textContent = '自定义';
+                    document.querySelectorAll('.wp-dot').forEach(el => el.classList.remove('active'));
+                    document.getElementById('uploadWallpaperBtn').classList.add('active');
+                    applyWallpaper();
+                    localStorage.setItem('qingyun_custom_wallpaper', customWallpaper);
+                    showToast('🖼️ 自定义壁纸已应用');
+                };
+                reader.readAsDataURL(file);
+                this.value = '';
+            });
+
+            const savedWp = localStorage.getItem('qingyun_wallpaper');
+            if (savedWp && wallpaperMap[savedWp]) {
+                currentWallpaper = savedWp;
+                document.querySelectorAll('.wp-dot:not(.upload-dot)').forEach(el => {
+                    el.classList.toggle('active', el.dataset.wallpaper === currentWallpaper);
+                });
+                document.getElementById('wallpaperLabel').textContent = wallpaperNames[currentWallpaper] || currentWallpaper;
+            }
+            const savedCustom = localStorage.getItem('qingyun_custom_wallpaper');
+            if (savedCustom) {
+                customWallpaper = savedCustom;
+                currentWallpaper = 'custom';
+                document.getElementById('wallpaperLabel').textContent = '自定义';
+                document.getElementById('uploadWallpaperBtn').classList.add('active');
+            }
+            applyWallpaper();
+
+            // ============================================================
+            //  BGM
+            // ============================================================
+            const bgm = document.getElementById('bgm');
+            const bgmIcon = document.getElementById('bgmIcon');
+            let bgmPlaying = true;
+
+            function tryPlayBgm() {
+                bgm.volume = 0.25;
+                bgm.play().catch(() => {
+                    document.addEventListener('click', function playOnClick() {
+                        bgm.play().catch(() => {});
+                        document.removeEventListener('click', playOnClick);
+                    }, { once: true });
+                });
+            }
+            setTimeout(tryPlayBgm, 500);
+
+            document.getElementById('bgmIcon')?.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (bgmPlaying) {
+                    bgm.pause();
+                    bgmPlaying = false;
+                    this.className = 'fas fa-music-slash';
+                    showToast('🔇 BGM 已暂停');
+                } else {
+                    bgm.play().catch(() => {});
+                    bgmPlaying = true;
+                    this.className = 'fas fa-music';
+                    showToast('🎵 BGM 已恢复');
+                }
+            });
+
+            // ============================================================
+            //  时钟
+            // ============================================================
+            const clockTime = document.getElementById('navClockTime');
+            const clockDate = document.getElementById('navClockDate');
+            const weatherTemp = document.getElementById('navWeatherTemp');
+            const weatherDesc = document.getElementById('navWeatherDesc');
+
+            function updateClock() {
+                const now = new Date();
+                clockTime.textContent = now.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' });
+                clockDate.textContent = now.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            const wList = ['晴', '多云', '阴', '小雨', '晴'];
+            let wi = 0;
+
+            function updateW() {
+                const w = wList[wi % wList.length];
+                wi++;
+                weatherDesc.textContent = w;
+                weatherTemp.textContent = (20 + Math.floor(Math.random() * 12)) + '°C';
+            }
+            updateW();
+            setInterval(updateW, 30000);
+
+            // ============================================================
+            //  键盘快捷键
+            // ============================================================
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'p' || e.key === 'P') {
+                    document.getElementById('portalBtn').click();
+                }
+                if (e.key === 'r' || e.key === 'R') {
+                    selectedId = null;
+                    clearDetail();
+                    renderCards(currentTag);
+                    showToast('🔄 重置视图');
+                }
+                const num = parseInt(e.key);
+                if (num >= 1 && num <= 9) {
+                    const idx = num - 1;
+                    const cards = currentTag === 'all' ? cityCards : cityCards.filter(c => c.tag === currentTag);
+                    if (cards[idx]) {
+                        selectCard(cards[idx].id);
+                    }
+                }
+            });
+
+            // ============================================================
+            //  启动
+            // ============================================================
+            const first = cityCards.find(c => c.id !== 'portal');
+            if (first) selectCard(first.id);
+            renderCards('all');
+
+            setTimeout(() => {
+                catSpeakMsg('🐱 欢迎来到宇宙中心！点击卡片探索中关村的故事~');
+            }, 800);
+
+            console.log('🌆 中关村 · 宇宙中心漫游指南 已加载');
+            console.log('📍 共 13 个地标，点击卡片查看陈深的故事');
+            console.log('⌨️  1-9 快速跳转 | P 传送门 | R 重置');
+            console.log('🎵 BGM 已开启，点击音符切换');
+        })();
+    </script>
+</body>
+</html>
