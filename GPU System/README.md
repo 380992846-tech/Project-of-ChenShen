@@ -108,6 +108,8 @@ ruff check software tests
 | **空闲** | 210 MHz | 45.1 W | GPU 无负载，最低频 |
 | **推理负载** | 1410 MHz | **278.9 W**（峰值 383.3 W） | vLLM 并发推理 |
 
+![GEAR · A800 功耗曲线（空闲 vs vLLM 推理负载）](docs/images/power_curve.png)
+
 **负载吞吐 / 能效**（vLLM 压测，8 并发 · 240 请求 · 50.3s）：
 - 吞吐：**588.89 token/s**
 - 峰值温度：**57 °C**
