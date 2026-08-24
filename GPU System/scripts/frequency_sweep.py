@@ -68,9 +68,11 @@ def main() -> int:
 
     pynvml.nvmlInit()
     handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-    min_clock = int(pynvml.nvmlDeviceGetMinClockInfo(handle, pynvml.NVML_CLOCK_SM))
+    # NVML 未提供最小时钟 API（nvmlDeviceGetMinClockInfo 不存在），
+    # 此处只取最大核心频率作为上限约束；最小频率以经验参考（A100/A800 ≈ 210 MHz）兜底。
     max_clock = int(pynvml.nvmlDeviceGetMaxClockInfo(handle, pynvml.NVML_CLOCK_SM))
-    print(f"硬件允许的频率范围: {min_clock} ~ {max_clock} MHz  (作为校准的物理约束)")
+    min_clock = 210
+    print(f"硬件最大核心频率: {max_clock} MHz  (上限约束；最小频率 NVML 未暴露，参考 {min_clock} MHz)")
 
     freqs = [f for f in args.freqs if min_clock <= f <= max_clock]
     if not freqs:
