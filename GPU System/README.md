@@ -9,6 +9,24 @@
 
 ---
 
+## 📈 实测数据（AutoDL · NVIDIA A800）
+
+> 下表为 `scripts/collect_power.py` + vLLM 在 **AutoDL A800 80GB** 上的**单次采样**（非严格基准，仅供参考）。硬件：driver 595.71.05 · torch 2.5.1+cu124 · vLLM 0.7.0 · 模型 `Qwen/Qwen2-7B-Instruct`。
+
+| 状态 | 核心频率 | 平均功耗 | 说明 |
+|---|---|---|---|
+| **空闲** | 210 MHz | 45.1 W | GPU 无负载，最低频 |
+| **推理负载** | 1410 MHz | **278.9 W**（峰值 383.3 W） | vLLM 并发推理 |
+
+![GEAR · A800 功耗曲线（空闲 vs vLLM 推理负载）](docs/images/power_curve.png)
+
+**负载吞吐 / 能效**（vLLM 压测，8 并发 · 240 请求 · 50.3s）：
+- 吞吐：**588.89 token/s**
+- 峰值温度：**57 °C**
+- **性能功耗比：≈ 2.11 tok/s/W**（= 588.89 / 278.9）
+
+> 📌 **诚实边界**：这是**单次负载采样**，非标准基准；功耗随负载/并发/模型变化。`calibrate.py --csv` 用**负载时序**拟合 `P≈α·f^β` 会得到**负 β（物理上不合理）**，因为时序数据不是"每档频率→稳态功耗"的扫描。**DVFS 模型的 `ALPHA/BETA` 校准需要专门的频率-功耗扫描**（`scripts/frequency_sweep.py` 已备好，逐档 `nvidia-smi -lgc` 锁频→跑负载→读功耗→拟合）；但 **AutoDL 容器无宿主机级锁频权限**（`nvidia-smi -lgc` 返回 `does not have permission to change clocks`），此环境无法执行。故 `dvfs_controller.ALPHA/BETA` 保持默认值，**待可锁频环境（宿主机/受控机）跑 `frequency_sweep.py` 后回填**。
+
 ## 功能
 
 | 模块 | 作用 |
@@ -29,7 +47,7 @@
 | `optimal` | **能效最优**：ML/启发式选频 |
 | `thermal` | **温度感知**：接近峰值时逐级降频 |
 
-## 快速开始（纯软件模拟，无需 GPU）
+## 快速开始
 
 ```bash
 cd software
@@ -98,24 +116,6 @@ ruff check software tests
 ## 为什么值得做
 
 训练/推理的 GPU 账单是数据中心最大开销之一（例如 DeepSeek-V3 约 $5.6M 算力成本）。通过功耗封顶 + DVFS，**理论上限**可降低 20–30% 能耗——这是**潜力上限，未经本仓库实测验证**。当前 README 不含任何未经验证的"降低 X%"承诺性声明；具体幅度以 `scripts/collect_power.py` 在真实硬件上采集的数据为准。
-
-## 📈 实测数据（AutoDL · NVIDIA A800）
-
-> 下表为 `scripts/collect_power.py` + vLLM 在 **AutoDL A800 80GB** 上的**单次采样**（非严格基准，仅供参考）。硬件：driver 595.71.05 · torch 2.5.1+cu124 · vLLM 0.7.0 · 模型 `Qwen/Qwen2-7B-Instruct`。
-
-| 状态 | 核心频率 | 平均功耗 | 说明 |
-|---|---|---|---|
-| **空闲** | 210 MHz | 45.1 W | GPU 无负载，最低频 |
-| **推理负载** | 1410 MHz | **278.9 W**（峰值 383.3 W） | vLLM 并发推理 |
-
-![GEAR · A800 功耗曲线（空闲 vs vLLM 推理负载）](docs/images/power_curve.png)
-
-**负载吞吐 / 能效**（vLLM 压测，8 并发 · 240 请求 · 50.3s）：
-- 吞吐：**588.89 token/s**
-- 峰值温度：**57 °C**
-- **性能功耗比：≈ 2.11 tok/s/W**（= 588.89 / 278.9）
-
-> 📌 **诚实边界**：这是**单次负载采样**，非标准基准；功耗随负载/并发/模型变化。`calibrate.py --csv` 用**负载时序**拟合 `P≈α·f^β` 会得到**负 β（物理上不合理）**，因为时序数据不是"每档频率→稳态功耗"的扫描。**DVFS 模型的 `ALPHA/BETA` 校准需要专门的频率-功耗扫描**（`scripts/frequency_sweep.py` 已备好，逐档 `nvidia-smi -lgc` 锁频→跑负载→读功耗→拟合）；但 **AutoDL 容器无宿主机级锁频权限**（`nvidia-smi -lgc` 返回 `does not have permission to change clocks`），此环境无法执行。故 `dvfs_controller.ALPHA/BETA` 保持默认值，**待可锁频环境（宿主机/受控机）跑 `frequency_sweep.py` 后回填**。
 
 ## 许可
 
