@@ -176,7 +176,7 @@ python compress_images.py         # （可选）压缩图片减小体积
 npm run pack                      # 打包 Windows EXE
 ```
 
-Attribution and License · 署名与许可
+## Attribution and License · 署名与许可
 This repository is distributed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International. The controlling terms are in LICENSE; the complete three-stage creator and generation attribution chain is in NOTICE.
 
 本仓库以 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议发布。完整法律条款见 LICENSE，三阶段创作者与生成过程署名链见 NOTICE。
