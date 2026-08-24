@@ -84,13 +84,16 @@ LLM推理优化/
 
 | 优化 | 场景 | 结果 |
 |------|------|------|
-| **KV Cache** | CPU, prompt 128 / 生成 300 token | 解码总耗时 3.01s → 0.84s，**3.57×** |
+| **KV Cache** | CPU, prompt 128 / 生成 300 | 解码总耗时 3.01s → 0.84s，**3.57×** |
+| **KV Cache** | GPU A800, 891K 小模型, 64→128 | 0.43s → 0.59s，**0.73×（负优化）** |
 | **量化** | FP32 vs INT8/INT4/FP8 | 存储压缩 4–5×，PPL 均 ≈414 几乎不变 |
 | **投机解码** | γ=4, 96 token | target 前向 1.0 → **0.20 次/token**（≈5× 计算量下降） |
 | **批量解码** | batch 1→16 | 吞吐 269 → 4379 tokens/s |
 | **continuous batching** | 64 请求 | 吞吐 342 → 1271 tokens/s（vs 串行 ~4×） |
 
 > 各报告细节见 `reports/*.md`：`kv_cache_report.md`、`quant_compare_report.md`、`spec_report.md`、`serving_report.md`、`cont_report.md`。
+
+> ⚠️ **诚实说明（KV Cache 的 GPU 反例）**：KV Cache 的复杂度优势（O(T)→O(1)）在 **CPU / 长序列 / 大模型** 等"重算代价高"的场景才兑现（CPU 下 3.57×）；但本次在 **A800 GPU + 891K 小模型 + 短序列（64→128）** 实测**反而更慢（0.73×）**——GPU 并行重算很快，而 KV Cache 的显存读写 / 索引开销反超重算收益。这提醒我们：**优化需结合硬件与规模评估，而非盲目套用**。详见 [`reports/kv_cache_report.md`](reports/kv_cache_report.md)。
 
 ---
 
