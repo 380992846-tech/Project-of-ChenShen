@@ -16,6 +16,7 @@
 | `DVFSController` | 动态调频 + 功耗封顶 + **真正锁频**（`nvidia-smi -lgc`）+ **二维 ML 调频**（计算利用率 × 显存带宽利用率）+ 温度感知降频 |
 | `ThermalManager` | 温度采集、热状态分级、过热降频、可回收废热度量 |
 | `GPUPowerOptimizer` | 一键保守功耗优化（NVIDIA/AMD），锁频/复位用真实 `-lgc`/`-rgc` |
+| `autodl_boot.sh` | **AutoDL 一键采集**：装依赖 → vLLM 拿真实吞吐 → 采功耗 → 算 perf-per-watt → 拟合校准 |
 | CLI 遥测仪表盘 | 实时展示温度/功耗/频率/利用率/累计能耗/性能功耗比 |
 
 ## 运行模式
@@ -53,6 +54,9 @@ python scripts/estimate_cost.py --params 671 --tokens 14800 --gpu H100 --dc nmg
 python scripts/collect_power.py --simulate --duration 20        # 无 GPU 演示
 python scripts/collect_power.py --duration 60 --chart           # 真机采集 + 曲线 PNG
 python scripts/collect_power.py --duration 60 --facility-power-w 120000 --it-power-w 40000  # 估算 PUE
+
+# AutoDL 一键：装依赖 → vLLM 拿真实吞吐 → 采功耗 → 算 perf-per-watt → 拟合校准
+bash scripts/autodl_boot.sh                                     # 模型/时长可设 MODEL=... DURATION=60
 ```
 
 安装真实硬件依赖：`pip install -r requirements.txt`（缺 `pynvml` 会自动降级为模拟）。
@@ -73,7 +77,7 @@ GPU System/
 │   ├── core/thermal_manager.py  # 热管理 + 可回收废热
 │   ├── core/power_optimizer.py  # 通用功耗优化
 │   └── configs/gear_config.yaml # 配置
-├── scripts/                     # calibrate / run_benchmark / estimate_cost / collect_power(实测曲线)
+├── scripts/                     # calibrate / run_benchmark / estimate_cost / collect_power / autodl_boot(一键采集)
 ├── tests/                       # pytest（无需 GPU/numpy）
 ├── models/                      # ML 能效模型占位
 ├── archive/                     # 早期"烤串"玩笑版归档
