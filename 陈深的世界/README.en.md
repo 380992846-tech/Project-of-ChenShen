@@ -202,3 +202,6 @@ node build_localized.js           # (optional) re-run image localization
 python compress_images.py         # (optional) compress images to reduce size
 npm run pack                      # package a Windows EXE
 ```
+
+## Attribution and License
+This repository is distributed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International. The controlling terms are in LICENSE; the complete three-stage creator and generation attribution chain is in NOTICE.
