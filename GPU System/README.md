@@ -145,6 +145,30 @@ ruff check software tests
 > 这是一组**受限环境下的真实观测**：虽无法拟合 `P≈α·f^β`（频率不可控），但清晰呈现了"算力↑ → 功耗↑"的
 > 正相关趋势，可用于能效/热设计讨论；α/β 仍需可锁频环境校准。
 
+## 🌐 三位一体闭环（吞吐 · 延迟 · 功耗）
+
+在 **A800 + vLLM 0.7.0** serving `Qwen/Qwen2-7B-Instruct`（8 并发 · 100 请求 · max_tokens 128）实测，
+用 `scripts/e2e_bench.py` 同时采集**吞吐 / 延迟 / 功耗**：
+
+| 指标 | 值 |
+|---|---|
+| 吞吐 | **605.8 tokens/s** |
+| 延迟 p50 / p99 | **1665 / 1785 ms** |
+| 平均功耗 | **266.6 W** |
+| **perf-per-watt** | **2.273 tok/s/W** |
+
+> 闭环 = **真 vLLM serving**（工业级 continuous batching）+ `collect_power` 能效采集 + `e2e_bench` 吞吐/延迟统计，
+> 三位一体。配合上一节"实测数据"的空闲/负载对照，能看到 serving 负载下的功耗-吞吐-延迟全貌。
+
+### ⚠️ 诚实说明：投机解码（vLLM 0.7.0）暂未闭环
+尝试过两种投机解码，均未能在此环境启用：
+- **外部 GPU draft**（`--speculative-model Qwen/Qwen2-0.5B-Instruct`）：`spec_decode_worker._vocab_size` 断言失败
+  （target 与 draft 的 **vocab_size 不一致**，vLLM 0.7 要求完全一致）；
+- **n-gram 投机**（`--speculative-method ngram`）：vLLM 0.7.0 CLI **不识别该参数**（`unrecognized arguments`）。
+
+→ 当前闭环为**无投机 vLLM serving + 能效采集**；投机解码待**升级 vLLM（支持 EAGLE / Medusa 或正确的 draft vocab 对齐）后验证**。
+本系统**不提供未经实测的投机加速比**。
+
 ## 许可
 
 MIT（见 [`LICENSE.md`](LICENSE.md)）。
