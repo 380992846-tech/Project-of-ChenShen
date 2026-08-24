@@ -205,3 +205,6 @@ npm run pack                      # package a Windows EXE
 
 ## Attribution and License
 This repository is distributed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International. The controlling terms are in LICENSE; the complete three-stage creator and generation attribution chain is in NOTICE.
+
+DeepSeek and related names or logos are the property of their respective owners. This fan-made non-commercial project does not imply official endorsement or affiliation.
+
