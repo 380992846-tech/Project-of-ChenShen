@@ -8,14 +8,17 @@
 
 ```text
 ┌───────────────────────────────────────────────────────────┐
-│  入口层  cli.py  (dsh-assistant voice|camel)               │
+│  入口层  cli.py  (dsh-assistant voice|camel|agent|web)     │
 │  解析参数 → 加载配置 → 初始化日志 → 分发到具体助手           │
 ├───────────────────────────────────────────────────────────┤
-│  应用层  assistant.py · camel_agent.py                     │
-│  编排：命令处理 + 对话循环                                  │
+│  应用层  assistant.py · camel_agent.py · agentic.py        │
+│  编排：命令处理 + 对话循环 + ReAct 工具智能体                │
 ├───────────────────────────────────────────────────────────┤
-│  能力层  llm.py · tts.py · memory.py                       │
-│  LLM 调用 · 语音播报 · 记忆持久化                            │
+│  能力层  llm.py · tts.py · memory.py · tools.py            │
+│  LLM 调用(流式/工具) · 语音播报 · 记忆持久化 · 工具注册表     │
+├───────────────────────────────────────────────────────────┤
+│  Web 层  web.py · web/index.html                           │
+│  FastAPI + SSE 流式 + 玻璃拟态前端（多模型/多操作）          │
 ├───────────────────────────────────────────────────────────┤
 │  基础层  config.py · prompts.py · logging_setup.py          │
 │  配置/提示词/日志（无外部依赖）                              │
@@ -29,12 +32,15 @@
 | `config.py` | 集中配置、`.env` 加载、校验 | python-dotenv |
 | `prompts.py` | 系统提示词常量 | 无 |
 | `logging_setup.py` | 日志初始化 | 无 |
-| `llm.py` | DeepSeek chat 封装（超时+重试） | openai（懒加载） |
+| `llm.py` | DeepSeek chat / stream / function-calling（超时+重试+model 覆盖） | openai（懒加载） |
 | `tts.py` | Edge TTS 播报（后台线程） | edge-tts（懒加载） |
-| `memory.py` | 记忆持久化（线程安全+原子写） | 无 |
-| `assistant.py` | 语音助手编排 | 无（组合上面的能力） |
-| `camel_agent.py` | CAMEL 对话智能体 | camel-ai（懒加载） |
-| `cli.py` | 命令行入口 | 无 |
+| `memory.py` | 记忆持久化（线程安全+原子写+覆盖） | 无 |
+| `tools.py` | 确定性工具注册表（安全计算器/时钟/骰子） | 无 |
+| `assistant.py` | 语音助手编排（流式 + /rewrite） | 无（组合上面的能力） |
+| `camel_agent.py` | CAMEL 对话智能体（/rewrite） | camel-ai（懒加载） |
+| `agentic.py` | 工具调用 ReAct 智能体 | 无 |
+| `web.py` | FastAPI 后端（SSE 流式/多模型/重写/TTS） | fastapi+uvicorn（懒加载） |
+| `cli.py` | 命令行入口（voice|camel|agent|web） | 无 |
 
 ## 数据流（语音助手一次对话）
 

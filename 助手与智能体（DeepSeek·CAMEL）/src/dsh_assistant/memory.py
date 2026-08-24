@@ -81,3 +81,28 @@ class MemoryStore:
     def is_empty(self) -> bool:
         with self._lock:
             return len(self.messages) <= 1
+
+    def replace_last_assistant(self, content: str) -> bool:
+        """原地改写（覆盖）最后一条助手消息；找不到则返回 False。"""
+        with self._lock:
+            for i in range(len(self.messages) - 1, -1, -1):
+                if self.messages[i].get("role") == "assistant":
+                    self.messages[i]["content"] = content
+                    self._save()
+                    return True
+            return False
+
+    def last_pair(self) -> tuple[str, str] | None:
+        """返回最近一轮的 (用户消息, 助手消息)；缺任一返回 None。"""
+        assistant = None
+        user = None
+        with self._lock:
+            for msg in reversed(self.messages):
+                role = msg.get("role")
+                if role == "assistant" and assistant is None:
+                    assistant = msg.get("content", "")
+                elif role == "user" and user is None:
+                    user = msg.get("content", "")
+                if assistant is not None and user is not None:
+                    return user, assistant
+            return None

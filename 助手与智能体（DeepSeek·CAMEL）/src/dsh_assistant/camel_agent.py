@@ -9,7 +9,8 @@ import logging
 from typing import Any
 
 from .config import Settings
-from .prompts import CAMEL_HELP
+from .llm import LLMClient, LLMError
+from .prompts import CAMEL_HELP, REWRITE_INSTRUCTION
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,27 @@ class CamelChatAgent:
         self.history: list[tuple[str, str]] = []
         self._camel: dict[str, Any] | None = None
         self._agent: Any | None = None
+        self.rewrite_llm = LLMClient(settings)
+
+    def rewrite_last(self) -> str | None:
+        """重写并覆盖最后一条助手回复；历史不足时返回 None。"""
+        if len(self.history) < 2:
+            return None
+        question, previous = self.history[-2], self.history[-1]
+        messages = [
+            {"role": "system", "content": self.settings.camel_system_prompt},
+            {
+                "role": "user",
+                "content": f"上一轮用户问题：\n{question[1]}\n\n上一轮助手回复：\n{previous[1]}\n\n{REWRITE_INSTRUCTION}",
+            },
+        ]
+        try:
+            new = self.rewrite_llm.chat(messages)
+        except LLMError as exc:
+            logger.warning("重写失败: %s", exc)
+            return None
+        self.history[-1] = ("陈深", new)
+        return new
 
     def _ensure_camel(self) -> dict[str, Any]:
         """懒加载 camel-ai 并缓存类对象。"""
@@ -96,6 +118,13 @@ class CamelChatAgent:
             if user_input == "/clear":
                 self.history.clear()
                 print("陈深: 记忆清空啦，重新开始。（眨眨眼）")
+                continue
+            if user_input == "/rewrite":
+                new = self.rewrite_last()
+                if new is None:
+                    print("陈深: 还没什么可重写的，再说点什么吧。（歪头）")
+                else:
+                    print(f"陈深·改写: {new}")
                 continue
             try:
                 reply = self.chat(user_input)

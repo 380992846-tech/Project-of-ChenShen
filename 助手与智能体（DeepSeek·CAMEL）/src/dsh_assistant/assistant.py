@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from .config import Settings
 from .llm import LLMClient, LLMError
 from .memory import MemoryStore
-from .prompts import VOICE_HELP
+from .prompts import REWRITE_INSTRUCTION, VOICE_HELP
 from .tts import TTSEngine
 
 logger = logging.getLogger(__name__)
@@ -46,6 +46,46 @@ class VoiceAssistant:
         self.memory.add("assistant", reply)
         return reply
 
+    def chat_stream(self, text: str, display: bool = True) -> str:
+        """流式对话：逐段打印（可选）并返回完整回复，同时写入记忆。"""
+        self.memory.add("user", text)
+        parts: list[str] = []
+        try:
+            for chunk in self.llm.stream(self.memory.snapshot()):
+                parts.append(chunk)
+                if display:
+                    print(chunk, end="", flush=True)
+            if display:
+                print()
+        except LLMError as exc:
+            logger.warning("流式对话失败: %s", exc)
+            reply = f"兄弟，我遇到点问题：{exc}。你先忙，我重启一下就好。"
+        else:
+            reply = "".join(parts).strip() or "（这次我没说出话来…）"
+        self.memory.add("assistant", reply)
+        return reply
+
+    def rewrite_last(self) -> str | None:
+        """重写并覆盖最后一条助手回复；无足量上下文时返回 None。"""
+        pair = self.memory.last_pair()
+        if pair is None:
+            return None
+        question, previous = pair
+        messages = [
+            {"role": "system", "content": self.settings.voice_system_prompt},
+            {
+                "role": "user",
+                "content": f"上一轮用户问题：\n{question}\n\n上一轮助手回复：\n{previous}\n\n{REWRITE_INSTRUCTION}",
+            },
+        ]
+        try:
+            new = self.llm.chat(messages)
+        except LLMError as exc:
+            logger.warning("重写失败: %s", exc)
+            return None
+        self.memory.replace_last_assistant(new)
+        return new
+
     def speak(self, text: str) -> None:
         self.tts.speak(text)
 
@@ -65,6 +105,13 @@ class VoiceAssistant:
         if cmd == "/history":
             self._print_history(5)
             return True
+        if cmd == "/rewrite":
+            new = self.rewrite_last()
+            if new is None:
+                print("兄弟，上一轮还没什么可重写的，先说点什么吧。")
+            else:
+                print(f"🤖 小DeepSeek（已覆盖）：{new}")
+            return True
         return False
 
     def _print_history(self, n: int) -> None:
@@ -76,7 +123,8 @@ class VoiceAssistant:
     def run(self) -> None:
         print(f"🎓 小DeepSeek（贵系人）已启动。我的声音是：{self.settings.voice}")
         print(self.greet())
-        print("💬 输入 /help 查看命令，输入 /quit 退出。\n")
+        stream_note = "流式" if self.settings.stream_mode else "整段"
+        print(f"💬 输入 /help 查看命令，输入 /quit 退出。（{stream_note}输出）\n")
         while True:
             try:
                 user_input = input("\n🎤 你：").strip()
@@ -88,6 +136,10 @@ class VoiceAssistant:
                 if user_input.strip().lower() in ("quit", "/quit", "exit"):
                     break
                 continue
-            reply = self.chat(user_input)
-            print(f"🤖 小DeepSeek：{reply}")
+            if self.settings.stream_mode:
+                print("🤖 小DeepSeek：", end="", flush=True)
+                reply = self.chat_stream(user_input)
+            else:
+                reply = self.chat(user_input)
+                print(f"🤖 小DeepSeek：{reply}")
             self.speak(reply)

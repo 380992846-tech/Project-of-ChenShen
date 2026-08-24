@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小深 · 多模型助手</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; }
+  body { background: #0b0710; color: #e6e0f0; height: 100vh; display: flex;
+    justify-content: center; align-items: center; padding: 20px; }
+  .app-container { width: 1440px; max-width: 100%; height: 920px; max-height: 98vh;
+    background: rgba(22,16,35,0.45); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-radius: 40px; box-shadow: 0 25px 50px -8px rgba(0,0,0,0.9), 0 0 0 1px rgba(160,120,255,0.2);
+    display: flex; flex-direction: column; overflow: hidden; position: relative;
+    background-size: cover; background-position: center; }
+  .app-container::before { content: ''; position: absolute; inset: 0;
+    background: rgba(10,6,20,0.25); backdrop-filter: blur(4px); pointer-events: none; z-index: 0; }
+  .app-container > * { position: relative; z-index: 1; }
+  /* 导航 */
+  .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px;
+    border-bottom: 1px solid rgba(180,140,255,0.15); background: rgba(12,8,22,0.25); flex-shrink: 0; flex-wrap: wrap; gap: 8px; }
+  .logo-area { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { background: linear-gradient(145deg,#b28aff,#7a4bff); width: 34px; height: 34px;
+    border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px;
+    color: #f0ecff; box-shadow: 0 6px 14px rgba(90,40,200,0.6); }
+  .logo-text { font-weight: 700; font-size: 18px; letter-spacing: 1px;
+    background: linear-gradient(to right,#d9caff,#b28aff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .logo-text small { font-weight: 400; font-size: 11px; color: #9480c0; background: none;
+    -webkit-background-clip: unset; background-clip: unset; margin-left: 4px; }
+  .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .control-box { display: flex; align-items: center; gap: 6px; background: rgba(30,20,55,0.4);
+    padding: 4px 12px; border-radius: 40px; border: 1px solid rgba(160,120,255,0.15); }
+  .control-box label { font-size: 11px; color: #b3a1d4; }
+  select, input.text { background: rgba(10,6,20,0.45); border: 1px solid rgba(160,120,255,0.2);
+    border-radius: 10px; padding: 5px 8px; color: #e6def5; font-size: 12px; outline: none; }
+  select option { background: #16102b; }
+  .mode-btn { background: rgba(130,70,255,0.15); border: 1px solid rgba(160,120,255,0.2); border-radius: 30px;
+    padding: 5px 14px; font-size: 12px; color: #cbb8f0; cursor: pointer; transition: 0.2s; }
+  .mode-btn.active { background: rgba(130,70,255,0.5); border-color: #b28aff; color: #fff; box-shadow: 0 2px 14px rgba(130,70,255,0.4); }
+  .mode-btn:hover { background: rgba(130,70,255,0.35); }
+  /* 消息区 */
+  .chat-area { flex: 1; overflow-y: auto; padding: 22px 28px; display: flex; flex-direction: column; gap: 14px; }
+  .chat-area::-webkit-scrollbar { width: 5px; }
+  .chat-area::-webkit-scrollbar-thumb { background: #4e3a78; border-radius: 10px; }
+  .msg { max-width: 78%; padding: 12px 16px; border-radius: 18px; line-height: 1.7;
+    font-size: 14px; white-space: pre-wrap; word-break: break-word; box-shadow: 0 3px 16px rgba(0,0,0,0.3); }
+  .msg.user { align-self: flex-end; background: linear-gradient(145deg,#7a4bff,#5a2bda); color: #f3eeff;
+    border-bottom-right-radius: 6px; }
+  .msg.assistant { align-self: flex-start; background: rgba(33,22,58,0.5); color: #e6def5;
+    border: 1px solid rgba(160,120,255,0.12); border-bottom-left-radius: 6px; }
+  .msg.error { border-color: rgba(220,90,120,0.4); color: #ffb3c0; }
+  .msg .role-tag { font-size: 10px; color: #9480c0; margin-bottom: 4px; display: flex; gap: 6px; align-items: center; }
+  .msg.user .role-tag { color: #cfbaff; }
+  .cursor { display: inline-block; width: 8px; height: 14px; background: #b28aff; margin-left: 2px;
+    animation: blink 0.9s infinite; vertical-align: text-bottom; }
+  @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0; } }
+  /* 输入区 */
+  .input-bar { flex-shrink: 0; padding: 14px 24px 18px; border-top: 1px solid rgba(160,120,255,0.12);
+    background: rgba(12,8,22,0.25); display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+  .input-field { flex: 1; background: rgba(20,12,38,0.5); border: 1px solid rgba(130,90,210,0.2);
+    border-radius: 18px; padding: 12px 16px; color: #e6def5; font-size: 14px; resize: none; outline: none;
+    min-height: 48px; max-height: 140px; line-height: 1.5; }
+  .input-field:focus { border-color: #9e7aff; }
+  .glass-btn { background: rgba(255,255,255,0.06); backdrop-filter: blur(8px); border: 1px solid rgba(160,120,255,0.15);
+    border-radius: 30px; padding: 11px 18px; font-size: 13px; color: #cbb8f0; cursor: pointer; transition: 0.25s;
+    display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .glass-btn:hover { background: rgba(255,255,255,0.12); border-color: #b28aff; transform: translateY(-1px); }
+  .glass-btn.primary { background: linear-gradient(145deg,#7a4bff,#5a2bda); border-color: #7a4bff; color: #fff; }
+  .glass-btn.primary:hover { background: linear-gradient(145deg,#8a5bff,#6a3bda); }
+  .glass-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+    background: rgba(30,20,60,0.9); backdrop-filter: blur(10px); padding: 10px 26px; border-radius: 40px;
+    border: 1px solid rgba(160,120,255,0.2); color: #e6def5; font-size: 13px; z-index: 999; opacity: 0;
+    transition: opacity 0.4s; pointer-events: none; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+  .toast.show { opacity: 1; }
+  .empty-tip { align-self: center; margin-top: 30px; color: #7f6aac; text-align: center; font-size: 13px; line-height: 1.9; }
+  @media (max-width: 820px) {
+    .navbar { flex-direction: column; align-items: stretch; gap: 6px; padding: 8px 12px; }
+    .nav-controls { flex-wrap: wrap; }
+    .app-container { height: 98vh; border-radius: 24px; }
+    .input-bar { padding: 10px 12px 14px; }
+    .chat-area { padding: 14px 16px; }
+    .msg { max-width: 92%; }
+  }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="navbar">
+    <div class="logo-area">
+      <div class="logo-icon"><i class="fas fa-robot"></i></div>
+      <div class="logo-text">小深 · 多模型助手 <small>DeepSeek V4</small></div>
+    </div>
+    <div class="nav-controls">
+      <div class="control-box">
+        <label><i class="fas fa-microchip"></i> 模型</label>
+        <select id="modelSelect"></select>
+        <input class="text" id="modelIdInput" type="text" placeholder="模型 ID" title="API 模型标识（可改）">
+      </div>
+      <div class="control-box">
+        <label><i class="fas fa-cog"></i> 操作</label>
+        <button class="mode-btn active" data-mode="chat">聊天</button>
+        <button class="mode-btn" data-mode="agent">工具智能体</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="chat-area" id="chatArea">
+    <div class="empty-tip" id="emptyTip">
+      <i class="fas fa-sparkles" style="color:#b28aff;"></i> 你好，我是小深。<br>选择上面的模型与操作开始对话；想反悔就把上一条「覆盖」掉。
+    </div>
+  </div>
+
+  <div class="input-bar">
+    <textarea class="input-field" id="input" placeholder="说点什么…（Enter 发送，Shift+Enter 换行）"></textarea>
+    <button class="glass-btn" id="rewriteBtn" title="改写并覆盖上一条回复"><i class="fas fa-edit"></i></button>
+    <button class="glass-btn" id="ttsBtn" title="播报最后一条回复"><i class="fas fa-volume-up"></i></button>
+    <button class="glass-btn" id="clearBtn" title="清空当前模式"><i class="fas fa-trash-alt"></i></button>
+    <button class="glass-btn primary" id="sendBtn"><i class="fas fa-paper-plane"></i> 发送</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  // ===== 状态 =====
+  const sessionId = (function () {
+    let s = localStorage.getItem('xs_session');
+    if (!s) { s = 's_' + Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36); localStorage.setItem('xs_session', s); }
+    return s;
+  })();
+  let mode = 'chat';
+  let models = [];           // [{key,label,model_id}]
+  let currentModelKey = null;
+  const messages = {};       // mode -> [{role,content}]
+  const MAX_MSGS = 120;
+
+  // ===== DOM =====
+  const chatArea = document.getElementById('chatArea');
+  const emptyTip = document.getElementById('emptyTip');
+  const inputEl = document.getElementById('input');
+  const modelSelect = document.getElementById('modelSelect');
+  const modelIdInput = document.getElementById('modelIdInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const rewriteBtn = document.getElementById('rewriteBtn');
+  const ttsBtn = document.getElementById('ttsBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const toastEl = document.getElementById('toast');
+
+  let toastTimer = null;
+  function toast(msg) { toastEl.textContent = msg; toastEl.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400); }
+
+  function currentModelId() { return modelIdInput.value.trim(); }
+
+  // ===== 渲染 =====
+  function render() {
+    const list = messages[mode] || [];
+    emptyTip.style.display = list.length ? 'none' : 'block';
+    chatArea.querySelectorAll('.msg').forEach(el => el.remove());
+    list.forEach(m => appendBubble(m.role, m.content, false));
+    scrollBottom();
+  }
+  function appendBubble(role, content, scroll = true) {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + role;
+    const tag = document.createElement('div');
+    tag.className = 'role-tag';
+    tag.textContent = role === 'user' ? '你' : '小深';
+    const body = document.createElement('div');
+    body.className = 'content';
+    body.textContent = content;
+    wrap.appendChild(tag); wrap.appendChild(body);
+    chatArea.appendChild(wrap);
+    if (scroll) scrollBottom();
+    return body;
+  }
+  function scrollBottom() { chatArea.scrollTop = chatArea.scrollHeight; }
+
+  function saveState() { try { localStorage.setItem('xs_msgs', JSON.stringify(messages)); } catch (e) {} }
+  function loadState() { try {
+    const raw = localStorage.getItem('xs_msgs');
+    if (raw) { const d = JSON.parse(raw); Object.assign(messages, d); }
+  } catch (e) {} }
+
+  // ===== 元数据 =====
+  async function loadMeta() {
+    try {
+      const r = await fetch('/api/meta');
+      const data = await r.json();
+      models = data.models || [];
+      const modes = data.modes || [];
+      // 填模型
+      modelSelect.innerHTML = '';
+      models.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.key; opt.textContent = m.label;
+        modelSelect.appendChild(opt);
+      });
+      if (models.length) onModelChange();
+      // 填操作按钮
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => setMode(btn.dataset.mode));
+      });
+    } catch (e) { toast('⚠️ 加载模型目录失败'); }
+  }
+  function onModelChange() {
+    const key = modelSelect.value;
+    currentModelKey = key;
+    const m = models.find(x => x.key === key);
+    modelIdInput.value = m ? (m.model_id || '') : '';
+  }
+  modelSelect.addEventListener('change', onModelChange);
+  modelIdInput.addEventListener('input', () => { /* 用户手改标识无需额外动作 */ });
+
+  function setMode(m) {
+    if (m === mode) return;
+    mode = m;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+    render();
+  }
+
+  // ===== 发送 =====
+  function addMessage(role, content) {
+    const list = messages[mode] = messages[mode] || [];
+    list.push({ role, content });
+    if (list.length > MAX_MSGS) list.splice(0, list.length - MAX_MSGS);
+    saveState();
+  }
+
+  async function send() {
+    const text = inputEl.value.trim();
+    if (!text) return;
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    addMessage('user', text);
+    appendBubble('user', text);
+    const body = appendBubble('assistant', '');
+    body.appendChild(cursor());
+    sendBtn.disabled = true; rewriteBtn.disabled = true;
+
+    const req = { session: sessionId, mode, model: currentModelId(), message: text };
+    let acc = '';
+    try {
+      const resp = await fetch('/api/chat/stream', { method: 'POST',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        let idx;
+        while ((idx = buf.indexOf('\n\n')) >= 0) {
+          const block = buf.slice(0, idx); buf = buf.slice(idx + 2);
+          const line = block.split('\n').find(x => x.startsWith('data:'));
+          if (!line) continue;
+          const payload = JSON.parse(line.slice(5));
+          if (payload.type === 'text') {
+            acc += payload.data;
+            body.textContent = acc;
+            scrollBottom();
+          } else if (payload.type === 'error') {
+            body.className = 'msg assistant error';
+            body.textContent = payload.data;
+          }
+        }
+      }
+    } catch (e) {
+      acc = '（连接出错：' + e.message + '）';
+      body.textContent = acc;
+      body.className = 'msg assistant error';
+    } finally {
+      body.querySelector('.cursor')?.remove();
+      sendBtn.disabled = false; rewriteBtn.disabled = false;
+      if (acc) addMessage('assistant', acc);
+      scrollBottom();
+    }
+  }
+  function cursor() {
+    const c = document.createElement('span'); c.className = 'cursor'; return c;
+  }
+
+  // ===== 重写（覆盖上一条）=====
+  async function rewrite() {
+    const list = messages[mode] || [];
+    if (list.length < 2) { toast('⚠️ 还没有回复可重写'); return; }
+    rewriteBtn.disabled = true;
+    try {
+      const r = await fetch('/api/rewrite', { method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session: sessionId, mode, model: currentModelId() }) });
+      const data = await r.json();
+      if (data.reply) {
+        const last = list[list.length - 1];
+        last.content = data.reply;
+        saveState();
+        render();
+        toast('✅ 已覆盖上一条回复');
+      } else {
+        toast('⚠️ 无可重写的回复');
+      }
+    } catch (e) { toast('⚠️ 重写失败'); }
+    finally { rewriteBtn.disabled = false; }
+  }
+
+  // ===== 播报 =====
+  async function speak() {
+    const list = messages[mode] || [];
+    const last = [...list].reverse().find(m => m.role === 'assistant');
+    if (!last) { toast('⚠️ 还没有可播报的回复'); return; }
+    ttsBtn.disabled = true;
+    try {
+      const r = await fetch('/api/tts', { method: 'POST',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: last.content }) });
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.onended = () => { URL.revokeObjectURL(url); ttsBtn.disabled = false; };
+      audio.onerror = () => { toast('⚠️ 播报失败'); URL.revokeObjectURL(url); ttsBtn.disabled = false; };
+      audio.play();
+    } catch (e) { toast('⚠️ 播报失败'); ttsBtn.disabled = false; }
+  }
+
+  // ===== 清空 =====
+  async function clearAll() {
+    messages[mode] = [];
+    saveState();
+    try {
+      await fetch('/api/clear', { method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session: sessionId, mode }) });
+    } catch (e) {}
+    render();
+    toast('🧹 已清空');
+  }
+
+  // ===== 事件 =====
+  sendBtn.addEventListener('click', send);
+  rewriteBtn.addEventListener('click', rewrite);
+  ttsBtn.addEventListener('click', speak);
+  clearBtn.addEventListener('click', clearAll);
+  inputEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+  inputEl.addEventListener('input', function () {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+  });
+
+  // ===== 启动 =====
+  loadState();
+  render();
+  loadMeta();
+})();
+</script>
+</body>
+</html>

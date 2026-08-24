@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dsh-assistant"
-version = "0.1.0"
-description = "DeepSeek · CAMEL 助手与智能体（语音助手 + 对话智能体）"
+version = "0.2.0"
+description = "DeepSeek · CAMEL 助手与智能体（多模型 Web 界面 + 语音助手 + 工具智能体）"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -19,6 +19,7 @@ dependencies = [
 
 [project.optional-dependencies]
 camel = ["camel-ai>=0.2"]
+web = ["fastapi>=0.110", "uvicorn>=0.27"]
 dev = ["pytest>=7", "ruff>=0.4", "mypy>=1.8"]
 
 [project.scripts]
@@ -26,6 +27,9 @@ dsh-assistant = "dsh_assistant.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+dsh_assistant = ["web/*.html"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
