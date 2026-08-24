@@ -30,11 +30,16 @@ def burn(seconds: float, shape: int) -> None:
     import torch
 
     torch.cuda.init()
-    a = torch.rand(shape, shape, device="cuda")
-    b = torch.rand(shape, shape, device="cuda")
+    # 用 FP16 打满张量核（fp32 只有 fp16 的约 1/15 算力，无法榨干 A800）
+    a = torch.rand(shape, shape, device="cuda", dtype=torch.float16)
+    b = torch.rand(shape, shape, device="cuda", dtype=torch.float16)
+    for _ in range(10):            # 预热，避免启动开销
+        _ = a @ b
+    torch.cuda.synchronize()
     end = time.time() + seconds
     while time.time() < end:
-        _ = a @ b
+        for _ in range(4):         # 一次循环内连续多次，让 GPU 持续满载
+            _ = a @ b
     torch.cuda.synchronize()
     del a, b
     torch.cuda.empty_cache()
@@ -97,8 +102,9 @@ def main() -> int:
             print("  ⚠️ BETA<=0 异常：数据不可靠，勿回填。")
     else:
         print("⚠️ 各档频率几乎恒定（GPU 自动睿频到满频），无法拟合「频率→功耗」关系。")
-        print("   需要物理裸机/可锁频环境跑 frequency_sweep.py 才能得到可信 ALPHA/BETA。")
-        print("   本脚本产出的是「满载稳态(频率,功耗)」观测，可作参考。")
+        print("   本环境由于锁频限制，改为采集「算力规模(矩阵大小) 与 功耗」的关系。")
+        print("   该数据可用于验证负载与热设计功耗(TDP)的物理相关性，是受限环境下的有效观测。")
+        print("   如需可信 ALPHA/BETA，请在物理裸机/可锁频环境跑 frequency_sweep.py。")
     print("=" * 46)
     return 0
 
