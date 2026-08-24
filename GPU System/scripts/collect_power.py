@@ -35,7 +35,7 @@ from dataclasses import asdict, dataclass
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "software"))
 
-from core.dvfs_controller import NVML_AVAILABLE, DVFSController  # noqa: E402
+from core.dvfs_controller import NVML_AVAILABLE, DVFSController, PowerMode  # noqa: E402
 
 
 @dataclass
@@ -86,21 +86,29 @@ def write_csv(path: str, samples: list[PowerSample]) -> None:
             w.writerow(asdict(s))
 
 
-def summarize(samples: list[PowerSample]) -> dict:
+def summarize(samples: list[PowerSample], throughput: float | None = None) -> dict:
     powers = [s.power_w for s in samples]
     temps = [s.temperature_c for s in samples]
     if not samples:
         return {"count": 0, "avg_power_w": 0.0, "peak_power_w": 0.0,
-                "peak_temp_c": 0.0, "energy_kwh": 0.0, "duration_s": 0.0}
+                "peak_temp_c": 0.0, "energy_kwh": 0.0, "duration_s": 0.0,
+                "perf_per_watt": None}
     energy = samples[-1].energy_kwh
-    return {
+    avg_power = sum(powers) / len(powers)
+    summary = {
         "count": len(samples),
-        "avg_power_w": round(sum(powers) / len(powers), 1),
+        "avg_power_w": round(avg_power, 1),
         "peak_power_w": round(max(powers), 1),
         "peak_temp_c": round(max(temps), 1),
         "energy_kwh": round(energy, 4),
         "duration_s": round(samples[-1].t - samples[0].t, 1),
     }
+    # 性能功耗比 = 吞吐 tokens/s / 平均功耗 W（接入真实吞吐才有意义）
+    if throughput is not None and avg_power > 0:
+        summary["perf_per_watt"] = round(throughput / avg_power, 3)
+    else:
+        summary["perf_per_watt"] = None
+    return summary
 
 
 def compute_pue(facility_w: float | None, it_w: float | None) -> float | None:
@@ -117,8 +125,12 @@ def sample_real(ctrl: DVFSController, now: float) -> PowerSample:
 
 
 def run_collector(duration: float, interval: float, out_path: str,
-                  simulate: bool, facility_w: float | None, it_w: float | None) -> dict:
+                  simulate: bool, facility_w: float | None = None,
+                  it_w: float | None = None, throughput: float | None = None,
+                  mode: PowerMode | None = None) -> dict:
     ctrl = None if simulate else DVFSController(gpu_index=0, config={})
+    if ctrl is not None and mode is not None:
+        ctrl.set_power_mode(mode)
     gauge = SimulatedGauge() if simulate else None
     samples: list[PowerSample] = []
     start = time.time()
@@ -129,7 +141,7 @@ def run_collector(duration: float, interval: float, out_path: str,
         time.sleep(max(0.05, interval))
     if out_path:
         write_csv(out_path, samples)
-    summary = summarize(samples)
+    summary = summarize(samples, throughput=throughput)
     pue = compute_pue(facility_w, it_w)
     if pue is not None:
         summary["pue_estimate"] = pue
@@ -168,6 +180,7 @@ def main():
     p.add_argument("--simulate", action="store_true", help="无 GPU 时用确定性模拟数据")
     p.add_argument("--facility-power-w", type=float, help="机房总功率 (W)，用于估算 PUE")
     p.add_argument("--it-power-w", type=float, help="IT 总功率 (W)，用于估算 PUE")
+    p.add_argument("--throughput", type=float, help="平均吞吐 (tokens/s)，用于计算 perf-per-watt")
     p.add_argument("--chart", action="store_true", help="生成功率曲线 PNG（需 matplotlib）")
     args = p.parse_args()
 
@@ -181,7 +194,7 @@ def main():
 
     print(f"采集 {args.duration:.0f}s（间隔 {args.interval:.1f}s）...")
     summary = run_collector(args.duration, args.interval, args.out, args.simulate,
-                            args.facility_power_w, args.it_power_w)
+                            args.facility_power_w, args.it_power_w, args.throughput)
     print("=" * 56)
     print(f"样本数           : {summary['count']}")
     print(f"平均功耗         : {summary['avg_power_w']} W")
@@ -189,6 +202,10 @@ def main():
     print(f"峰值温度         : {summary['peak_temp_c']} °C")
     print(f"累计能耗         : {summary['energy_kwh']} kWh")
     print(f"采集时长         : {summary['duration_s']} s")
+    if summary["perf_per_watt"] is not None:
+        print(f"性能功耗比       : {summary['perf_per_watt']} tok/s/W  (吞吐 {args.throughput:.1f} tok/s)")
+    else:
+        print("性能功耗比       : 接入 --throughput（真实吞吐）后才有意义")
     if "pue_estimate" in summary:
         print(f"PUE(按给定口径)  : {summary['pue_estimate']}")
     print(f"CSV 已写        : {args.out}")
