@@ -181,6 +181,4 @@ This repository is distributed under Creative Commons Attribution-NonCommercial-
 
 本仓库以 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议发布。完整法律条款见 LICENSE，三阶段创作者与生成过程署名链见 NOTICE。
 
-Original character creator: 上善 (Pixiv). Secondary DeepSeek maid redesign: zipzip (Pixiv). Theme adaptation and UI preparation: Small-tailqwq.
-
 DeepSeek and related names or logos are the property of their respective owners. This fan-made non-commercial project does not imply official endorsement or affiliation.
