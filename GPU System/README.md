@@ -48,11 +48,18 @@ python scripts/estimate_cost.py --params 671 --tokens 14800 --gpu H100 --dc nmg
 # --dc: default(1.30) / nmg(内蒙古天然冷风, 1.15) / zhongguancun(城市机房, 1.70)
 # --network-loss: 千卡互联带宽瓶颈导致的等效效率损失(0-1, 默认0.10)
 # 显式 --pue 覆盖 --dc：python scripts/estimate_cost.py --gpu H100 --pue 1.7
+
+# 实测功率采集器（能效网格脚本）→ 输出 CSV 功率曲线
+python scripts/collect_power.py --simulate --duration 20        # 无 GPU 演示
+python scripts/collect_power.py --duration 60 --chart           # 真机采集 + 曲线 PNG
+python scripts/collect_power.py --duration 60 --facility-power-w 120000 --it-power-w 40000  # 估算 PUE
 ```
 
 安装真实硬件依赖：`pip install -r requirements.txt`（缺 `pynvml` 会自动降级为模拟）。
 
 > 🔒 **关于锁频**：`set_clock_limit` 用底层 `nvidia-smi -lgc` 真正锁定频率区间，而非仅设会被睿频回弹的偏移量；需管理员权限，失败时降级并**明确告警**（不静默）。`predict_optimal_frequency` 为二维启发式：显存忙而计算闲（访存密集）时用低频省电，计算密集时按利用率拉高频率。
+>
+> 📈 **关于实测与 PUE**：`collect_power.py` 用 NVML 实测 GPU 功耗/温度/频率写入 CSV，供画功率曲线；汇总给出平均/峰值功耗与累计能耗。真实 PUE = 机房总功率 / IT 总功率，脚本无法自行侦测机房侧数据，只能用你传入的 `--facility-power-w` 与 `--it-power-w` 按给定口径计算——**这是估算口径，不据此下能效结论**。接入真实栅格/机房功率读数后即可变成实测 PUE。
 
 > 详细 API/配置/评估方法见 `docs/`（架构/API/设计决策/FAQ）。本目录中 `scripts/` 下有 `calibrate.py`（实测拟合 `P ≈ α·f^β`）、`run_benchmark.py`（基准）、`estimate_cost.py`（训练成本估算）。
 
@@ -66,7 +73,7 @@ GPU System/
 │   ├── core/thermal_manager.py  # 热管理 + 可回收废热
 │   ├── core/power_optimizer.py  # 通用功耗优化
 │   └── configs/gear_config.yaml # 配置
-├── scripts/                     # calibrate / run_benchmark / estimate_cost
+├── scripts/                     # calibrate / run_benchmark / estimate_cost / collect_power(实测曲线)
 ├── tests/                       # pytest（无需 GPU/numpy）
 ├── models/                      # ML 能效模型占位
 ├── archive/                     # 早期"烤串"玩笑版归档

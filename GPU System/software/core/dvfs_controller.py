@@ -328,6 +328,7 @@ class DVFSController:
             "power_limit_w": self.state.power_limit,
             "core_clock_mhz": self.state.core_clock,
             "utilization_pct": self.state.utilization,
+            "memory_utilization_pct": self.state.memory_utilization,
             "energy_kwh": energy_kwh,
             "in_safe_band": in_safe_band,
             "mode": self.state.current_mode.value,
