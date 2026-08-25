@@ -160,14 +160,7 @@ ruff check software tests
 > 闭环 = **真 vLLM serving**（工业级 continuous batching）+ `collect_power` 能效采集 + `e2e_bench` 吞吐/延迟统计，
 > 三位一体。配合上一节"实测数据"的空闲/负载对照，能看到 serving 负载下的功耗-吞吐-延迟全貌。
 
-### ⚠️ 诚实说明：投机解码（vLLM 0.7.0）暂未闭环
-尝试过两种投机解码，均未能在此环境启用：
-- **外部 GPU draft**（`--speculative-model Qwen/Qwen2-0.5B-Instruct`）：`spec_decode_worker._vocab_size` 断言失败
-  （target 与 draft 的 **vocab_size 不一致**，vLLM 0.7 要求完全一致）；
-- **n-gram 投机**（`--speculative-method ngram`）：vLLM 0.7.0 CLI **不识别该参数**（`unrecognized arguments`）。
-
-→ 当前闭环为**无投机 vLLM serving + 能效采集**；投机解码待**升级 vLLM（支持 EAGLE / Medusa 或正确的 draft vocab 对齐）后验证**。
-本系统**不提供未经实测的投机加速比**。
+> ⚠️ **投机解码**：vLLM 0.7.0 下（外部 draft 因 vocab 不一致、n-gram 参数缺失）无法启用，当前闭环为**无投机 vLLM serving + 能效采集**；投机解码**待升级支持投机解码的 vLLM 后验证**，本系统不提供未经实测的投机加速比。
 
 ## 许可
 
