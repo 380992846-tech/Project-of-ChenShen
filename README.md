@@ -1,4 +1,4 @@
-# 🌌 Project of ChenShen · 万卡集群大模型的人间烟火
+# 🌌 Project of ChenShen
 
 **从零实现的大模型推理优化 · 分布式系统 · GPU 能效 · 量化交易 · 创意工坊**
 
