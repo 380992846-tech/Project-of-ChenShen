@@ -93,6 +93,26 @@ LLM推理优化/
 
 > 各报告细节见 `reports/*.md`：`kv_cache_report.md`、`quant_compare_report.md`、`spec_report.md`、`serving_report.md`、`cont_report.md`。
 
+### 📊 Benchmark 图表（`reports/`）
+
+**KV Cache 解码耗时对比**（图为 CPU 基线 3.57×；GPU 实测 0.73× 见 [`kv_cache_report.md`](reports/kv_cache_report.md)）
+![KV Cache 解码耗时](reports/kv_cache_speedup.png)
+
+**量化对比**（FP32 / INT8 / INT4 / FP8 的存储与 PPL）
+![量化对比](reports/quant_compare.png)
+
+**投机解码**（draft 预生成 γ 个候选，target 并行验证）
+![投机解码](reports/spec_speedup.png)
+
+**批量 serving 延迟**
+![serving latency](reports/serving_latency.png)
+
+**批量 serving 吞吐**
+![serving throughput](reports/serving_throughput.png)
+
+**continuous batching**
+![continuous batching](reports/cont_batching.png)
+
 > ⚠️ **诚实说明（KV Cache 的 GPU 反例）**：KV Cache 的复杂度优势（O(T)→O(1)）在 **CPU / 长序列 / 大模型** 等"重算代价高"的场景才兑现（CPU 下 3.57×）；但本次在 **A800 GPU + 891K 小模型 + 短序列（64→128）** 实测**反而更慢（0.73×）**——GPU 并行重算很快，而 KV Cache 的显存读写 / 索引开销反超重算收益。这提醒我们：**优化需结合硬件与规模评估，而非盲目套用**。详见 [`reports/kv_cache_report.md`](reports/kv_cache_report.md)。
 
 ---
