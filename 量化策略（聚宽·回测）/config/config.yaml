@@ -1,0 +1,143 @@
+# ============================================================
+# 量化系统配置 (A股 TMT 板块 · 离线可运行)
+# 说明：所有可调参数集中在此文件。settings.py 会加载本文件，
+#      并允许用环境变量（QUANT_ 前缀）覆盖。
+# ============================================================
+
+# 运行环境: offline | paper | live
+# offline: 无网络，使用确定性合成行情，用于验证流程
+# paper:    连接真实数据源（akshare 免费 A股，联网取数）用于离线/模拟研究
+# live:     接入券商实盘通道（需要 LiveBroker 适配器实现）
+environment: paper
+
+# ---------- 市场与标的相关 ----------
+market:
+  region: CN            # CN= A股
+  sector: TMT           # 目标板块：科技/媒体/通信
+  benchmark: "510300"   # 基准：沪深300 ETF
+  # 交易日历起点
+  start_date: "2015-01-01"
+  end_date: "2025-12-31"
+
+# TMT 子行业标的池：真实 A股 成分股（按 THS 行业/概念板块整理）
+# 运行时尽量用 akshare 联网拉取真实行业成分，失败/离线回退到这里的真实成分股。
+universe:
+  groups:
+    半导体:
+      - "688981"   # 中芯国际
+      - "603501"   # 韦尔股份
+      - "688012"   # 中微公司
+      - "002049"   # 紫光国微
+      - "688536"   # 思瑞浦
+      - "300661"   # 圣邦股份
+    软件服务:
+      - "600588"   # 用友网络
+      - "002230"   # 科大讯飞
+      - "688111"   # 金山办公
+      - "300454"   # 深信服
+      - "002410"   # 广联达
+      - "600845"   # 宝信软件
+    消费电子:
+      - "002475"   # 立讯精密
+      - "002241"   # 歌尔股份
+      - "600745"   # 闻泰科技
+      - "000100"   # TCL科技
+      - "601138"   # 工业富联
+      - "300433"   # 蓝思科技
+    通信设备:
+      - "000063"   # 中兴通讯
+      - "600941"   # 中国移动
+      - "300308"   # 中际旭创
+      - "002396"   # 星网锐捷
+      - "300394"   # 天孚通信
+      - "000988"   # 华工科技
+    传媒游戏:
+      - "002624"   # 完美世界
+      - "002555"   # 三七互娱
+      - "300315"   # 掌趣科技
+      - "603444"   # 吉比特
+      - "300002"   # 神州泰岳
+      - "601728"   # 中国电信
+# 标的池来源：curated=内置真实成分股；akshare=联网拉取行业成分
+universe_source: curated
+
+# ---------- 回测参数 ----------
+backtest:
+  initial_capital: 1000000   # 初始资金（元）
+  risk_free_rate: 0.02       # 无风险利率（年化）
+  cost:
+    commission: 0.00015      # 佣金
+    slippage: 0.0005         # 滑点
+    stamp_tax: 0.0005        # 印花税（卖出）
+  rebalance_freq: daily      # daily | weekly | monthly
+  # 需要自适应合成的年化波动样本，供离线模式用
+  synthetic_annual_vol: 0.30
+  synthetic_seed: 2024
+
+# ---------- 策略参数 ----------
+strategy:
+  name: tmt_rotation        # 默认策略
+  # 通用：信号参数（经全样本参数扫描后择优，见 README）
+  momentum_window: 40       # 动量窗口（扫描最优区间 40-60）
+  trend_window: 120         # 趋势过滤窗口（扫描最优 120-150）
+  top_n: 3                  # 选取动量最强的子行业数
+  # 资金流/量能 alpha 权重：0=纯动量（全样本择优）；>0 则融入资金流/OBV 强度排序。
+  # 经全样本验证，该量价资金流代理在此区间不增 alpha（反而略降），故默认 0，保留可调。
+  fund_flow_weight: 0.0
+  # 参数扫描（可选开关）
+  param_scan:
+    enabled: false
+    momentum_window: [20, 40, 60]
+    top_n: [2, 3, 4]
+
+# ---------- 风控参数 ----------
+risk:
+  max_position: 0.95        # 单标的/总仓位上限
+  target_vol: 0.12          # 目标年化波动（收紧以控回撤）
+  vol_cap: 0.25             # 波动上限（超过则压缩仓位）
+  stop_loss: 0.07           # 单笔止损
+  take_profit: 0.15         # 单笔止盈
+  max_hold_days: 30         # 最大持仓天数
+  max_drawdown_halt: 0.15   # 组合最大回撤熔断阈值（实时事中风控，收紧）
+  per_name_limit: 0.40      # 单标的权重上限
+  # 事中实时风控（InTradeRisk，经全样本调优）
+  vol_lookback: 20          # 滚动波动率窗口
+  vol_floor: 0.20           # 波动率自适应仓位下限（保底，避免降到 0）
+  halt_scale: 0.5           # 回撤熔断时的仓位比例（0.5=降到一半，避免完全清仓导致收益过度损失）
+  recover_ratio: 0.7        # 回撤恢复到该比例以上才解熔断（滞后防抖）
+
+# ---------- 数据源配置 ----------
+data:
+  cache_dir: "data_cache"   # 缓存目录
+  # 联网优先 akshare（自动区分股票/ETF，东财失败回退新浪），失败再回退合成
+  sources_priority: ["akshare", "synthetic"]
+  synthetic:
+    base_price: 100
+    annual_vol: 0.30
+    seed: 2024
+
+# ---------- 持久化 ----------
+storage:
+  sqlite_path: "quant.db"   # SQLite 数据库文件
+  snapshot_dir: "snapshots" # 每日绩效快照
+
+# ---------- 调度 ----------
+scheduler:
+  enabled: false            # 是否启用定时任务
+  data_update: "30 15 * * 1-5"    # 工作日 15:30 更新行情
+  signal_generation: "40 15 * * 1-5" # 15:40 生成信号
+  daily_report: "50 15 * * 1-5"   # 15:50 生成绩效快照
+
+# ---------- API 服务 ----------
+api:
+  host: "0.0.0.0"
+  port: 8000
+  poll_interval: 30         # 前端轮询间隔（秒）
+
+# ---------- LLM 信号解释（可选）----------
+# enabled: false 时系统用「模板化」解释，无需任何 LLM 配置。
+llm:
+  enabled: false
+  endpoint: "https://api.openai.com"
+  api_key: ""
+  model: "gpt-4o-mini"
